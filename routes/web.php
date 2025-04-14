@@ -3,6 +3,8 @@
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DivisiController;
+use App\Http\Controllers\IndexController;
+use App\Http\Controllers\IndexKategoriController;
 use App\Http\Controllers\JabatanController;
 use App\Http\Controllers\JadwalKerjaController;
 use App\Http\Controllers\JamKerjaController;
@@ -27,6 +29,16 @@ Route::get('/faces/{filename}', function ($filename) {
         abort(404);
     }
     return response()->file($path);
+});
+
+
+Route::get('/wa',function(){
+    $test = apiwa('085281411550','halo');
+
+    if($test){
+        print_r($test);
+    }
+
 });
 
 
@@ -71,7 +83,7 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
 
 
     Route::get('/landmarks', [PegawaiMasterController::class, 'landmarks'])->name('pegawai_master.landmarks');
-    
+
     Route::get('/pegawai-master/face', [PegawaiMasterController::class, 'face'])->name('pegawai_master.face');
     Route::post('/pegawai-master/face', [PegawaiMasterController::class, 'faceSave'])->name('pegawai_master.faceSave');
     Route::delete('/pegawai-master/faceDelete/{uuid}', [PegawaiMasterController::class, 'faceDelete'])->name('pegawai_master.faceDelete');
@@ -138,7 +150,9 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
 
     });
 
-    
+    Route::resource('index-kategori', IndexKategoriController::class);
+    Route::resource('index', IndexController::class);
+    Route::post('/index/import', [IndexController::class, 'import'])->name('index.import');
 
 });
 

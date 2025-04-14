@@ -26,40 +26,48 @@
                 <i class="ti ti-trash me-1 fs-5"></i> Delete All Row
               </a>
             </div>
-            <a data-url="{{route($slug.'.create')}}" href="javascript:void(0)" id="btn-add-contact" class="btn btn-primary d-flex align-items-center btn-create">
-              <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah {{$title}}
+            <a data-url="{{route('index.create')}}" href="javascript:void(0)" id="btn-add-contact" class="btn btn-primary d-flex align-items-center btn-create">
+              <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Index
             </a>
           </div>
         </div>
       </div>
 
       <div class="card card-body">
+       <div class="col-lg-4">
+            <h5>Import Data dari Excel</h5>
+            <form action="{{ route('index.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="d-flex align-items-center gap-2">
+                    <div class="flex-grow-1">
+                        <input type="file" class="form-control" id="file" name="file" accept=".xlsx, .xls" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Import</button>
+                </div>
+            </form>
+       </div>
+       <br>
         <div class="table-responsive">
-
             <table class="table table-striped" id="datatable">
                 <thead>
                   <tr>
+                      <th>No</th>
                       <th>Nama</th>
-                      <th>Username</th>
-                      <th>Role</th>
+                      <th>Index</th>
+                      <th>Grup</th>
                       <th>Opsi</th>
                   </tr>
               </thead>
-
-                  <tbody>
-                      <!-- Data will be populated via DataTables AJAX -->
-                  </tbody>
-              </table>
-
+              <tbody>
+                  <!-- Data will be populated via DataTables AJAX -->
+              </tbody>
+            </table>
         </div>
       </div>
     </div>
-  </div>
-
 </div>
 
 @endsection
-
 
 @push('scripts')
 <script>
@@ -69,22 +77,31 @@ $(document).ready(function() {
         serverSide: true,
         autoWidth: false,
         ajax: {
-            url: '{{ route($slug.'.index') }}',
+            url: '{{ route('index.index') }}',
         },
         columns: [
             {
-                data: 'name',
-                name: 'name',
+                data: null, // Tidak terkait dengan kolom tertentu
+                name: 'no', // Nama kolom untuk nomor urut
+                render: function(data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1; // Menghitung nomor urut
+                },
+                searchable: false,
+                orderable: false,
+                className: 'text-center fit-column',
             },
             {
-                data: 'username',
-                name: 'username',
+                data: 'nama',
+                name: 'nama',
             },
-
-    {
-        data: 'role',      // Tambahkan ini
-        name: 'role',       // Tambahkan ini
-    },
+            {
+                data: 'index',
+                name: 'index',
+            },
+            {
+                data: 'kategori_nama',
+                name: 'kategori.nama',
+            },
             {
                 data: 'action',
                 name: 'action',
@@ -92,10 +109,9 @@ $(document).ready(function() {
                 className: 'text-center fit-column',
             },
         ]
-
     });
 
-    $('#search_box').on('keyup', function () {
+    $('#input-search').on('keyup', function () {
         datatable
             .search(this.value)
             .draw();

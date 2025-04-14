@@ -4,14 +4,14 @@
 @section('content')
 <div class="container">
     <h1 class="mt-4">Dashboard</h1>
-    <ol class="breadcrumb mb-4">
+    {{-- <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item active">Dashboard</li>
-    </ol>
+    </ol> --}}
 
     <!-- Kartu Ringkasan -->
     <div class="row">
         <!-- Kartu Total Pegawai -->
-        <div class="col-xl-3 col-md-6">
+        {{-- <div class="col-xl-3 col-md-6">
             <div class="card bg-primary-subtle shadow-none">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center">
@@ -26,76 +26,14 @@
                         <center>
                             <span class="mb-0">Total Pegawai</span>
                         </center>
-                        {{-- <a href="{{ route('pegawai.index') }}" class="fw-bold text-primary stretched-link">
+                        <a href="{{ route('pegawai.index') }}" class="fw-bold text-primary stretched-link">
                             Lihat Detail <i class="ti ti-chevron-right"></i>
-                        </a> --}}
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
-        <!-- Kartu Hadir Hari Ini -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-success-subtle shadow-none">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="round rounded text-bg-success d-flex align-items-center justify-content-center">
-                            <i class="ti ti-check fs-7" title="Hadir Hari Ini"></i>
-                        </div>
-                        <h6 class="mb-0 ms-3 fs-7"><span id="total-absen"></span></h6>
-
-                    </div>
-                    <div class="mt-3">
-
-                        <center>
-                            <span class="mb-0">Total Kehadiran Hari Ini</span>
-                        </center>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Kartu Terlambat -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-warning-subtle shadow-none">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="round rounded text-bg-warning d-flex align-items-center justify-content-center">
-                            <i class="ti ti-clock fs-7" title="Terlambat"></i>
-                        </div>
-                        <h6 class="mb-0 ms-3 fs-7"><span id="total-terlambat"></span></h6>
-
-                    </div>
-                    <div class="mt-3">
-
-                        <center>
-                            <span class="mb-0">Total Terlambat Hari Ini</span>
-                        </center>
-
-
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Kartu Tidak Hadir -->
-        <div class="col-xl-3 col-md-6">
-            <div class="card bg-danger-subtle shadow-none">
-                <div class="card-body p-4">
-                    <div class="d-flex align-items-center">
-                        <div class="round rounded text-bg-danger d-flex align-items-center justify-content-center">
-                            <i class="ti ti-x fs-7" title="Tidak Hadir"></i>
-                        </div>
-                        <h6 class="mb-0 ms-3 fs-7"><span id="total-tidak-hadir"></span></h6>
-
-                    </div>
-                    <div class="mt-3">
-                        <center>Total Tidak Hadir Hari Ini</center>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
     {{-- <!-- Grafik dan Tabel -->

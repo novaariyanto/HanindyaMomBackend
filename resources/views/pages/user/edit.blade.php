@@ -8,33 +8,33 @@
         @method('PUT')
         <div class="mb-3">
             <label for="name" class="form-label">Nama</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="name" 
-                name="name" 
-                placeholder="Masukkan nama user" 
-                value="{{ old('name', $user->name) }}" 
+            <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                placeholder="Masukkan nama user"
+                value="{{ old('name', $user->name) }}"
                 required>
         </div>
         <div class="mb-3">
             <label for="username" class="form-label">Username</label>
-            <input 
-                type="text" 
-                class="form-control" 
-                id="username" 
-                name="username" 
-                placeholder="Masukkan username" 
-                value="{{ old('username', $user->username) }}" 
+            <input
+                type="text"
+                class="form-control"
+                id="username"
+                name="username"
+                placeholder="Masukkan username"
+                value="{{ old('username', $user->username) }}"
                 required>
         </div>
         <div class="mb-3">
             <label for="password" class="form-label">Password</label>
-            <input 
-                type="password" 
-                class="form-control" 
-                id="password" 
-                name="password" 
+            <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
                 placeholder="Kosongkan jika tidak ingin mengubah password">
         </div>
         <div class="mb-3">
@@ -42,7 +42,7 @@
             <select class="form-control" id="role" name="role" required>
                 <option value="" disabled>Pilih role</option>
                 @foreach ($roles as $role)
-                    <option value="{{ $role->name }}" 
+                    <option value="{{ $role->name }}"
                         {{ $user->roles->pluck('name')->contains($role->name) ? 'selected' : '' }}>
                         {{ ucfirst($role->name) }}
                     </option>
