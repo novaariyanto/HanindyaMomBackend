@@ -27,6 +27,7 @@ use App\Http\Controllers\RemunerasiBatchController;
 use App\Http\Controllers\RemunerasiSourceController;
 use App\Http\Controllers\DetailSourceController;
 use App\Http\Controllers\PembagianKlaimController;
+use App\Http\Controllers\AdmissionController;
 use App\Models\PegawaiMaster;
 use Illuminate\Support\Facades\Route;
 
@@ -236,9 +237,9 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::get('detail-source/get-unsynced-count/{sourceId}', [DetailSourceController::class, 'getUnsyncedCount'])->name('detail-source.get-unsynced-count');
     Route::post('detail-source/sync-batch/{sourceId}', [DetailSourceController::class, 'syncBatch'])->name('detail-source.sync-batch');
 
-    Route::get('/admission/list', [PembagianKlaimController::class, 'listAdmission'])->name('admission.list');
+    Route::get('/admission/list', [AdmissionController::class, 'listAdmission'])->name('admission.list');
+    Route::get('/admission/export-excel', [AdmissionController::class, 'exportExcel'])->name('admission.export-excel');
     Route::get('admission/detail/{id}', [PembagianKlaimController::class, 'showDetail'])->name('admission.detail');
-    Route::get('admission/add-source', [RemunerasiSourceController::class, 'addSourcebyidxdaftar'])->name('admission.add-source');
 
     // Import Admission di Detail Source
     Route::get('detail-source/admission/list', [DetailSourceController::class, 'getAdmissionList'])->name('detail-source.admission.list');

@@ -42,6 +42,11 @@
               @endphp
             </select>
           </div>
+          <div class="col-md-4 col-xl-3">
+            <button type="button" class="btn btn-success" id="btn-export-excel">
+              <i class="ti ti-file-export me-1"></i> Export Excel
+            </button>
+          </div>
         </div>
       </div>
 
@@ -52,8 +57,14 @@
                     <tr>
                         <th>No</th>
                         <th>ID Admission</th>
-                        <th>NOMR</th>
-                        <th>Tanggal Keluar</th>
+                        <th>Tanggal Verifikasi</th>
+                        <th>Jenis</th>
+                        <th>Status</th>
+                        <th>Biaya Diajukan</th>
+                        <th>Biaya Disetujui</th>
+                        <th>Biaya Riil RS</th>
+                  
+                        <th>Opsi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -67,6 +78,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
 <script>
 $(document).ready(function() {
     // Fungsi untuk mengatur opsi bulan berdasarkan tahun yang dipilih
@@ -122,14 +134,44 @@ $(document).ready(function() {
                 data: 'id_admission',
                 name: 'id_admission'
             },
-            {
-                data: 'nomr',
-                name: 'nomr'
-            },
+         
             {
                 data: 'keluarrs',
-                name: 'keluarrs'
+                name: 'keluarrs',
+                render: function(data) {
+                    return data ? moment(data).format('DD-MM-YYYY') : '-';
+                }
+            },
+            {
+                data: 'jenis',
+                name: 'jenis'
+            },
+            {
+                data: 'status',
+                name: 'status'
+            },
+            {
+                data: 'biaya_diajukan',
+                name: 'biaya_diajukan'
+            },
+            {
+                data: 'biaya_disetujui',
+                name: 'biaya_disetujui'
+            },
+            {
+                data: 'biaya_riil_rs',
+                name: 'biaya_riil_rs'
+            },
+           
+            {
+                data: 'action',
+                name: 'action'
             }
+           
+            
+            
+
+
         ]
     });
 
@@ -159,6 +201,19 @@ $(document).ready(function() {
     updateBulanOptions(defaultTahun);
     $('#filter-bulan').val(defaultBulan);
     datatable.ajax.reload();
+
+    // Fungsi untuk export Excel
+    $('#btn-export-excel').on('click', function() {
+        var bulan = $('#filter-bulan').val();
+        var tahun = $('#filter-tahun').val();
+        
+        // Buat URL dengan parameter
+        var url = '{{ route('admission.export-excel') }}';
+        url += '?bulan=' + (bulan || '') + '&tahun=' + (tahun || '');
+        
+        // Redirect ke URL export
+        window.location.href = url;
+    });
 });
 </script>
 @endpush

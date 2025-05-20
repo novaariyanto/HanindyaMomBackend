@@ -483,35 +483,7 @@ class PembagianKlaimController extends Controller
         ]
       ]);
     }
-    public function listAdmission(Request $request)
-    {
-        if ($request->ajax()) {
-            $data = Tadmission::with(['pasien','billranap','billrajal']);
-            
-            // Default filter untuk bulan dan tahun sekarang
-            $bulan = $request->get('bulan', date('n')); 
-            $tahun = $request->get('tahun', date('Y')); 
-            
-            if ($bulan && $tahun) {
-                $data->whereMonth('keluarrs', $bulan)
-                     ->whereYear('keluarrs', $tahun);
-            }
-
-            return DataTables::of($data)
-                ->addIndexColumn()
-                ->addColumn('total_tarif_rs', function ($row) {
-                    return number_format($row->total_tarif_rs, 0, ',', '.');
-                })
-                ->addColumn('checkbox', function($row) {
-                    return '<input type="checkbox" class="admission-checkbox" value="'.$row->id_admission.'">';
-                })
-               
-                ->rawColumns(['action'])
-                ->make(true);
-        }
-
-        return view('admission.list');
-    }
+   
 
     private function formatBillingData($data, $type = 'ranap')
     {
