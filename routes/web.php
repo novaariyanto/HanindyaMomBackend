@@ -3,6 +3,7 @@
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DivisiController;
+use App\Http\Controllers\GradeController;
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\IndexKategoriController;
 use App\Http\Controllers\JabatanController;
@@ -14,12 +15,18 @@ use App\Http\Controllers\MonitoringAbsensiController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\PegawaiMasterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProporsiFairnessController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Select2Controller;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SettingRadiusController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SumberController;
+use App\Http\Controllers\RemunerasiBatchController;
+use App\Http\Controllers\RemunerasiSourceController;
+use App\Http\Controllers\DetailSourceController;
+use App\Http\Controllers\PembagianKlaimController;
 use App\Models\PegawaiMaster;
 use Illuminate\Support\Facades\Route;
 
@@ -126,6 +133,7 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
 
     Route::resource('role', RoleController::class);
 
+    Route::post('/menu/reorder', [MenuController::class, 'reorder'])->name('menu.reorder');
     Route::post('/menu/update-order', [MenuController::class, 'updateOrder'])->name('menu.updateOrder');
     Route::resource('menu', MenuController::class);
     Route::post('/save-radius', [SettingRadiusController::class, 'store'])->name('radius.store');
@@ -154,6 +162,87 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::resource('index', IndexController::class);
     Route::post('/index/import', [IndexController::class, 'import'])->name('index.import');
 
+    // Grade routes
+    Route::get('grade', [GradeController::class, 'index'])->name('grade.index');
+    Route::post('grade', [GradeController::class, 'store'])->name('grade.store');
+    Route::get('grade/{id}', [GradeController::class, 'show'])->name('grade.show');
+    Route::put('grade/{id}', [GradeController::class, 'update'])->name('grade.update');
+    Route::delete('grade/{id}', [GradeController::class, 'destroy'])->name('grade.destroy');
+
+    // Remunerasi Batch routes
+    Route::get('remunerasi-batch', [RemunerasiBatchController::class, 'index'])->name('remunerasi-batch.index');
+    Route::post('remunerasi-batch', [RemunerasiBatchController::class, 'store'])->name('remunerasi-batch.store');
+    Route::get('remunerasi-batch/{id}', [RemunerasiBatchController::class, 'show'])->name('remunerasi-batch.show');
+    Route::put('remunerasi-batch/{id}', [RemunerasiBatchController::class, 'update'])->name('remunerasi-batch.update');
+    Route::delete('remunerasi-batch/{id}', [RemunerasiBatchController::class, 'destroy'])->name('remunerasi-batch.destroy');
+
+    // Remunerasi Source routes
+    Route::get('remunerasi-source', [RemunerasiSourceController::class, 'index'])->name('remunerasi-source.index');
+    Route::post('remunerasi-source', [RemunerasiSourceController::class, 'store'])->name('remunerasi-source.store');
+    
+    // Import Admission routes
+    Route::get('remunerasi-source/import-admission', [RemunerasiSourceController::class, 'importAdmission'])->name('remunerasi-source.import-admission');
+    Route::post('remunerasi-source/store-from-admission', [RemunerasiSourceController::class, 'storeFromAdmission'])->name('remunerasi-source.store-from-admission');
+    
+    // Resource routes with parameters
+    Route::get('remunerasi-source/{id}', [RemunerasiSourceController::class, 'show'])->name('remunerasi-source.show');
+    Route::put('remunerasi-source/{id}', [RemunerasiSourceController::class, 'update'])->name('remunerasi-source.update');
+    Route::delete('remunerasi-source/{id}', [RemunerasiSourceController::class, 'destroy'])->name('remunerasi-source.destroy');
+    
+    Route::get('admission/list', [RemunerasiSourceController::class, 'getAdmissionList'])->name('admission.list');
+
+    // List source by batch
+    Route::get('remunerasi-batch/{id}/sources', [RemunerasiSourceController::class, 'listByBatch'])->name('remunerasi-source.list-by-batch');
+    Route::get('remunerasi-batch/{id}/sources/data', [RemunerasiSourceController::class, 'getByBatch'])->name('remunerasi-source.by-batch');
+
+    Route::get('proporsi-fairness/template/download', [ProporsiFairnessController::class, 'downloadTemplate'])->name('proporsi-fairness.template');
+    Route::post('proporsi-fairness/import', [ProporsiFairnessController::class, 'import'])->name('proporsi-fairness.import');
+    Route::resource('proporsi-fairness', ProporsiFairnessController::class);
+    Route::resource('sumber', SumberController::class);
+
+    Route::resource('remunerasi-batch', RemunerasiBatchController::class);
+    Route::post('remunerasi-batch/{id}/finalize', [RemunerasiBatchController::class, 'finalize'])->name('remunerasi-batch.finalize');
+
+    Route::resource('detail-source', DetailSourceController::class);
+    Route::get('detail-source/list/{sourceId}', [DetailSourceController::class, 'listBySource'])->name('detail-source.listBySource');
+    Route::get('detail-source/data/{sourceId}', [DetailSourceController::class, 'getBySource'])->name('detail-source.getBySource');
+    Route::post('detail-source/import/{sourceId}', [DetailSourceController::class, 'import'])->name('detail-source.import');
+    Route::get('detail-source/template/download', [DetailSourceController::class, 'downloadTemplate'])->name('detail-source.template');
+
+    // Detail Source routes
+    Route::get('detail-source', [DetailSourceController::class, 'index'])->name('detail-source.index');
+    Route::post('detail-source', [DetailSourceController::class, 'store'])->name('detail-source.store');
+    Route::get('detail-source/{id}', [DetailSourceController::class, 'show'])->name('detail-source.show');
+    Route::put('detail-source/{id}', [DetailSourceController::class, 'update'])->name('detail-source.update');
+    Route::delete('detail-source/{id}', [DetailSourceController::class, 'destroy'])->name('detail-source.destroy');
+    
+    // List detail source by remunerasi source
+    Route::get('remunerasi-source/{id}/details', [DetailSourceController::class, 'listBySource'])->name('detail-source.listBySource');
+    Route::get('remunerasi-source/{id}/details/data', [DetailSourceController::class, 'getBySource'])->name('detail-source.getBySource');
+
+    // Routes untuk Pembagian Klaim
+    Route::get('pembagian-klaim', [PembagianKlaimController::class, 'index'])->name('pembagian-klaim.index');
+    Route::get('pembagian-klaim/hitung', [PembagianKlaimController::class, 'hitung'])->name('pembagian-klaim.hitung');
+    Route::get('pembagian-klaim/updateSepPasien', [PembagianKlaimController::class, 'updateSepPasien'])->name('pembagian-klaim.updateSepPasien');
+    Route::post('pembagian-klaim', [PembagianKlaimController::class, 'store'])->name('pembagian-klaim.store');
+    Route::get('pembagian-klaim/{id}', [PembagianKlaimController::class, 'show'])->name('pembagian-klaim.show');
+    Route::put('pembagian-klaim/{id}', [PembagianKlaimController::class, 'update'])->name('pembagian-klaim.update');
+    Route::delete('pembagian-klaim/{id}', [PembagianKlaimController::class, 'destroy'])->name('pembagian-klaim.destroy');
+    
+    // Route untuk mendapatkan data pembagian klaim berdasarkan detail source
+    Route::get('detail-source/{id}/pembagian-klaim', [PembagianKlaimController::class, 'getByDetailSource'])
+        ->name('pembagian-klaim.getByDetailSource');
+
+    Route::get('detail-source/get-unsynced-count/{sourceId}', [DetailSourceController::class, 'getUnsyncedCount'])->name('detail-source.get-unsynced-count');
+    Route::post('detail-source/sync-batch/{sourceId}', [DetailSourceController::class, 'syncBatch'])->name('detail-source.sync-batch');
+
+    Route::get('/admission/list', [PembagianKlaimController::class, 'listAdmission'])->name('admission.list');
+    Route::get('admission/detail/{id}', [PembagianKlaimController::class, 'showDetail'])->name('admission.detail');
+    Route::get('admission/add-source', [RemunerasiSourceController::class, 'addSourcebyidxdaftar'])->name('admission.add-source');
+
+    // Import Admission di Detail Source
+    Route::get('detail-source/admission/list', [DetailSourceController::class, 'getAdmissionList'])->name('detail-source.admission.list');
+    Route::post('detail-source/store-from-admission/{sourceId}', [DetailSourceController::class, 'storeFromAdmission'])->name('detail-source.store-from-admission');
 });
 
 require __DIR__.'/auth.php';

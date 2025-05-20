@@ -13,6 +13,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <script src="{{ mix('js/app.js') }}" defer></script>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -32,5 +33,10 @@
                 {{ $slot }}
             </main>
         </div>
+        <!-- Load ApexCharts sebelum script kustom -->
+        {{-- <script src="path/to/apexcharts.min.js"></script> --}}
+        <!-- Load script kustom -->
+        {{-- <script src="{{ mix('js/dashboard.js') }}" defer></script> --}}
+        @stack('scripts')
     </body>
 </html>

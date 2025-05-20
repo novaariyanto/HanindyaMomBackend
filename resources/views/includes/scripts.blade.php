@@ -284,3 +284,49 @@
     });
     </script>
     
+<script>
+function syncSepData(noSep) {
+    Swal.fire({
+        title: 'Memproses...',
+        html: 'Sedang melakukan sinkronisasi data SEP',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    $.ajax({
+        url: `/pembagian-klaim/updateSepPasien?sep=${noSep}`,
+        type: 'GET',
+        success: function(response) {
+            if(response.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Data SEP berhasil disinkronkan',
+                    showConfirmButton: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: response.message || 'Terjadi kesalahan saat sinkronisasi data'
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Terjadi kesalahan saat menghubungi server'
+            });
+            console.error(error);
+        }
+    });
+}
+</script>
+    

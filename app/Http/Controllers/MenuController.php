@@ -99,8 +99,21 @@ class MenuController extends Controller
         }
 
         return ResponseFormatter::success($orderData, 'Berhasil Memperbarui Urutan Menu');
-
     }
 
+    public function reorder(Request $request)
+    {
+        try {
+            $menuOrder = $request->input('order', []);
+            
+            foreach ($menuOrder as $index => $uuid) {
+                Menu::where('uuid', $uuid)->update(['order' => $index + 1]);
+            }
+            
+            return ResponseFormatter::success([], 'Urutan menu berhasil diperbarui');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Gagal memperbarui urutan menu: ' . $e->getMessage());
+        }
+    }
     
 }

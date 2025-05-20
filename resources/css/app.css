@@ -1,3 +1,55 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Custom styles */
+.table-responsive {
+    margin-bottom: 1rem;
+}
+
+.btn-sm {
+    margin: 0.25rem;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.alert {
+    margin-bottom: 1rem;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styles */
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.card {
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.btn-group-sm > .btn, .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.2rem;
+}
+
+.dataTables_wrapper .dataTables_processing {
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
