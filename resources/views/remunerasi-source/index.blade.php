@@ -53,50 +53,6 @@
     </div>
 </div>
 
-<!-- Modal Tambah -->
-<div class="modal fade" id="createModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Source</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="createForm" method="POST" action="{{ route('remunerasi-source.store') }}">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Nama Source</label>
-                        <input type="text" class="form-control" name="nama_source" required maxlength="100">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Keterangan</label>
-                        <textarea class="form-control" name="keterangan" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" name="status" required>
-                            <option value="aktif">Aktif</option>
-                            <option value="nonaktif">Nonaktif</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Batch</label>
-                        <select class="form-select" name="batch_id">
-                            <option value="">Pilih Batch</option>
-                            @foreach($batches as $batch)
-                                <option value="{{ $batch->id }}">{{ $batch->nama_batch }} ({{ $batch->tahun }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <!-- Modal Edit -->
 <div class="modal fade" id="editModal" tabindex="-1">

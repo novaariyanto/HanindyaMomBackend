@@ -37,7 +37,7 @@
                             <table class="table table-bordered">
                                 <tr>
                                     <th width="200">Remunerasi Source</th>
-                                    <td>{{json_encode($detail->remunerasiSource2)}}</td>
+                                    <td>{{$detail->remunerasiSource->nama_source}}</td>
                                 </tr>
                                 <tr>
                                     <th>No SEP</th>

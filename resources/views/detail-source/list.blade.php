@@ -51,6 +51,7 @@
                         <th>Biaya Riil RS</th>
                         <th>Biaya Diajukan</th>
                         <th>Biaya Disetujui</th>
+                        <th>Idxdaftar</th>
                         <th>Opsi</th>
                     </tr>
                 </thead>
@@ -224,6 +225,8 @@
 @endsection
 
 @push('scripts')
+<script
+
 <script>
 $(document).ready(function() {
     var datatable = $('#datatable').DataTable({
@@ -240,8 +243,12 @@ $(document).ready(function() {
                 orderable: false,
                 searchable: false
             },
-            {data: 'no_sep', name: 'no_sep'},
-            {data: 'tgl_verifikasi', name: 'tgl_verifikasi'},
+            {data: 'no_sep', name: 'no_sep', render: function(data, type, row) {
+                return data.length < 16 ? `${data}-${row.idxdaftar}` : data;
+            }},
+            {data: 'tgl_verifikasi', name: 'tgl_verifikasi', render: function(data) {
+                return moment(data).format('DD/MM/YYYY');
+            }},
             {data: 'jenis', name: 'jenis'},
             {
                 data: 'status',
@@ -263,6 +270,10 @@ $(document).ready(function() {
             {
                 data: 'biaya_disetujui',
                 name: 'biaya_disetujui'
+            },
+            {
+                data: 'idxdaftar',
+                name: 'idxdaftar'
             },
           
             {

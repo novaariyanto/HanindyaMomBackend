@@ -179,6 +179,7 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
 
     // Remunerasi Source routes
     Route::get('remunerasi-source', [RemunerasiSourceController::class, 'index'])->name('remunerasi-source.index');
+    Route::get('remunerasi-source/addbyidxdaftar', [RemunerasiSourceController::class, 'addSourcebyidxdaftar'])->name('remunerasi-source.addSourcebyidxdaftar');
     Route::post('remunerasi-source', [RemunerasiSourceController::class, 'store'])->name('remunerasi-source.store');
     
     // Import Admission routes

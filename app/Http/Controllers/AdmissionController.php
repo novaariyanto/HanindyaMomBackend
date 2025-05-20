@@ -97,22 +97,24 @@ class AdmissionController extends Controller
         $sheet->setCellValue('E1', 'Biaya Disetujui');
         $sheet->setCellValue('F1', 'Status');
         $sheet->setCellValue('G1', 'Jenis');
+        $sheet->setCellValue('H1', 'Idxdaftar');
 
         // Isi data
         $row = 2;
         foreach ($data as $item) {
-            $sheet->setCellValue('A' . $row, $item->nosep);
+            $sheet->setCellValue('A' . $row, $item->nomr);
             $sheet->setCellValue('B' . $row, $item->keluarrs ? date('d-m-Y', strtotime($item->keluarrs)) : '');
-            $sheet->setCellValue('C' . $row, $item->biaya_riil_rs);
-            $sheet->setCellValue('D' . $row, $item->biaya_diajukan);
-            $sheet->setCellValue('E' . $row, $item->biaya_disetujui);
+            $sheet->setCellValue('C' . $row, 0);
+            $sheet->setCellValue('D' . $row, 0);
+            $sheet->setCellValue('E' . $row, 0);
             $sheet->setCellValue('F' . $row, 'Aktif');
             $sheet->setCellValue('G' . $row, 'Rawat Inap');
+            $sheet->setCellValue('H' . $row, $item->id_admission);
             $row++;
         }
 
         // Auto size kolom
-        foreach (range('A', 'G') as $column) {
+        foreach (range('A', 'H') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
@@ -125,8 +127,8 @@ class AdmissionController extends Controller
         }
 
         // Set style header
-        $sheet->getStyle('A1:G1')->getFont()->setBold(true);
-        $sheet->getStyle('A1:G1')->getFill()
+        $sheet->getStyle('A1:H1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:H1')->getFill()
             ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
             ->getStartColor()->setARGB('FFCCCCCC');
 
@@ -138,10 +140,10 @@ class AdmissionController extends Controller
                 ],
             ],
         ];
-        $sheet->getStyle('A1:G' . ($row - 1))->applyFromArray($styleArray);
+        $sheet->getStyle('A1:H' . ($row - 1))->applyFromArray($styleArray);
 
         // Buat file Excel
-        $filename = 'Data_Admission_' . date('Y-m-d_H-i-s') . '.xlsx';
+        $filename = 'Data_Rawat_Inap_' . date('Y-m-d_H-i-s') . '.xlsx';
         $writer = new Xlsx($spreadsheet);
         
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

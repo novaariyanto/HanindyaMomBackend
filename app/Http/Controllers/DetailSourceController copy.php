@@ -319,7 +319,8 @@ class DetailSourceController extends Controller
                         'biaya_diajukan' => $this->transformToDecimal($row[3]),
                         'biaya_disetujui' => $this->transformToDecimal($row[4]),
                         'status' => strtolower($row[5]) == 'aktif' ? 1 : 0,
-                        'jenis' => $row[6]
+                        'jenis' => $row[6],
+                        'idxdaftar' => $row[7]
                     ];
                    
 
@@ -397,6 +398,7 @@ class DetailSourceController extends Controller
                 'E1' => 'Biaya Disetujui',
                 'F1' => 'Status',
                 'G1' => 'Jenis',
+                'H1' => 'Idxdaftar',
             ];
 
             foreach ($headers as $cell => $value) {
@@ -412,6 +414,7 @@ class DetailSourceController extends Controller
                 'E2' => '850000',
                 'F2' => 'Aktif',
                 'G2' => 'Rawat Inap',
+                'H2' => '0',
             ];
 
             foreach ($exampleData as $cell => $value) {
@@ -419,18 +422,18 @@ class DetailSourceController extends Controller
             }
 
             // Set style header
-            $sheet->getStyle('A1:G1')->getFont()->setBold(true);
-            $sheet->getStyle('A1:G1')->getFill()
+            $sheet->getStyle('A1:H1')->getFont()->setBold(true);
+            $sheet->getStyle('A1:H1')->getFill()
                 ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                 ->getStartColor()->setRGB('E2E2E2');
             
             // Set lebar kolom otomatis
-            foreach(range('A','G') as $column) {
+            foreach(range('A','H') as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
 
             // Tambahkan validasi data untuk kolom Status
-            $validation = $sheet->getCell('G2')->getDataValidation();
+            $validation = $sheet->getCell('H2')->getDataValidation();
             $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST);
             $validation->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_INFORMATION);
             $validation->setAllowBlank(false);
@@ -475,7 +478,7 @@ class DetailSourceController extends Controller
     }
     function transformDate2($value) {
         try {
-            $tanggal = $value;
+            $tanggal = strtotime($value);
             $carbon = Carbon::parse($tanggal);
             return $carbon->format('d/m/Y'); // 10-04-2025
         } catch (\Exception $e) {

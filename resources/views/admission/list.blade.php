@@ -63,7 +63,7 @@
                         <th>Biaya Diajukan</th>
                         <th>Biaya Disetujui</th>
                         <th>Biaya Riil RS</th>
-                  
+                        <th>Nomr</th>
                         <th>Opsi</th>
                     </tr>
                 </thead>
@@ -78,7 +78,6 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
 <script>
 $(document).ready(function() {
     // Fungsi untuk mengatur opsi bulan berdasarkan tahun yang dipilih
@@ -161,6 +160,10 @@ $(document).ready(function() {
             {
                 data: 'biaya_riil_rs',
                 name: 'biaya_riil_rs'
+            },
+            {
+                data: 'nomr',
+                name: 'nomr'
             },
            
             {

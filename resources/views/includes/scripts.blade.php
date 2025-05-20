@@ -296,7 +296,7 @@ function syncSepData(noSep) {
     });
 
     $.ajax({
-        url: `/pembagian-klaim/updateSepPasien?sep=${noSep}`,
+        url: `/pembagian-klaim/updateSepPasien?id=${noSep}`,
         type: 'GET',
         success: function(response) {
             if(response.success) {
