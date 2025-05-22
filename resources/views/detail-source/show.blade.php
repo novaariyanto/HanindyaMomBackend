@@ -51,6 +51,7 @@
                                     <th>Jenis</th>
                                     <td>{{ $detail->jenis }}</td>
                                 </tr>
+                              
                                 <tr>
                                     <th>Status</th>
                                     <td>
@@ -123,6 +124,8 @@
                                     <th>Sumber</th>
                                     <th>Cluster</th>
                                     <th>Jenis PPA</th>
+                                    <th>Grade</th>
+                                    <th>Jenis</th>
                                     <th>Nilai Remunerasi</th>
                                     <th>Opsi</th>
                                 </tr>
@@ -181,6 +184,8 @@ $(document).ready(function() {
             { data: 'sumber', name: 'sumber' },
             { data: 'cluster', name: 'cluster' },
             { data: 'ppa', name: 'ppa' },
+            { data: 'grade', name: 'grade' },
+            { data: 'jenis', name: 'jenis' },
             {
                 data: 'nilai_remunerasi',
                 name: 'nilai_remunerasi',
