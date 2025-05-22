@@ -23,30 +23,30 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\Grade;
 use Illuminate\Support\Facades\DB;
 
-class AdmissionController extends Controller
+class PendaftaranController extends Controller
 {
     /**
      * Menampilkan daftar pembagian klaim.
      */
     
-    public function listAdmission(Request $request)
+    public function listPendaftaran(Request $request)
     {
         if ($request->ajax()) {
-            $data = Tadmission::with(['pasien','billranap','billrajal']);
+            $data = Tpendaftaran::with(['pasien','billrajal']);
+                
             
-            // Default filter untuk bulan dan tahun sekarang
             $bulan = $request->get('bulan', date('n')); 
             $tahun = $request->get('tahun', date('Y')); 
             $penjamin = $request->get('penjamin');
 
             if ($bulan && $tahun) {
-                $data->whereMonth('keluarrs', $bulan)
-                     ->whereYear('keluarrs', $tahun);
+                $data->whereMonth('TGLREG', $bulan)
+                     ->whereYear('TGLREG', $tahun);
             }
             if($penjamin == 1){
-                $data->whereIn('statusbayar', [10, 20]);
+                $data->whereIn('kdcarabayar', [10, 20]);
             }elseif($penjamin == 2){
-                $data->whereNotIn('statusbayar', [10, 20]);
+                $data->whereNotIn('kdcarabayar', [10, 20]);
             }
 
             return DataTables::of($data)
@@ -55,10 +55,10 @@ class AdmissionController extends Controller
                     return number_format($row->total_tarif_rs, 0, ',', '.');
                 })
                 ->addColumn('checkbox', function($row) {
-                    return '<input type="checkbox" class="admission-checkbox" value="'.$row->id_admission.'">';
+                    return '<input type="checkbox" class="admission-checkbox" value="'.$row->IDXDAFTAR.'">';
                 })
                 ->addColumn('jenis', function($row) {
-                    return 'Rawat Inap';
+                    return 'Rawat Jalan';
                 })
                 ->addColumn('status', function($row) {
                     return 'Aktif';
@@ -73,26 +73,27 @@ class AdmissionController extends Controller
                     return number_format($row->total_tarif_rs, 0, ',', '.');
                 })
                 ->addColumn('action', function($row) {
-                    return '<a href="'.route('admission.detail', $row->id_admission).'" class="btn btn-primary">Detail</a>';
+                    return '<a href="'.route('pendaftaran.detail', $row->IDXDAFTAR).'" class="btn btn-primary">Detail</a>';
                 })
                
                 ->make(true);
         }
 
-        return view('admission.list');
+        return view('pendaftaran.list');
     }
 
+   
     public function exportExcel(Request $request)
     {
         // Ambil data admission dengan relasi
-        $data = Tadmission::with(['pasien', 'billranap', 'billrajal'])
-            ->whereMonth('keluarrs', $request->get('bulan', date('n')))
-            ->whereYear('keluarrs', $request->get('tahun', date('Y')))
+        $data = Tpendaftaran::with(['pasien', 'billrajal'])
+            ->whereMonth('TGLREG', $request->get('bulan', date('n')))
+            ->whereYear('TGLREG', $request->get('tahun', date('Y')))
             ->when($request->get('penjamin') == 1, function ($query) {
-                $query->whereIn('statusbayar', [10, 20]);
+                $query->whereIn('kdcarabayar', [10, 20]);
             })
             ->when($request->get('penjamin') == 2, function ($query) {
-                $query->whereNotIn('statusbayar', [10, 20]);
+                $query->whereNotIn('kdcarabayar', [10, 20]);
             })
             ->get();
 
@@ -113,14 +114,14 @@ class AdmissionController extends Controller
         // Isi data
         $row = 2;
         foreach ($data as $item) {
-            $sheet->setCellValue('A' . $row, $item->nomr);
-            $sheet->setCellValue('B' . $row, $item->keluarrs ? date('d-m-Y', strtotime($item->keluarrs)) : '');
+            $sheet->setCellValue('A' . $row, $item->NOMR);
+            $sheet->setCellValue('B' . $row, $item->TGLREG ? date('d-m-Y', strtotime($item->TGLREG)) : '');
             $sheet->setCellValue('C' . $row, $item->total_tarif_rs);
             $sheet->setCellValue('D' . $row, $item->total_tarif_rs);
             $sheet->setCellValue('E' . $row, $item->total_tarif_rs);
             $sheet->setCellValue('F' . $row, 'Aktif');
-            $sheet->setCellValue('G' . $row, 'Rawat Inap');
-            $sheet->setCellValue('H' . $row, $item->id_admission);
+            $sheet->setCellValue('G' . $row, 'Rawat Jalan');
+            $sheet->setCellValue('H' . $row, $item->IDXDAFTAR);
             $row++;
         }
 
@@ -154,7 +155,7 @@ class AdmissionController extends Controller
         $sheet->getStyle('A1:H' . ($row - 1))->applyFromArray($styleArray);
 
         // Buat file Excel
-        $filename = 'Data_Rawat_Inap_' . date('Y-m') . '.xlsx';
+        $filename = 'Data_Rawat_Jalan_' . date('Y-m') . '.xlsx';
         $writer = new Xlsx($spreadsheet);
         
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -166,18 +167,18 @@ class AdmissionController extends Controller
     }
     public function showDetail($id)
     {
-        // Get admission data with relations
-        $admission = Tadmission::with(['pasien'])
-            ->where('id_admission', $id)
+        // Get pendaftaran data with relations
+        $pendaftaran = Tpendaftaran::with(['pasien'])
+            ->where('IDXDAFTAR', $id)
             ->first();
 
-        if (!$admission) {
-            return redirect()->back()->with('error', 'Data admission tidak ditemukan');
+        if (!$pendaftaran) {
+            return redirect()->back()->with('error', 'Data pendaftaran tidak ditemukan');
         }
 
-        // Get billing data using query builder for better performance
+        // Get billing data
         $billData = DB::connection('simrs')
-            ->table('t_billranap as f')
+            ->table('t_billrajal as f')
             ->leftJoin('m_tarif2012 as g', 'g.kode_tindakan', '=', 'f.KODETARIF')
             ->leftJoin('m_dokter as h', 'h.KDDOKTER', '=', 'f.KDDOKTER')
             ->leftJoin('m_carabayar as i', 'i.KODE', '=', 'f.CARABAYAR')
@@ -193,38 +194,17 @@ class AdmissionController extends Controller
                 'f.TARIFRS',
                 DB::raw('f.QTY * f.TARIFRS as TOTAL'),
                 'f.TANGGAL',
-                DB::raw('"ranap" as source')
-            )
-            ->unionAll(
-                DB::connection('simrs')
-                    ->table('t_billrajal as f')
-                    ->leftJoin('m_tarif2012 as g', 'g.kode_tindakan', '=', 'f.KODETARIF')
-                    ->leftJoin('m_dokter as h', 'h.KDDOKTER', '=', 'f.KDDOKTER')
-                    ->leftJoin('m_carabayar as i', 'i.KODE', '=', 'f.CARABAYAR')
-                    ->where('f.IDXDAFTAR', $id)
-                    ->where('f.status', '<>', 'BATAL')
-                    ->select(
-                        'f.UNIT',
-                        'f.KODETARIF',
-                        'g.nama_tindakan',
-                        'h.NAMADOKTER',
-                        'i.nama as CARABAYAR',
-                        'f.QTY',
-                        'f.TARIFRS',
-                        DB::raw('f.QTY * f.TARIFRS as TOTAL'),
-                        'f.TANGGAL',
-                        DB::raw('"rajal" as source')
-                    )
+                DB::raw('"rajal" as source')
             )
             ->get();
 
         // Format billing data
         $formattedData = $this->formatBillingData($billData);
 
-        return view('admission.detail', [
-            'admission' => $admission,
+        return view('pendaftaran.detail', [
+            'pendaftaran' => $pendaftaran,
             'billData' => $formattedData,
-            'totalTarifRs' => $admission->total_tarif_rs
+            'totalTarifRs' => $pendaftaran->total_tarif_rs
         ]);
     }
     private function formatBillingData($data)

@@ -1,14 +1,14 @@
 @extends('root')
-@section('title', 'Data Admission')
+@section('title', 'Data Pendaftaran')
 
 @section('content')
 <div class="container-fluid">
     @include('components.breadcrumb', [
-        'title' => 'Data Admission',
+        'title' => 'Data Pendaftaran',
         'links' => [
             ['url' => route('dashboard'), 'label' => 'Dashboard'],
         ],
-        'current' => 'Admission'
+        'current' => 'Pendaftaran'
     ])
     
     <div class="widget-content searchable-container list">
@@ -38,7 +38,6 @@
               @endphp
             </select>
           </div>
-
           <div class="col-md-4 col-xl-3">
             <select class="form-select" id="filter-bulan">
               <option value="">Pilih Bulan</option>
@@ -50,7 +49,7 @@
               @endphp
             </select>
           </div>
-          <div class="col-md-2 col-xl-3">
+          <div class="col-md-4 col-xl-3">
             <button type="button" class="btn btn-success" id="btn-export-excel">
               <i class="ti ti-file-export me-1"></i> Export Excel
             </button>
@@ -64,7 +63,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>ID Admission</th>
+                        <th>ID Pendaftaran</th>
                         <th>Tanggal Verifikasi</th>
                         <th>Jenis</th>
                         <th>Status</th>
@@ -124,7 +123,7 @@ $(document).ready(function() {
         serverSide: true,
         autoWidth: false,
         ajax: {
-            url: '{{ route('admission.list') }}',
+            url: '{{ route('pendaftaran.list') }}',
             data: function(d) {
                 d.bulan = $('#filter-bulan').val();
                 d.tahun = $('#filter-tahun').val();
@@ -139,13 +138,13 @@ $(document).ready(function() {
                 searchable: false
             },
             {
-                data: 'id_admission',
-                name: 'id_admission'
+                data: 'IDXDAFTAR',
+                name: 'IDXDAFTAR'
             },
          
             {
-                data: 'keluarrs',
-                name: 'keluarrs',
+                data: 'TGLREG',
+                name: 'TGLREG',
                 render: function(data) {
                     return data ? moment(data).format('DD-MM-YYYY') : '-';
                 }
@@ -171,19 +170,14 @@ $(document).ready(function() {
                 name: 'biaya_riil_rs'
             },
             {
-                data: 'nomr',
-                name: 'nomr'
+                data: 'NOMR',
+                name: 'NOMR'
             },
            
             {
                 data: 'action',
                 name: 'action'
             }
-           
-            
-            
-
-
         ]
     });
 
@@ -217,6 +211,7 @@ $(document).ready(function() {
     $('#filter-tahun').val(defaultTahun);
     updateBulanOptions(defaultTahun);
     $('#filter-bulan').val(defaultBulan);
+    $('#filter-penjamin').val(defaultPenjamin);
     datatable.ajax.reload();
 
     // Fungsi untuk export Excel
@@ -226,7 +221,7 @@ $(document).ready(function() {
         var penjamin = $('#filter-penjamin').val();
 
         // Buat URL dengan parameter
-        var url = '{{ route('admission.export-excel') }}';
+        var url = '{{ route('pendaftaran.export-excel') }}';
         url += '?bulan=' + (bulan || '') + '&tahun=' + (tahun || '') + '&penjamin=' + (penjamin || '');
         
         // Redirect ke URL export

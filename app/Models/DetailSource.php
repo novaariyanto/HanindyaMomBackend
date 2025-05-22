@@ -17,7 +17,8 @@ class DetailSource extends Model
         'biaya_riil_rs',
         'biaya_diajukan',
         'biaya_disetujui',
-        'idxdaftar'
+        'idxdaftar',
+        'total_remunerasi'
     ];
 
     protected $casts = [

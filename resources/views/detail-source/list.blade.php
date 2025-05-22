@@ -590,7 +590,7 @@ function startBatchSync() {
             type: 'POST',
             data: {
                 offset: offset,
-                limit: 1 // Proses 100 data per batch
+                limit: 5 // Proses 100 data per batch
             },
             success: function(response) {
                 processedCount += response.processed;

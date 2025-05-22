@@ -1,13 +1,13 @@
 @extends('root')
-@section('title', 'Detail Admission')
+@section('title', 'Detail Pendaftaran')
 
 @section('content')
 <div class="container-fluid">
     @include('components.breadcrumb', [
-        'title' => 'Detail Admission',
+        'title' => 'Detail Pendaftaran',
         'links' => [
             ['url' => route('dashboard'), 'label' => 'Dashboard'],
-            ['url' => route('admission.list'), 'label' => 'Data Admission'],
+            ['url' => route('pendaftaran.list'), 'label' => 'Data Pendaftaran'],
         ],
         'current' => 'Detail'
     ])
@@ -23,33 +23,28 @@
                         <div class="col-md-6">
                             <table class="table table-borderless">
                                 <tr>
-                                    <td width="150">ID Admission</td>
+                                    <td width="150">ID Pendaftaran</td>
                                     <td width="20">:</td>
-                                    <td>{{ $admission->id_admission }}</td>
+                                    <td>{{ $pendaftaran->IDXDAFTAR }}</td>
                                 </tr>
                                 <tr>
                                     <td>Nama Pasien</td>
                                     <td>:</td>
-                                    <td>{{ $admission->pasien->NAMA ?? '-' }}</td>
+                                    <td>{{ $pendaftaran->pasien->NAMA ?? '-' }}</td>
                                 </tr>
                                 <tr>
                                     <td>No. RM</td>
                                     <td>:</td>
-                                    <td>{{ $admission->nomr }}</td>
+                                    <td>{{ $pendaftaran->NOMR }}</td>
                                 </tr>
                             </table>
                         </div>
                         <div class="col-md-6">
                             <table class="table table-borderless">
                                 <tr>
-                                    <td width="150">Tanggal Masuk</td>
+                                    <td width="150">Tanggal Registrasi</td>
                                     <td width="20">:</td>
-                                    <td>{{ date('d/m/Y', strtotime($admission->masukrs)) }}</td>
-                                </tr>
-                                <tr>
-                                    <td>Tanggal Keluar</td>
-                                    <td>:</td>
-                                    <td>{{ date('d/m/Y', strtotime($admission->keluarrs)) }}</td>
+                                    <td>{{ date('d/m/Y', strtotime($pendaftaran->TGLREG)) }}</td>
                                 </tr>
                             </table>
                         </div>
@@ -90,7 +85,6 @@
                                                         <th>Tindakan</th>
                                                         <th>Dokter</th>
                                                         <th>Cara Bayar</th>
-                                                        <th>Sumber</th>
                                                         <th class="text-end">Qty</th>
                                                         <th class="text-end">Tarif (Rp)</th>
                                                         <th class="text-end">Total (Rp)</th>
@@ -103,7 +97,6 @@
                                                         <td>{{ $item->nama_tindakan }}</td>
                                                         <td>{{ $item->NAMADOKTER }}</td>
                                                         <td>{{ $item->CARABAYAR }}</td>
-                                                        <td><span class="badge bg-{{ $item->source == 'ranap' ? 'primary' : 'success' }}">{{ strtoupper($item->source) }}</span></td>
                                                         <td class="text-end">{{ $item->QTY }}</td>
                                                         <td class="text-end">{{ number_format($item->TARIFRS, 0, ',', '.') }}</td>
                                                         <td class="text-end">{{ number_format($item->TOTAL, 0, ',', '.') }}</td>
@@ -112,7 +105,7 @@
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
-                                                        <td colspan="7" class="text-end fw-bold">Total {{ $unit['nama'] }}</td>
+                                                        <td colspan="6" class="text-end fw-bold">Total {{ $unit['nama'] }}</td>
                                                         <td class="text-end fw-bold">{{ number_format($unit['total'], 0, ',', '.') }}</td>
                                                     </tr>
                                                 </tfoot>
@@ -138,7 +131,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ route('admission.list') }}" class="btn btn-secondary">
+                        <a href="{{ route('pendaftaran.list') }}" class="btn btn-secondary">
                             <i class="ti ti-arrow-left me-1"></i> Kembali
                         </a>
                         <div class="text-end">

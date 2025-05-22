@@ -29,6 +29,9 @@
             <button type="button" class="btn btn-success d-flex align-items-center me-2" data-bs-toggle="modal" data-bs-target="#importModal">
                 <i class="ti ti-file-import text-white me-1 fs-5"></i> Import Excel
             </button>
+            <a href="{{ route('proporsi-fairness.export') }}" class="btn btn-info d-flex align-items-center me-2" id="btn-export">
+                <i class="ti ti-file-export text-white me-1 fs-5"></i> Export Excel
+            </a>
             <a href="javascript:void(0)" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
               <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Data
             </a>
@@ -132,7 +135,7 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="jenis" id="jenis_pisau" value="PISAU" required>
                                 <label class="form-check-label" for="jenis_pisau">
-                                    Pisau
+                                    PISAU
                                 </label>
                             </div>
                             <div class="form-check">
@@ -148,7 +151,7 @@
                         <select class="form-select" name="grade" required>
                             <option value="">Pilih Grade</option>
                             @foreach($grades as $grade)
-                                <option value="{{ $grade->grade }}">{{ $grade->grade }} ({{ $grade->persentase_top }}%)</option>
+                                <option value="{{ $grade->grade }}">{{ $grade->grade }} ({{ $grade->persentase }}%)</option>
                             @endforeach
                         </select>
                     </div>
@@ -226,7 +229,7 @@
                         <select class="form-select" name="grade" id="edit_grade" required>
                             <option value="">Pilih Grade</option>
                             @foreach($grades as $grade)
-                                <option value="{{ $grade->grade }}">{{ $grade->grade }} ({{ $grade->persentase_top }}%)</option>
+                                <option value="{{ $grade->grade }}">{{ $grade->grade }} ({{ $grade->persentase }}%)</option>
                             @endforeach
                         </select>
                     </div>
@@ -607,6 +610,69 @@ $(document).ready(function() {
                 }
             }
         });
+    });
+
+    // Handle export button click
+    $('#btn-export').on('click', function(e) {
+        e.preventDefault();
+        
+        // Get filter values
+        var grade = $('#filter-grade').val();
+        var sumber = $('#filter-sumber').val();
+        var groups = $('#filter-groups').val();
+        
+        // Build export URL with filters
+        var exportUrl = $(this).attr('href');
+        var params = [];
+        
+        if (grade) params.push('grade=' + grade);
+        if (sumber) params.push('sumber=' + sumber);
+        if (groups) params.push('groups=' + groups);
+        
+        if (params.length > 0) {
+            exportUrl += '?' + params.join('&');
+        }
+        
+        // Tampilkan loading
+        Swal.fire({
+            title: 'Mohon Tunggu',
+            text: 'Sedang memproses export data...',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Cek data terlebih dahulu menggunakan fetch
+        fetch(exportUrl)
+            .then(response => {
+                if (response.headers.get('content-type').includes('application/json')) {
+                    return response.json().then(data => {
+                        throw new Error(data.meta.message);
+                    });
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Jika berhasil, download file
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Data_Proporsi_Fairness_' + new Date().toISOString().slice(0,10) + '.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                Swal.close();
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Export',
+                    text: error.message || 'Terjadi kesalahan saat export data'
+                });
+            });
     });
 });
 </script>

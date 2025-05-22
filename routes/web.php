@@ -28,6 +28,7 @@ use App\Http\Controllers\RemunerasiSourceController;
 use App\Http\Controllers\DetailSourceController;
 use App\Http\Controllers\PembagianKlaimController;
 use App\Http\Controllers\AdmissionController;
+use App\Http\Controllers\PendaftaranController;
 use App\Models\PegawaiMaster;
 use Illuminate\Support\Facades\Route;
 
@@ -197,9 +198,12 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::get('remunerasi-batch/{id}/sources', [RemunerasiSourceController::class, 'listByBatch'])->name('remunerasi-source.list-by-batch');
     Route::get('remunerasi-batch/{id}/sources/data', [RemunerasiSourceController::class, 'getByBatch'])->name('remunerasi-source.by-batch');
 
+    // Proporsi Fairness routes
+    Route::get('proporsi-fairness/export', [ProporsiFairnessController::class, 'export'])->name('proporsi-fairness.export');
     Route::get('proporsi-fairness/template/download', [ProporsiFairnessController::class, 'downloadTemplate'])->name('proporsi-fairness.template');
     Route::post('proporsi-fairness/import', [ProporsiFairnessController::class, 'import'])->name('proporsi-fairness.import');
     Route::resource('proporsi-fairness', ProporsiFairnessController::class);
+
     Route::resource('sumber', SumberController::class);
 
     Route::resource('remunerasi-batch', RemunerasiBatchController::class);
@@ -240,7 +244,12 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
 
     Route::get('/admission/list', [AdmissionController::class, 'listAdmission'])->name('admission.list');
     Route::get('/admission/export-excel', [AdmissionController::class, 'exportExcel'])->name('admission.export-excel');
-    Route::get('admission/detail/{id}', [PembagianKlaimController::class, 'showDetail'])->name('admission.detail');
+    Route::get('admission/detail/{id}', [AdmissionController::class, 'showDetail'])->name('admission.detail');
+  
+    Route::get('/pendaftaran/list', [PendaftaranController::class, 'listPendaftaran'])->name('pendaftaran.list');
+    Route::get('/pendaftaran/export-excel', [PendaftaranController::class, 'exportExcel'])->name('pendaftaran.export-excel');
+    Route::get('pendaftaran/detail/{id}', [PendaftaranController::class, 'showDetail'])->name('pendaftaran.detail');
+
 
     // Import Admission di Detail Source
     Route::get('detail-source/admission/list', [DetailSourceController::class, 'getAdmissionList'])->name('detail-source.admission.list');

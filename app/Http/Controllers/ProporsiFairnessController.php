@@ -331,4 +331,230 @@ class ProporsiFairnessController extends Controller
             return ResponseFormatter::error(null, 'Gagal memproses file: ' . $e->getMessage(), 500);
         }
     }
+
+    public function exportExcel(Request $request)
+    {
+        try {
+            // Query data
+            $query = ProporsiFairness::with(['gradeRelation', 'sumberRelation'])
+                ->where('del', false);
+            
+            // Filter by grade
+            if ($request->has('grade') && $request->grade != '') {
+                $query->where('grade', $request->grade);
+            }
+            
+            // Filter by sumber
+            if ($request->has('sumber') && $request->sumber != '') {
+                $query->where('sumber', $request->sumber);
+            }
+
+            // Filter by groups
+            if ($request->has('groups') && $request->groups != '') {
+                $query->where('groups', $request->groups);
+            }
+
+            $data = $query->get();
+
+            // Buat spreadsheet baru
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            
+            // Set judul worksheet
+            $sheet->setTitle('Data Proporsi Fairness');
+
+            // Set header kolom
+            $headers = [
+                'A1' => 'No',
+                'B1' => 'Groups',
+                'C1' => 'Jenis',
+                'D1' => 'Grade',
+                'E1' => 'PPA',
+                'F1' => 'Value',
+                'G1' => 'Sumber',
+                'H1' => 'Flag'
+            ];
+
+            foreach ($headers as $cell => $value) {
+                $sheet->setCellValue($cell, $value);
+            }
+
+            // Isi data
+            $row = 2;
+            foreach ($data as $index => $item) {
+                $sheet->setCellValue('A' . $row, $index + 1);
+                $sheet->setCellValue('B' . $row, $item->groups);
+                $sheet->setCellValue('C' . $row, $item->jenis);
+                $sheet->setCellValue('D' . $row, $item->grade);
+                $sheet->setCellValue('E' . $row, $item->ppa);
+                $sheet->setCellValue('F' . $row, $item->value);
+                $sheet->setCellValue('G' . $row, $item->sumber);
+                $sheet->setCellValue('H' . $row, $item->flag);
+                $row++;
+            }
+
+            // Set style header
+            $sheet->getStyle('A1:H1')->getFont()->setBold(true);
+            $sheet->getStyle('A1:H1')->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('E2E2E2');
+
+            // Set lebar kolom otomatis
+            foreach(range('A','H') as $column) {
+                $sheet->getColumnDimension($column)->setAutoSize(true);
+            }
+
+            // Set format angka untuk kolom Value
+            $sheet->getStyle('F2:F' . ($row-1))->getNumberFormat()
+                ->setFormatCode('#,##0.00');
+
+            // Set border untuk semua cell yang berisi data
+            $styleArray = [
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+            ];
+            $sheet->getStyle('A1:H' . ($row-1))->applyFromArray($styleArray);
+
+            // Set alignment
+            $sheet->getStyle('A1:H' . ($row-1))->getAlignment()
+                ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+            $sheet->getStyle('A1:A' . ($row-1))->getAlignment()
+                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('F2:F' . ($row-1))->getAlignment()
+                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+
+            // Buat file Excel
+            $filename = 'Data_Proporsi_Fairness_' . date('Y-m-d_H-i-s') . '.xlsx';
+            $writer = new Xlsx($spreadsheet);
+            
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            $writer->save('php://output');
+            exit;
+
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Gagal mengekspor data: ' . $e->getMessage(), 500);
+        }
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            // Query data dengan filter
+            $query = ProporsiFairness::where('del', false);
+            
+            // Filter by grade
+            if ($request->has('grade') && $request->grade != '') {
+                $query->where('grade', $request->grade);
+            }
+            
+            // Filter by sumber
+            if ($request->has('sumber') && $request->sumber != '') {
+                $query->where('sumber', $request->sumber);
+            }
+
+            // Filter by groups
+            if ($request->has('groups') && $request->groups != '') {
+                $query->where('groups', $request->groups);
+            }
+
+            $data = $query->get();
+
+            // Jika data kosong, kembalikan pesan error
+            if ($data->isEmpty()) {
+                return ResponseFormatter::error(null, 'Data tidak ditemukan untuk di-export', 404);
+            }
+
+            // Buat spreadsheet baru
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            
+            // Set judul worksheet
+            $sheet->setTitle('Data Proporsi Fairness');
+
+            // Set header kolom
+            $headers = [
+                'A1' => 'No',
+                'B1' => 'Groups',
+                'C1' => 'Jenis',
+                'D1' => 'Grade',
+                'E1' => 'PPA',
+                'F1' => 'Value',
+                'G1' => 'Sumber',
+                'H1' => 'Flag'
+            ];
+
+            foreach ($headers as $cell => $value) {
+                $sheet->setCellValue($cell, $value);
+            }
+
+            // Isi data
+            $row = 2;
+            foreach ($data as $index => $item) {
+                $sheet->setCellValue('A' . $row, $index + 1);
+                $sheet->setCellValue('B' . $row, $item->groups);
+                $sheet->setCellValue('C' . $row, $item->jenis);
+                $sheet->setCellValue('D' . $row, $item->grade);
+                $sheet->setCellValue('E' . $row, $item->ppa);
+                $sheet->setCellValue('F' . $row, $item->value);
+                $sheet->setCellValue('G' . $row, $item->sumber);
+                $sheet->setCellValue('H' . $row, $item->flag);
+                $row++;
+            }
+
+            // Set style header
+            $sheet->getStyle('A1:H1')->getFont()->setBold(true);
+            $sheet->getStyle('A1:H1')->getFill()
+                ->setFillType(Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('E2E2E2');
+
+            // Set lebar kolom otomatis
+            foreach(range('A','H') as $column) {
+                $sheet->getColumnDimension($column)->setAutoSize(true);
+            }
+
+            // Set format angka untuk kolom Value
+            $sheet->getStyle('F2:F' . ($row-1))->getNumberFormat()
+                ->setFormatCode('#,##0.00');
+
+            // Set border untuk semua cell yang berisi data
+            $styleArray = [
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+            ];
+            $sheet->getStyle('A1:H' . ($row-1))->applyFromArray($styleArray);
+
+            // Set alignment
+            $sheet->getStyle('A1:H' . ($row-1))->getAlignment()
+                ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+            $sheet->getStyle('A1:A' . ($row-1))->getAlignment()
+                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('F2:F' . ($row-1))->getAlignment()
+                ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+
+            // Buat file Excel
+            $filename = 'Data_Proporsi_Fairness_' . date('Y-m-d_H-i-s') . '.xlsx';
+            
+            // Set header untuk download
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            // Simpan file ke output
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+            exit;
+
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Gagal mengekspor data: ' . $e->getMessage(), 500);
+        }
+    }
 }

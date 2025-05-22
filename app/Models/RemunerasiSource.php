@@ -12,17 +12,7 @@ class RemunerasiSource extends Model
 
     protected $table = 'remunerasi_source';
     
-    protected $fillable = [
-        'batch_id',
-        'admission_id',
-        'no_rm',
-        'nama_pasien',
-        'tgl_masuk',
-        'tgl_keluar',
-        'kelas',
-        'total_biaya',
-        'status'
-    ];
+   protected $guarded = ['id'];
 
     protected $casts = [
         'tgl_masuk' => 'datetime',
