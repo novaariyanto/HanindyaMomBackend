@@ -367,6 +367,7 @@ class PembagianKlaimController extends Controller
                 $DOKTERHDRAJAL = "";
                 $PERAWATHDRAJAL = "";
                 $DPJPCATHLAB = "";
+                $PERAWAT_HD = "";
                 $Apoteker = "";
                 $STRUKTURAL = 1;
                 $JTL = 1;
@@ -424,10 +425,13 @@ class PembagianKlaimController extends Controller
                         $TOTALHD += $row->TARIFRS;
                         $PERAWAT_HD_RANAP = 127;
                     }
-                    if(in_array($row->id_kategori, [14])){
-                        $Apoteker = $row->KDDOKTER;
+                    if(in_array($row->KODETARIF, ['07'])){
+                        $Apoteker = 6;
                         $EMBALACE += 1;
                     }
+                    if($row->nama_ruang == "IGD"){
+                        $Dokter_Umum_IGD += 1;
+                   }
                     
 
 
@@ -1693,5 +1697,51 @@ class PembagianKlaimController extends Controller
         return $value;
     }
 
-   
+    /**
+     * Menampilkan laporan pembagian klaim berdasarkan cluster dan nama dokter
+     */
+    public function laporan(Request $request)
+    {
+        $remunerasi_source_id = $request->remunerasi_source_id;
+        
+        $data = PembagianKlaim::with(['remunerasiSource', 'detailSource'])
+            ->where('remunerasi_source_id', $remunerasi_source_id)
+            ->where('del', false)
+            ->get()
+            ->groupBy('cluster')
+            ->map(function ($clusterData) {
+                return $clusterData->groupBy('nama_ppa')
+                    ->map(function ($dokterData) {
+                        return [
+                            'total_nilai' => $dokterData->sum('nilai_remunerasi'),
+                            'detail' => $dokterData->map(function ($item) {
+                                return [
+                                    'tanggal' => $item->tanggal->format('d/m/Y'),
+                                    'ppa' => $item->ppa,
+                                    'sumber' => $item->sumber,
+                                    'value' => $item->value,
+                                    'sumber_value' => $item->sumber_value,
+                                    'nilai_remunerasi' => $item->nilai_remunerasi
+                                ];
+                            })
+                        ];
+                    });
+            });
+
+        $cluster_names = [
+            1 => 'Dokter',
+            2 => 'Perawat',
+            3 => 'Penunjang',
+            4 => 'Administrasi'
+        ];
+
+        $total_per_cluster = [];
+        foreach ($data as $cluster => $clusterData) {
+            $total_per_cluster[$cluster] = $clusterData->sum(function ($dokterData) {
+                return $dokterData['total_nilai'];
+            });
+        }
+
+        return view('pembagian-klaim.laporan', compact('data', 'cluster_names', 'total_per_cluster'));
+    }
 } 

@@ -1590,7 +1590,11 @@ class DetailSourceController extends Controller
                                         }
                                     }
                                     $data['total_remunerasi'] = $total_remunerasi;
-                                    $data['persentase_remunerasi'] = round($total_remunerasi/$data_detail_source->biaya_disetujui*100, 2);
+                                    if($data_detail_source->biaya_disetujui == 0){
+                                        $data['persentase_remunerasi'] = 0;
+                                    }else{
+                                        $data['persentase_remunerasi'] = round($total_remunerasi/$data_detail_source->biaya_disetujui*100, 2);
+                                    }
                                     
                                 
                                     
