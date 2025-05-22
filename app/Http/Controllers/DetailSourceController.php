@@ -1101,7 +1101,11 @@ class DetailSourceController extends Controller
                            
                             $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
                             $selisih = $selisih*-1;
-                            $persentase_selisih = $selisih/$data_detail_source->biaya_disetujui;
+                            if ($data_detail_source->biaya_disetujui != 0) {
+                                $persentase_selisih = ($selisih / $data_detail_source->biaya_disetujui) * 100;
+                            } else {
+                                $persentase_selisih = 0; // Atau null, tergantung logika kamu
+                            }
                             $persentase_selisih = $persentase_selisih*100;
                         
                             
