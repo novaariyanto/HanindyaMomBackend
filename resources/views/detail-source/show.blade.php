@@ -59,6 +59,7 @@
                                         @else
                                             <span class="badge bg-danger">Nonaktif</span>
                                         @endif
+                                       
                                     </td>
                                 </tr>
                             </table>
@@ -77,32 +78,24 @@
                                                 <th>Biaya Diajukan</th>
                                                 <td class="text-end">{{ number_format($detail->biaya_diajukan, 0, ',', '.') }}</td>
                                             </tr>
-                                            <tr class="table-info">
+                                            <tr class="table-warning">
                                                 <th>Biaya Disetujui</th>
                                                 <td class="text-end">{{ number_format($detail->biaya_disetujui, 0, ',', '.') }}</td>
+                                            </tr>
+                                            <tr class="table-info">
+                                                <th>Total Remunerasi</th>
+                                                <td class="text-end">{{ number_format($detail->total_remunerasi, 0, ',', '.') }}  </td>
+                                            </tr>
+                                            <tr class="table-primary">
+                                                <th>Persentase</th>
+                                                <td class="text-end">{{ number_format($detail->total_remunerasi/$detail->biaya_disetujui*100,2)}}%</td>
                                             </tr>
                                         </table>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="card mt-3">
-                                <div class="card-body">
-                                    <h6 class="card-title">Informasi Timestamp</h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <th>Dibuat</th>
-                                                <td>{{ $detail->created_at->format('d/m/Y H:i:s') }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Diupdate</th>
-                                                <td>{{ $detail->updated_at->format('d/m/Y H:i:s') }}</td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
+                          
                         </div>
                     </div>
                 </div>
