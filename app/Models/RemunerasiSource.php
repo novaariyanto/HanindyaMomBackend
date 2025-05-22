@@ -29,4 +29,8 @@ class RemunerasiSource extends Model
     {
         return $this->hasMany(DetailSource::class, 'remunerasi_source_id');
     }
+    public function pembagianKlaim()
+    {
+        return $this->hasMany(PembagianKlaim::class, 'remunerasi_source_id');
+    }
 } 

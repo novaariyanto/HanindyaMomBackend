@@ -23,6 +23,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\Grade;
 use Illuminate\Support\Facades\DB;
 use App\Models\Divisi;
+use App\Models\RemunerasiSource;
 
 class PembagianKlaimController extends Controller
 {
@@ -1700,48 +1701,76 @@ class PembagianKlaimController extends Controller
     /**
      * Menampilkan laporan pembagian klaim berdasarkan cluster dan nama dokter
      */
-    public function laporan(Request $request)
+    public function laporan(Request $request, $sourceId)
     {
-        $remunerasi_source_id = $request->remunerasi_source_id;
         
-        $data = PembagianKlaim::with(['remunerasiSource', 'detailSource'])
-            ->where('remunerasi_source_id', $remunerasi_source_id)
-            ->where('del', false)
-            ->get()
-            ->groupBy('cluster')
-            ->map(function ($clusterData) {
-                return $clusterData->groupBy('nama_ppa')
-                    ->map(function ($dokterData) {
-                        return [
-                            'total_nilai' => $dokterData->sum('nilai_remunerasi'),
-                            'detail' => $dokterData->map(function ($item) {
-                                return [
-                                    'tanggal' => $item->tanggal->format('d/m/Y'),
-                                    'ppa' => $item->ppa,
-                                    'sumber' => $item->sumber,
-                                    'value' => $item->value,
-                                    'sumber_value' => $item->sumber_value,
-                                    'nilai_remunerasi' => $item->nilai_remunerasi
-                                ];
-                            })
-                        ];
-                    });
-            });
 
-        $cluster_names = [
-            1 => 'Dokter',
-            2 => 'Perawat',
-            3 => 'Penunjang',
-            4 => 'Administrasi'
-        ];
+        // try {
+            // Ambil data remunerasi source dengan relasi pembagian klaim menggunakan query builder
+            $remunerasiSource = RemunerasiSource::with(['pembagianKlaim'])->where('id', $sourceId)->first();
 
-        $total_per_cluster = [];
-        foreach ($data as $cluster => $clusterData) {
-            $total_per_cluster[$cluster] = $clusterData->sum(function ($dokterData) {
-                return $dokterData['total_nilai'];
-            });
-        }
+            $total_klaim = DetailSource::where('id_remunerasi_source', $sourceId)->where('status_pembagian_klaim', 1)->sum('biaya_disetujui');
+            $total_remunerasi = DetailSource::where('id_remunerasi_source', $sourceId)->where('status_pembagian_klaim', 1)->sum('total_remunerasi');
+            // Kelompokkan data berdasarkan cluster dan nama_ppa menggunakan query builder
+            $groupedData = PembagianKlaim::where('remunerasi_source_id', $sourceId)
+                ->get()
+                ->groupBy(function ($item) {
+                    return $item->cluster;
+                })
+                ->map(function ($group) {
+                    return [
+                        'total_nilai' => $group->sum('nilai_remunerasi'),
+                        'detail' => $group->map(function ($item) {
+                            return [
+                                'tanggal' => $item->tanggal->format('d/m/Y'),
+                                'ppa' => $item->ppa,
+                                'nama_ppa' => $item->nama_ppa,
+                                'nilai_remunerasi' => $item->nilai_remunerasi
+                            ];
+                        })
+                    ];
+                });
+             
 
-        return view('pembagian-klaim.laporan', compact('data', 'cluster_names', 'total_per_cluster'));
+            $cluster_names = [
+                1 => 'Dokter',
+                2 => 'Perawat',
+                3 => 'Struktural',
+                4 => 'Jasa Tidak Langsung'
+            ];
+
+            // Hitung total per cluster menggunakan query builder
+            $total_per_cluster = PembagianKlaim::where('remunerasi_source_id', $sourceId)
+                ->get()
+                ->groupBy('cluster')
+                ->map(function ($group) {
+                    return $group->sum('nilai_remunerasi');
+                });
+
+            // Hitung total keseluruhan menggunakan query builder
+            $total_keseluruhan = PembagianKlaim::where('remunerasi_source_id', $sourceId)->sum('nilai_remunerasi');
+
+            // Format data untuk ditampilkan
+            $formattedData = [
+                'remunerasi_source' => [
+                    'nama_source' => $remunerasiSource->nama_source,
+                    'tanggal' => $remunerasiSource->tanggal ? Carbon::parse($remunerasiSource->tanggal)->format('d/m/Y') : '-',
+                    'total_biaya' => number_format($total_klaim, 0, ',', '.'),
+                    'total_remunerasi' => number_format($total_remunerasi, 0, ',', '.'),
+                    'persentase' => $total_klaim > 0 ? 
+                        number_format(($total_remunerasi / $total_klaim) * 100, 2, ',', '.') : '0,00'
+                ],
+                'data' => $groupedData,
+                'cluster_names' => $cluster_names,
+                'total_per_cluster' => $total_per_cluster,
+                'total_keseluruhan' => $total_keseluruhan
+            ];
+           
+
+            return view('pembagian-klaim.laporan', $formattedData);
+        // } catch (\Exception $e) {
+            // return redirect()->route('remunerasi-source.index')
+            //     ->with('error', 'Gagal menampilkan laporan: ' . $e->getMessage());
+        // }
     }
 } 

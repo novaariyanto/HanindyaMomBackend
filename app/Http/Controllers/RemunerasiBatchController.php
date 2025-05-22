@@ -54,16 +54,14 @@ class RemunerasiBatchController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nama_batch' => 'required|string|max:100|unique:remunerasi_batch,nama_batch',
-            'tahun' => 'required|integer|min:2000|max:2100',
+            'tanggal' => 'required|date',
              'status' => 'required|in:draft,pending,finalized'
         ], [
             'nama_batch.required' => 'Nama batch harus diisi',
             'nama_batch.unique' => 'Nama batch sudah ada',
             'nama_batch.max' => 'Nama batch maksimal 100 karakter',
-            'tahun.required' => 'Tahun harus diisi',
-            'tahun.integer' => 'Tahun harus berupa angka',
-            'tahun.min' => 'Tahun minimal 2000',
-            'tahun.max' => 'Tahun maksimal 2100',
+            'tanggal.required' => 'Tanggal harus diisi',
+            'tanggal.date' => 'Tanggal harus berupa tanggal',
             'status.required' => 'Status harus diisi',
             'status.in' => 'Status harus draft, pending, atau finalized'
         ]);
@@ -106,16 +104,14 @@ class RemunerasiBatchController extends Controller
 
         $validator = Validator::make($request->all(), [
             'nama_batch' => 'required|string|max:100|unique:remunerasi_batch,nama_batch,'.$id,
-            'tahun' => 'required|integer|min:2000|max:2100',
+            'tanggal' => 'required|date',
             'status' => 'required|in:draft,pending,finalized'
         ], [
             'nama_batch.required' => 'Nama batch harus diisi',
             'nama_batch.unique' => 'Nama batch sudah ada',
             'nama_batch.max' => 'Nama batch maksimal 100 karakter',
-            'tahun.required' => 'Tahun harus diisi',
-            'tahun.integer' => 'Tahun harus berupa angka',
-            'tahun.min' => 'Tahun minimal 2000',
-            'tahun.max' => 'Tahun maksimal 2100',
+            'tanggal.required' => 'Tanggal harus diisi',
+            'tanggal.date' => 'Tanggal harus berupa tanggal',
             'status.required' => 'Status harus diisi',
             'status.in' => 'Status harus draft, pending, atau finalized'
         ]);
