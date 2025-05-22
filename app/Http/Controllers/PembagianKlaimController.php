@@ -304,7 +304,8 @@ class PembagianKlaimController extends Controller
                                 'nama_ppa'=>$nama_dokter,
                                 'kode_dokter'=>@$kode_dokter,
                                 'sumber_value'=>$data_sumber[$row['sumber']],
-                                'nilai_remunerasi'=>$nilai_remunerasi
+                                'nilai_remunerasi'=>$nilai_remunerasi,
+                                'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                             ];     
                             $total_remunerasi += $nilai_remunerasi;          
                             $savePembagianKlaim = PembagianKlaim::create($data);
@@ -538,7 +539,8 @@ class PembagianKlaimController extends Controller
                             'nama_ppa'=>$nama_dokter,
                             'kode_dokter'=>@$kode_dokter,
                             'sumber_value'=>$data_sumber[$row['sumber']],
-                            'nilai_remunerasi'=>$nilai_remunerasi
+                            'nilai_remunerasi'=>$nilai_remunerasi,
+                            'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                         ];     
                         $total_remunerasi += $nilai_remunerasi;          
                         $savePembagianKlaim = PembagianKlaim::create($data);
@@ -788,7 +790,8 @@ class PembagianKlaimController extends Controller
                                 'nama_ppa'=>$nama_dokter,
                                 'kode_dokter'=>@$kode_dokter,
                                 'sumber_value'=>$data_sumber[$row['sumber']],
-                                'nilai_remunerasi'=>$nilai_remunerasi
+                                'nilai_remunerasi'=>$nilai_remunerasi,
+                                'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                             ];     
                             $total_remunerasi += $nilai_remunerasi;          
                             $savePembagianKlaim = PembagianKlaim::create($data);
@@ -1033,7 +1036,8 @@ class PembagianKlaimController extends Controller
                                 'nama_ppa'=>$nama_dokter,
                                 'kode_dokter'=>@$kode_dokter,
                                 'sumber_value'=>$data_sumber[$row['sumber']],
-                                'nilai_remunerasi'=>$nilai_remunerasi
+                                'nilai_remunerasi'=>$nilai_remunerasi,
+                                'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                             ];     
                             $total_remunerasi += $nilai_remunerasi;          
                             $savePembagianKlaim = PembagianKlaim::create($data);

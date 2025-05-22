@@ -820,7 +820,8 @@ class DetailSourceController extends Controller
                                                 'nama_ppa'=>$nama_dokter,
                                                 'kode_dokter'=>@$kode_dokter,
                                                 'sumber_value'=>$data_sumber[$row['sumber']],
-                                                'nilai_remunerasi'=>$nilai_remunerasi
+                                                'nilai_remunerasi'=>$nilai_remunerasi,
+                                                'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                                             ];     
                                             $total_remunerasi += $nilai_remunerasi;          
                                             $savePembagianKlaim = PembagianKlaim::create($data);
@@ -1064,7 +1065,8 @@ class DetailSourceController extends Controller
                                             'nama_ppa'=>$nama_dokter,
                                             'kode_dokter'=>@$kode_dokter,
                                             'sumber_value'=>$data_sumber[$row['sumber']],
-                                            'nilai_remunerasi'=>$nilai_remunerasi
+                                            'nilai_remunerasi'=>$nilai_remunerasi,
+                                            'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                                         ];     
                                         $total_remunerasi += $nilai_remunerasi;          
                                         $savePembagianKlaim = PembagianKlaim::create($data);
@@ -1096,6 +1098,7 @@ class DetailSourceController extends Controller
                                 }
                             }
                         }else{
+                           
                             $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
                             $selisih = $selisih*-1;
                             $persentase_selisih = $selisih/$data_detail_source->biaya_disetujui;
@@ -1109,7 +1112,7 @@ class DetailSourceController extends Controller
                             }else{
                                 $persentase_selisih = $persentase_selisih;
                             }
-                            
+                           
                     
                             $grade = Grade::where('persentase', '>=', $persentase_selisih)
                                 ->orderBy('persentase', 'ASC')
@@ -1322,7 +1325,8 @@ class DetailSourceController extends Controller
                                                 'nama_ppa'=>$nama_dokter,
                                                 'kode_dokter'=>@$kode_dokter,
                                                 'sumber_value'=>$data_sumber[$row['sumber']],
-                                                'nilai_remunerasi'=>$nilai_remunerasi
+                                                'nilai_remunerasi'=>$nilai_remunerasi,
+                                                'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                                             ];     
                                             $total_remunerasi += $nilai_remunerasi;          
                                             $savePembagianKlaim = PembagianKlaim::create($data);
@@ -1574,7 +1578,8 @@ class DetailSourceController extends Controller
                                                 'nama_ppa'=>$nama_dokter,
                                                 'kode_dokter'=>@$kode_dokter,
                                                 'sumber_value'=>$data_sumber[$row['sumber']],
-                                                'nilai_remunerasi'=>$nilai_remunerasi
+                                                'nilai_remunerasi'=>$nilai_remunerasi,
+                                                'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                                             ];     
                                             $total_remunerasi += $nilai_remunerasi;          
                                             $savePembagianKlaim = PembagianKlaim::create($data);
@@ -1636,10 +1641,16 @@ class DetailSourceController extends Controller
                     ]);
 
         } catch (\Exception $e) {
+            $remainingCount = DetailSource::where('id_remunerasi_source', $sourceId)
+            ->where('status_pembagian_klaim', 0)
+            ->count();
+
             return response()->json([
-                'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+                'processed' => 1,
+                'success' => $success,
+                'failed' => $failed,
+                'hasMore' => $remainingCount > 0
+            ]);
         }
     }
     function getIdxDaftar($sep) {
