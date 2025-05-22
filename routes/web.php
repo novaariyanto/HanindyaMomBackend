@@ -254,6 +254,8 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     // Import Admission di Detail Source
     Route::get('detail-source/admission/list', [DetailSourceController::class, 'getAdmissionList'])->name('detail-source.admission.list');
     Route::post('detail-source/store-from-admission/{sourceId}', [DetailSourceController::class, 'storeFromAdmission'])->name('detail-source.store-from-admission');
+
+    Route::get('/pembagian-klaim/laporan', [PembagianKlaimController::class, 'laporan'])->name('pembagian-klaim.laporan');
 });
 
 require __DIR__.'/auth.php';
