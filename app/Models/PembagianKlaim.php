@@ -31,7 +31,8 @@ class PembagianKlaim extends Model
         'nama_ppa',
         'kode_dokter',
         'sumber_value',
-        'nilai_remunerasi'
+        'nilai_remunerasi',
+        'remunerasi_source_id'
     ];
 
     protected $casts = [

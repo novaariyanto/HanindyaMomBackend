@@ -116,9 +116,9 @@ class PendaftaranController extends Controller
         foreach ($data as $item) {
             $sheet->setCellValue('A' . $row, $item->NOMR);
             $sheet->setCellValue('B' . $row, $item->TGLREG ? date('d-m-Y', strtotime($item->TGLREG)) : '');
-            $sheet->setCellValue('C' . $row, $item->total_tarif_rs);
-            $sheet->setCellValue('D' . $row, $item->total_tarif_rs);
-            $sheet->setCellValue('E' . $row, $item->total_tarif_rs);
+            $sheet->setCellValue('C' . $row, 0);
+            $sheet->setCellValue('D' . $row, 0);
+            $sheet->setCellValue('E' . $row, 0);
             $sheet->setCellValue('F' . $row, 'Aktif');
             $sheet->setCellValue('G' . $row, 'Rawat Jalan');
             $sheet->setCellValue('H' . $row, $item->IDXDAFTAR);
