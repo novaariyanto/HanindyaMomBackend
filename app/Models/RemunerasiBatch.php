@@ -12,14 +12,15 @@ class RemunerasiBatch extends Model
 
     protected $table = 'remunerasi_batch';
     
+    protected $guarded = ['id'];
     protected $fillable = [
         'nama_batch',
-        'tahun',
+        'tanggal',
         'status'
     ];
 
     protected $casts = [
-        'tahun' => 'integer',
+        'tanggal' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];

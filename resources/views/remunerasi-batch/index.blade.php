@@ -35,7 +35,7 @@
                     <tr>
                         <th>No</th>
                         <th>Nama Batch</th>
-                        <th>Tahun</th>
+                        <th>Tanggal</th>
                         <th>Status</th>
                         <th>Opsi</th>
                     </tr>
@@ -65,8 +65,8 @@
                         <input type="text" class="form-control" name="nama_batch" required maxlength="100">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Tahun</label>
-                        <input type="number" class="form-control" name="tahun" required min="2000" max="2100">
+                        <label class="form-label">Tanggal</label>
+                        <input type="date" class="form-control" name="tanggal" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -103,8 +103,8 @@
                         <input type="text" class="form-control" name="nama_batch" id="edit_nama_batch" required maxlength="100">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Tahun</label>
-                        <input type="number" class="form-control" name="tahun" id="edit_tahun" required min="2000" max="2100">
+                        <label class="form-label">Tanggal</label>
+                        <input type="date" class="form-control" name="tanggal" id="edit_tanggal" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -148,8 +148,11 @@ $(document).ready(function() {
                 name: 'nama_batch'
             },
             {
-                data: 'tahun',
-                name: 'tahun'
+                data: 'tanggal',
+                name: 'tanggal',
+                render: function(data) {
+                    return moment(data).format('DD MMMM YYYY');
+                }
             },
             {
                 data: 'status',
@@ -225,7 +228,7 @@ $(document).ready(function() {
             var data = data.data;
             $('#editForm').attr('action', url);
             $('#edit_nama_batch').val(data.nama_batch);
-            $('#edit_tahun').val(data.tahun);
+            $('#edit_tanggal').val(data.tanggal);
             $('#edit_status').val(data.status);
             $('#editModal').modal('show');
         });
