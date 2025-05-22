@@ -35,20 +35,20 @@
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <tr>
-                                <th width="200">Nama Source</th>
+                                <th>Nama Source</th>
                                 <td>{{ $remunerasi_source['nama_source'] }}</td>
-                                <th width="200">Tanggal</th>
-                                <td>{{ $remunerasi_source['tanggal'] }}</td>
                             </tr>
                             <tr>
                                 <th>Total Klaim</th>
                                 <td>Rp {{ $remunerasi_source['total_biaya'] }}</td>
+                            </tr>
+                            <tr>
                                 <th>Total Remunerasi</th>
                                 <td>Rp {{ $remunerasi_source['total_remunerasi'] }}</td>
                             </tr>
                             <tr>
                                 <th>Persentase</th>
-                                <td colspan="3">{{ $remunerasi_source['persentase'] }}%</td>
+                                <td>{{ $remunerasi_source['persentase'] }}%</td>
                             </tr>
                         </table>
                     </div>
@@ -62,32 +62,26 @@
                     <table class="table table-striped table-bordered">
                         <thead class="bg-light">
                             <tr>
+                                <th width="10%">No</th>
                                 <th width="25%">Nama</th>
-                                <th width="15%">Tanggal</th>
                                 <th width="20%">PPA</th>
                                 <th width="20%">Nilai</th>
-                                <th width="20%">Total</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($clusterData['detail'] as $detail)
+                            @foreach($clusterData['detail']->groupBy('nama_ppa') as $nama_ppa => $details)
                             <tr>
-                                <td>{{ $detail['nama_ppa'] }}</td>
-                                <td>{{ $detail['tanggal'] }}</td>
-                                <td>{{ $detail['ppa'] }}</td>
-                                <td class="text-end">Rp {{ number_format($detail['nilai_remunerasi'], 2, ',', '.') }}</td>
-                                @if($loop->first)
-                                <td rowspan="{{ count($clusterData['detail']) }}" class="align-middle text-end">
-                                    Rp {{ number_format($clusterData['total_nilai'], 2, ',', '.') }}
-                                </td>
-                                @endif
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $nama_ppa }}</td>
+                                <td>{{ str_contains($details->first()['ppa'], "DOKTERHDRANAP")||str_contains($details->first()['ppa'], "DPJP") || str_contains($details->first()['ppa'], "DOKTERRABER") ? 'DPJP' : $details->first()['ppa'] }}</td>
+                                <td class="text-end">{{ number_format($details->sum('nilai_remunerasi'), 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
                             <tr class="fw-bold bg-light">
-                                <td colspan="4" class="text-end">Total {{ $cluster_names[$cluster] }}</td>
-                                <td class="text-end">Rp {{ number_format($total_per_cluster[$cluster], 2, ',', '.') }}</td>
+                                <td colspan="3" class="text-end">Total {{ $cluster_names[$cluster] }}</td>
+                                <td class="text-end">{{ number_format($total_per_cluster[$cluster], 0, ',', '.') }}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -102,7 +96,7 @@
                         <table class="table table-bordered">
                             <tr class="fw-bold bg-primary text-white">
                                 <td class="text-end" width="200">Total Keseluruhan</td>
-                                <td class="text-end">Rp {{ number_format($total_keseluruhan, 2, ',', '.') }}</td>
+                                <td class="text-end">Rp {{ number_format($total_keseluruhan, 0, ',', '.') }}</td>
                             </tr>
                         </table>
                     </div>
