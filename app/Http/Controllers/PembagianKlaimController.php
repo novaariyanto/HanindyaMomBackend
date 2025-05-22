@@ -827,7 +827,7 @@ class PembagianKlaimController extends Controller
                     
                     $tadmission = Tadmission::where('id_admission', $idxdaftar)->first();
                     $databilling = Tbillranap::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
-    
+  
     
                     $VERIFIKASITOTAL = $data_detail_source->biaya_disetujui;
                     $pisau = 0; //
@@ -1047,11 +1047,12 @@ class PembagianKlaimController extends Controller
                             $total_remunerasi += $nilai_remunerasi;          
                             $savePembagianKlaim = PembagianKlaim::create($data);
                         }
+                    
                     }
                     $data['total_remunerasi'] = $total_remunerasi;
                     $data['persentase_remunerasi'] = round($total_remunerasi/$data_detail_source->biaya_disetujui*100, 2);
                   
-                
+            
                     
                     if($savePembagianKlaim){
                         $detailSource->update([
@@ -1710,7 +1711,7 @@ class PembagianKlaimController extends Controller
             $remunerasiSource = RemunerasiSource::with(['pembagianKlaim'])->where('id', $sourceId)->first();
 
             $total_klaim = DetailSource::where('id_remunerasi_source', $sourceId)->where('status_pembagian_klaim', 1)->sum('biaya_disetujui');
-            $total_remunerasi = DetailSource::where('id_remunerasi_source', $sourceId)->where('status_pembagian_klaim', 1)->sum('total_remunerasi');
+            
             // Kelompokkan data berdasarkan cluster dan nama_ppa menggunakan query builder
             $groupedData = PembagianKlaim::where('remunerasi_source_id', $sourceId)
                 ->get()
@@ -1730,6 +1731,7 @@ class PembagianKlaimController extends Controller
                         })
                     ];
                 });
+
              
 
             $cluster_names = [
@@ -1756,9 +1758,9 @@ class PembagianKlaimController extends Controller
                     'nama_source' => $remunerasiSource->nama_source,
                     'tanggal' => $remunerasiSource->tanggal ? Carbon::parse($remunerasiSource->tanggal)->format('d/m/Y') : '-',
                     'total_biaya' => number_format($total_klaim, 0, ',', '.'),
-                    'total_remunerasi' => number_format($total_remunerasi, 0, ',', '.'),
+                    'total_remunerasi' => number_format($total_keseluruhan, 0, ',', '.'),
                     'persentase' => $total_klaim > 0 ? 
-                        number_format(($total_remunerasi / $total_klaim) * 100, 2, ',', '.') : '0,00'
+                        number_format(($total_keseluruhan / $total_klaim) * 100, 0, ',', '.') : '0,00'
                 ],
                 'data' => $groupedData,
                 'cluster_names' => $cluster_names,
