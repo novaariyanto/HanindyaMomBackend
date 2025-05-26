@@ -587,7 +587,7 @@ class DetailSourceController extends Controller
                     // Panggil API untuk update SEP
                     $detailSource =  DetailSource::where('id_remunerasi_source', $sourceId)
                     ->where('status_pembagian_klaim', '<>', 1)
-                    ->limit($limit);
+                    ->limit(1);
                     
                     if($detailSource->count() < 1){
                         return response()->json([
