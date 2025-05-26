@@ -55,39 +55,129 @@
                 </div>
             </div>
 
-            @foreach($data as $cluster => $clusterData)
+            <!-- Tabel Dokter -->
             <div class="mb-4">
-                <h5 class="text-primary mb-3">{{ $cluster_names[$cluster] }}</h5>
+                <h5 class="text-primary mb-3">Dokter</h5>
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered">
                         <thead class="bg-light">
                             <tr>
                                 <th width="10%">No</th>
-                                <th width="25%">Nama</th>
-                                <th width="20%">PPA</th>
-                                <th width="20%">Nilai</th>
+                                <th width="40%">Nama PPA</th>
+                                <th width="50%">Total Nominal Remunerasi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($clusterData['detail']->groupBy('nama_ppa') as $nama_ppa => $details)
+                            @foreach($data_dokter as $kode_dokter => $data)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $nama_ppa }}</td>
-                                <td>{{ str_contains($details->first()['ppa'], "DOKTERHDRANAP")||str_contains($details->first()['ppa'], "DPJP") || str_contains($details->first()['ppa'], "DOKTERRABER") ? 'DPJP' : $details->first()['ppa'] }}</td>
-                                <td class="text-end">{{ number_format($details->sum('nilai_remunerasi'), 0, ',', '.') }}</td>
+                                <td>{{ $data['nama_ppa'] }}</td>
+                                <td class="text-end">Rp {{ number_format($data['total_nominal_remunerasi'], 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
                             <tr class="fw-bold bg-light">
-                                <td colspan="3" class="text-end">Total {{ $cluster_names[$cluster] }}</td>
-                                <td class="text-end">{{ number_format($total_per_cluster[$cluster], 0, ',', '.') }}</td>
+                                <td colspan="2" class="text-end">Total Dokter</td>
+                                <td class="text-end">Rp {{ number_format($total_per_kategori['dokter'], 0, ',', '.') }}</td>
                             </tr>
                         </tfoot>
                     </table>
                 </div>
             </div>
-            @endforeach
+
+            <!-- Tabel Perawat -->
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">Perawat</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="bg-light">
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="40%">Nama PPA</th>
+                                <th width="50%">Total Nominal Remunerasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($data_perawat as $kode_dokter => $data)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $data['nama_ppa'] }}</td>
+                                <td class="text-end">Rp {{ number_format($data['total_nominal_remunerasi'], 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold bg-light">
+                                <td colspan="2" class="text-end">Total Perawat</td>
+                                <td class="text-end">Rp {{ number_format($total_per_kategori['perawat'], 0, ',', '.') }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabel Struktural -->
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">Struktural</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="bg-light">
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="40%">Nama PPA</th>
+                                <th width="50%">Total Nominal Remunerasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($data_struktural as $kode_dokter => $data)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $data['nama_ppa'] }}</td>
+                                <td class="text-end">Rp {{ number_format($data['total_nominal_remunerasi'], 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold bg-light">
+                                <td colspan="2" class="text-end">Total Struktural</td>
+                                <td class="text-end">Rp {{ number_format($total_per_kategori['struktural'], 0, ',', '.') }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabel JTL/Semua Pegawai -->
+            <div class="mb-4">
+                <h5 class="text-primary mb-3">Jasa Tidak Langsung (JTL)</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="bg-light">
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="40%">Nama PPA</th>
+                                <th width="50%">Total Nominal Remunerasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($data_jtl as $kode_dokter => $data)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $data['nama_ppa'] }}</td>
+                                <td class="text-end">Rp {{ number_format($data['total_nominal_remunerasi'], 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold bg-light">
+                                <td colspan="2" class="text-end">Total JTL</td>
+                                <td class="text-end">Rp {{ number_format($total_per_kategori['jtl'], 0, ',', '.') }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
 
             <!-- Total Keseluruhan -->
             <div class="row mt-4">
@@ -96,7 +186,7 @@
                         <table class="table table-bordered">
                             <tr class="fw-bold bg-primary text-white">
                                 <td class="text-end" width="200">Total Keseluruhan</td>
-                                <td class="text-end">Rp {{ number_format($total_keseluruhan, 0, ',', '.') }}</td>
+                                <td class="text-end">Rp {{ $remunerasi_source['total_remunerasi'] }}</td>
                             </tr>
                         </table>
                     </div>

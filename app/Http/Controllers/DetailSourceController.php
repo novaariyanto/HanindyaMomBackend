@@ -582,8 +582,9 @@ class DetailSourceController extends Controller
                 $offset = $request->offset;
                 $success = 0;
                 $failed = 0;
+             
            
-                try {        
+                // try {        
                     // Panggil API untuk update SEP
                     $detailSource =  DetailSource::where('id_remunerasi_source', $sourceId)
                     ->where('status_pembagian_klaim', '<>', 1)
@@ -598,10 +599,10 @@ class DetailSourceController extends Controller
 
 
 
-                    $detail_source = $detailSource->get();
+                    $data_detail_source = $detailSource->first();
                   
-                    foreach($detail_source as $row){
-                        $data_detail_source = $row;
+                    // foreach($detail_source as $row){
+                        // $data_detail_source = $row;
                         if(strlen($data_detail_source->no_sep) < 16){
                                 //membaca idxdaftar dan nomr / pasien umum
                                 $idxdaftar = $data_detail_source->idxdaftar;
@@ -622,6 +623,7 @@ class DetailSourceController extends Controller
                                 $grade = Grade::where('persentase', '>=', $persentase_selisih)
                                     ->orderBy('persentase', 'ASC')
                                     ->first();
+                                  
                                 $grade = $grade->grade;
 
                             if($data_detail_source->jenis == 'Rawat Jalan'){
@@ -1111,13 +1113,14 @@ class DetailSourceController extends Controller
                             
                             if($persentase_selisih < 0){
                                 $persentase_selisih = 0;
-                            }else if($persentase_selisih > 50){
-                                $persentase_selisih = 50;
+                            }else if($persentase_selisih >= 20){
+                                $persentase_selisih = 20;
                             }else{
                                 $persentase_selisih = $persentase_selisih;
                             }
+                          
                            
-                    
+                  
                             $grade = Grade::where('persentase', '>=', $persentase_selisih)
                                 ->orderBy('persentase', 'ASC')
                                 ->first();
@@ -1381,7 +1384,7 @@ class DetailSourceController extends Controller
                                     $EMBALACE = 0;
                                     $Dokter_Umum_IGD = 0;
                                     
-                                    $DPJP = $tadmission->dokter_penanggungjawab;
+                                    $DPJP = @$tadmission->dokter_penanggungjawab;
                                     // ------------	
                                     $DOKTERKONSUL = "";
                                     $KONSULEN = "";
@@ -1624,7 +1627,7 @@ class DetailSourceController extends Controller
                                 
                             }
                         }
-                    }
+                    // }
       
                    
           
@@ -1648,20 +1651,19 @@ class DetailSourceController extends Controller
                         'hasMore' => $remainingCount > 0
                     ]);
 
-        } catch (\Exception $e) {
-            print_r($e);
-            die;
-            $remainingCount = DetailSource::where('id_remunerasi_source', $sourceId)
-            ->where('status_pembagian_klaim', 0)
-            ->count();
+        // } catch (\Exception $e) {
+        //     $remainingCount = DetailSource::where('id_remunerasi_source', $sourceId)
+        //     ->where('status_pembagian_klaim', 0)
+        //     ->count();
 
-            return response()->json([
-                'processed' => 1,
-                'success' => $success,
-                'failed' => $failed,
-                'hasMore' => $remainingCount > 0
-            ]);
-        }
+        //     return response()->json([
+        //         'processed' => 1,
+        //         'success' => $success,
+        //         'failed' => $failed,
+        //         'hasMore' => $remainingCount > 0,
+        //         'message'=>$e->getMessage()
+        //     ]);
+        // }
     }
     function getIdxDaftar($sep) {
         if(strlen($sep) != 19){
@@ -1680,10 +1682,22 @@ class DetailSourceController extends Controller
                     $nomr = $this->ambilNoMR($response);
                 }
                 if($nomr == ""){
+                    
                     $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
                     $data = json_decode($datasep);
-                    $idxdaftar = $data->data->idxdaftar;
-                    $nomr = $data->data->nomr;
+                    if($data->success){
+                        $idxdaftar = $data->data->idxdaftar;
+                        $nomr = $data->data->nomr;
+                    }else{
+                        $pendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar);
+                        if($pendaftaran->count() > 0){
+                            $pendaftaran = $pendaftaran->first();
+                            $nomr = $pendaftaran->NOMR;
+                        }
+
+                    }
+                    
+                 
                 }
             
                 
