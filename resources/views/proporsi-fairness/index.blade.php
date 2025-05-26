@@ -51,6 +51,14 @@
             </select>
           </div>
           <div class="col-md-6 col-xl-3 mb-3">
+            <label class="form-label">Filter Jenis</label>
+            <select class="form-select" id="filter-jenis">
+              <option value="">Semua Jenis</option>
+              <option value="PISAU">PISAU</option>
+              <option value="NONPISAU">NONPISAU</option>
+            </select>
+          </div>
+          <div class="col-md-6 col-xl-3 mb-3">
             <label class="form-label">Filter Grade</label>
             <select class="form-select" id="filter-grade">
               <option value="">Semua Grade</option>
@@ -317,6 +325,7 @@ $(document).ready(function() {
                 d.grade = $('#filter-grade').val();
                 d.sumber = $('#filter-sumber').val();
                 d.groups = $('#filter-groups').val();
+                d.jenis = $('#filter-jenis').val();
             }
         },
         columns: [
@@ -368,15 +377,18 @@ $(document).ready(function() {
     });
 
     // Handle filter change
-    $('#filter-grade, #filter-sumber, #filter-groups').change(function() {
+    $('#filter-grade, #filter-sumber, #filter-groups, #filter-jenis').change(function() {
         datatable.ajax.reload();
     });
+
+
 
     // Handle reset filter
     $('#btn-reset-filter').click(function() {
         $('#filter-grade').val('');
         $('#filter-sumber').val('');
         $('#filter-groups').val('');
+        $('#filter-jenis').val('');
         datatable.ajax.reload();
     });
 
@@ -454,6 +466,7 @@ $(document).ready(function() {
                     // Set radio buttons
                     $(`input[name="groups"][value="${data.groups}"]`).prop('checked', true);
                     $(`input[name="jenis"][value="${data.jenis}"]`).prop('checked', true);
+                    
                     
                     // Set select options
                     $('#edit_grade').val(data.grade);
@@ -620,6 +633,7 @@ $(document).ready(function() {
         var grade = $('#filter-grade').val();
         var sumber = $('#filter-sumber').val();
         var groups = $('#filter-groups').val();
+        var jenis = $('#filter-jenis').val();
         
         // Build export URL with filters
         var exportUrl = $(this).attr('href');
@@ -628,7 +642,8 @@ $(document).ready(function() {
         if (grade) params.push('grade=' + grade);
         if (sumber) params.push('sumber=' + sumber);
         if (groups) params.push('groups=' + groups);
-        
+        if (jenis) params.push('jenis=' + jenis);
+
         if (params.length > 0) {
             exportUrl += '?' + params.join('&');
         }

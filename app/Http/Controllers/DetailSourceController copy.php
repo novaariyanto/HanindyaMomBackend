@@ -577,7 +577,7 @@ class DetailSourceController extends Controller
      */
     public function syncBatch(Request $request, $sourceId)
     {
-     
+    
         
                 try {        
                     // Panggil API untuk update SEP

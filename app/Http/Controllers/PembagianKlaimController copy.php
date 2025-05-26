@@ -1704,94 +1704,75 @@ class PembagianKlaimController extends Controller
      */
     public function laporan(Request $request, $sourceId)
     {
-        try {
-            // Ambil data remunerasi source
-            $remunerasiSource = RemunerasiSource::findOrFail($sourceId);
+        
 
-            // Hitung total klaim
-            $total_klaim = DetailSource::where('id_remunerasi_source', $sourceId)
-                ->where('status_pembagian_klaim', 1)
-                ->sum('biaya_disetujui');
+        // try {
+            // Ambil data remunerasi source dengan relasi pembagian klaim menggunakan query builder
+            $remunerasiSource = RemunerasiSource::with(['pembagianKlaim'])->where('id', $sourceId)->first();
 
-            // Data untuk Dokter (cluster 1)
-            $data_dokter = PembagianKlaim::where('remunerasi_source_id', $sourceId)
-                ->where('cluster', 1)
+            $total_klaim = DetailSource::where('id_remunerasi_source', $sourceId)->where('status_pembagian_klaim', 1)->sum('biaya_disetujui');
+            
+            // Kelompokkan data berdasarkan cluster dan nama_ppa menggunakan query builder
+            $groupedData = PembagianKlaim::where('remunerasi_source_id', $sourceId)
                 ->get()
-                ->groupBy('kode_dokter')
+                ->groupBy(function ($item) {
+                    return $item->cluster;
+                })
                 ->map(function ($group) {
                     return [
-                        'total_nominal_remunerasi' => $group->sum('nilai_remunerasi'),
-                        'nama_ppa' => $group->first()->nama_ppa
+                        'total_nilai' => $group->sum('nilai_remunerasi'),
+                        'detail' => $group->map(function ($item) {
+                            return [
+                                'tanggal' => $item->tanggal->format('d/m/Y'),
+                                'ppa' => $item->ppa,
+                                'nama_ppa' => $item->nama_ppa,
+                                'nilai_remunerasi' => $item->nilai_remunerasi
+                            ];
+                        })
                     ];
                 });
 
-            // Data untuk Perawat (cluster 2)
-            $data_perawat = PembagianKlaim::where('remunerasi_source_id', $sourceId)
-                ->where('cluster', 2)
+             
+
+            $cluster_names = [
+                1 => 'Dokter',
+                2 => 'Perawat',
+                3 => 'Struktural',
+                4 => 'Jasa Tidak Langsung'
+            ];
+
+            // Hitung total per cluster menggunakan query builder
+            $total_per_cluster = PembagianKlaim::where('remunerasi_source_id', $sourceId)
                 ->get()
-                ->groupBy('kode_dokter')
+                ->groupBy('cluster')
                 ->map(function ($group) {
-                    return [
-                        'total_nominal_remunerasi' => $group->sum('nilai_remunerasi'),
-                        'nama_ppa' => $group->first()->nama_ppa
-                    ];
+                    return $group->sum('nilai_remunerasi');
                 });
 
-            // Data untuk Struktural (cluster 3)
-            $data_struktural = PembagianKlaim::where('remunerasi_source_id', $sourceId)
-                ->where('cluster', 3)
-                ->get()
-                ->groupBy('kode_dokter')
-                ->map(function ($group) {
-                    return [
-                        'total_nominal_remunerasi' => $group->sum('nilai_remunerasi'),
-                        'nama_ppa' => $group->first()->nama_ppa
-                    ];
-                });
+            // Hitung total keseluruhan menggunakan query builder
+            $total_keseluruhan = PembagianKlaim::where('remunerasi_source_id', $sourceId)->sum('nilai_remunerasi');
 
-            // Data untuk JTL/Semua Pegawai (cluster 4)
-            $data_jtl = PembagianKlaim::where('remunerasi_source_id', $sourceId)
-                ->where('cluster', 4)
-                ->get()
-                ->groupBy('kode_dokter')
-                ->map(function ($group) {
-                    return [
-                        'total_nominal_remunerasi' => $group->sum('nilai_remunerasi'),
-                        'nama_ppa' => $group->first()->nama_ppa
-                    ];
-                });
-
-            // Hitung total remunerasi keseluruhan
-            $total_remunerasi = $data_dokter->sum('total_nominal_remunerasi') +
-                              $data_perawat->sum('total_nominal_remunerasi') +
-                              $data_struktural->sum('total_nominal_remunerasi') +
-                              $data_jtl->sum('total_nominal_remunerasi');
-
-            // Format data untuk view
+            // Format data untuk ditampilkan
             $formattedData = [
                 'remunerasi_source' => [
                     'nama_source' => $remunerasiSource->nama_source,
+                    'tanggal' => $remunerasiSource->tanggal ? Carbon::parse($remunerasiSource->tanggal)->format('d/m/Y') : '-',
                     'total_biaya' => number_format($total_klaim, 0, ',', '.'),
-                    'total_remunerasi' => number_format($total_remunerasi, 0, ',', '.'),
+                    'total_remunerasi' => number_format($total_keseluruhan, 0, ',', '.'),
                     'persentase' => $total_klaim > 0 ? 
-                        number_format(($total_remunerasi / $total_klaim) * 100, 2, ',', '.') : '0,00'
+                        number_format(($total_keseluruhan / $total_klaim) * 100, 0, ',', '.') : '0,00'
                 ],
-                'data_dokter' => $data_dokter,
-                'data_perawat' => $data_perawat,
-                'data_struktural' => $data_struktural,
-                'data_jtl' => $data_jtl,
-                'total_per_kategori' => [
-                    'dokter' => $data_dokter->sum('total_nominal_remunerasi'),
-                    'perawat' => $data_perawat->sum('total_nominal_remunerasi'),
-                    'struktural' => $data_struktural->sum('total_nominal_remunerasi'),
-                    'jtl' => $data_jtl->sum('total_nominal_remunerasi')
-                ]
+                'data' => $groupedData,
+                'cluster_names' => $cluster_names,
+                'total_per_cluster' => $total_per_cluster,
+                'total_keseluruhan' => $total_keseluruhan
             ];
+           
 
             return view('pembagian-klaim.laporan', $formattedData);
-        } catch (\Exception $e) {
-            return redirect()->route('remunerasi-source.index')
-                ->with('error', 'Gagal menampilkan laporan: ' . $e->getMessage());
-        }
+        // } catch (\Exception $e) {
+            // return redirect()->route('remunerasi-source.index')
+            //     ->with('error', 'Gagal menampilkan laporan: ' . $e->getMessage());
+        // }
     }
 } 

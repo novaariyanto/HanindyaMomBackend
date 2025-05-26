@@ -71,13 +71,7 @@
                             <span class="input-group-text">%</span>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Persentase Top</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control" name="persentase_top" required step="0.01" min="0" max="100">
-                            <span class="input-group-text">%</span>
-                        </div>
-                    </div>
+                   
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -105,19 +99,13 @@
                         <input type="text" class="form-control" name="grade" id="edit_grade" required maxlength="50">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Persentase Bottom</label>
+                        <label class="form-label">Persentase </label>
                         <div class="input-group">
                             <input type="number" class="form-control" name="persentase" id="edit_persentase" required step="0.01" min="0" max="100">
                             <span class="input-group-text">%</span>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Persentase Top</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control" name="persentase_top" id="edit_persentase_top" required step="0.01" min="0" max="100">
-                            <span class="input-group-text">%</span>
-                        </div>
-                    </div>
+            
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -158,13 +146,7 @@ $(document).ready(function() {
                     return parseFloat(data).toFixed(2) + '%';
                 }
             },
-            {
-                data: 'persentase_top',
-                name: 'persentase_top',
-                render: function(data) {
-                    return parseFloat(data).toFixed(2) + '%';
-                }
-            },
+          
             {
                 data: 'action',
                 name: 'action',
@@ -235,7 +217,6 @@ $(document).ready(function() {
             $('#editForm').attr('action', url);
             $('#edit_grade').val(data.grade);
             $('#edit_persentase').val(data.persentase);
-            $('#edit_persentase_top').val(data.persentase_top);
             $('#editModal').modal('show');
         });
     });

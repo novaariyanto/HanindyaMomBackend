@@ -34,6 +34,12 @@ class ProporsiFairnessController extends Controller
             if ($request->has('sumber') && $request->sumber != '') {
                 $data->where('sumber', $request->sumber);
             }
+
+            // Filter by jenis
+            if ($request->has('jenis') && $request->jenis != '') {
+                $data->where('jenis', $request->jenis);
+            }
+
              // Filter by sumber
              if ($request->has('groups') && $request->groups != '') {
                 $data->where('groups', $request->groups);
@@ -349,6 +355,11 @@ class ProporsiFairnessController extends Controller
                 $query->where('sumber', $request->sumber);
             }
 
+            // Filter by jenis
+            if ($request->has('jenis') && $request->jenis != '') {
+                $query->where('jenis', $request->jenis);
+            }
+
             // Filter by groups
             if ($request->has('groups') && $request->groups != '') {
                 $query->where('groups', $request->groups);
@@ -456,6 +467,11 @@ class ProporsiFairnessController extends Controller
             // Filter by sumber
             if ($request->has('sumber') && $request->sumber != '') {
                 $query->where('sumber', $request->sumber);
+            }
+
+            // Filter by jenis
+            if ($request->has('jenis') && $request->jenis != '') {
+                $query->where('jenis', $request->jenis);
             }
 
             // Filter by groups
