@@ -587,7 +587,7 @@ class DetailSourceController extends Controller
                     // Panggil API untuk update SEP
                     $detailSource =  DetailSource::where('id_remunerasi_source', $sourceId)
                     ->where('status_pembagian_klaim', '<>', 1)
-                    ->limit($limit);
+                    ->limit(1);
                     
                     if($detailSource->count() < 1){
                         return response()->json([
@@ -1152,7 +1152,7 @@ class DetailSourceController extends Controller
                                     $EMBALACE = 0;
                                     $Dokter_Umum_IGD = 0;
                                     
-                                    $DPJP = $tpendaftaran->KDDOKTER;
+                                    $DPJP = @$tpendaftaran->KDDOKTER;
                                     // ------------	
                                     $DOKTERKONSUL = "";
                                     $KONSULEN = "";
@@ -1649,6 +1649,8 @@ class DetailSourceController extends Controller
                     ]);
 
         } catch (\Exception $e) {
+            print_r($e);
+            die;
             $remainingCount = DetailSource::where('id_remunerasi_source', $sourceId)
             ->where('status_pembagian_klaim', 0)
             ->count();
