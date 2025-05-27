@@ -1699,7 +1699,7 @@ class DetailSourceController extends Controller
                     
                     $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
                     $data = json_decode($datasep);
-                    if($data->success){
+                    if(@$data->success){
                         $idxdaftar = $data->data->idxdaftar;
                         $nomr = $data->data->nomr;
                     }else{
@@ -1717,10 +1717,21 @@ class DetailSourceController extends Controller
                 
             
             }else{
+               
                 $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
                 $data = json_decode($datasep);
-                $idxdaftar = $data->data->idxdaftar;
-                $nomr = $data->data->nomr;
+          
+                
+                if($data->success){
+                      $idxdaftar = $data->data->idxdaftar;
+                      $nomr = $data->data->nomr;
+                }else{
+                     return [
+                        'idxdaftar' => "",
+                        'nomr' => ""
+                    ];
+                }
+              
             
             }
         }
