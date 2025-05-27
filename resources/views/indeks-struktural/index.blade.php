@@ -1,15 +1,15 @@
 @extends('root')
 
-@section('title', 'Data Pegawai')
+@section('title', 'Indeks Struktural')
 
 @section('content')
 <div class="container-fluid">
     @include('components.breadcrumb', [
-        'title' => 'Data Pegawai',
+        'title' => 'Indeks Struktural',
         'links' => [
             ['url' => route('dashboard'), 'label' => 'Dashboard'],
         ],
-        'current' => 'Data Pegawai'
+        'current' => 'Indeks Struktural'
     ])
     
     <div class="widget-content searchable-container list">
@@ -23,7 +23,7 @@
                 </div>
                 <div class="col-md-8 col-xl-9 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
                     <button type="button" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
-                        <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Pegawai
+                        <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Indeks Struktural
                     </button>
                 </div>
             </div>
@@ -35,11 +35,8 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>NIP</th>
-                            <th>Nama</th>
-                            <th>Jabatan</th>
-                            <th>Unit Kerja</th>
-                            <th>Status</th>
+                            <th>Nama Jabatan</th>
+                            <th>Nilai</th>
                             <th>Opsi</th>
                         </tr>
                     </thead>
@@ -57,34 +54,19 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah Pegawai</h5>
+                <h5 class="modal-title">Tambah Indeks Struktural</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="createForm" method="POST" action="{{ route('pegawai.store') }}">
+            <form id="createForm" method="POST" action="{{ route('indeks-struktural.store') }}">
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">NIP</label>
-                        <input type="text" class="form-control" name="nip" required maxlength="18">
+                        <label class="form-label">Nama Jabatan</label>
+                        <input type="text" class="form-control" name="nama_jabatan" required maxlength="100">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Nama</label>
-                        <input type="text" class="form-control" name="nama" required maxlength="100">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Jabatan</label>
-                        <input type="text" class="form-control" name="jabatan" required maxlength="100">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Unit Kerja</label>
-                        <input type="text" class="form-control" name="unit_kerja" required maxlength="100">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" name="status" required>
-                            <option value="1">Aktif</option>
-                            <option value="0">Nonaktif</option>
-                        </select>
+                        <label class="form-label">Nilai</label>
+                        <input type="number" step="0.01" class="form-control" name="nilai" required min="0">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -101,7 +83,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Pegawai</h5>
+                <h5 class="modal-title">Edit Indeks Struktural</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="editForm" method="POST">
@@ -109,27 +91,12 @@
                 @method('PUT')
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">NIP</label>
-                        <input type="text" class="form-control" name="nip" id="edit_nip" required maxlength="18">
+                        <label class="form-label">Nama Jabatan</label>
+                        <input type="text" class="form-control" name="nama_jabatan" id="edit_nama_jabatan" required maxlength="100">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Nama</label>
-                        <input type="text" class="form-control" name="nama" id="edit_nama" required maxlength="100">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Jabatan</label>
-                        <input type="text" class="form-control" name="jabatan" id="edit_jabatan" required maxlength="100">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Unit Kerja</label>
-                        <input type="text" class="form-control" name="unit_kerja" id="edit_unit_kerja" required maxlength="100">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" name="status" id="edit_status" required>
-                            <option value="1">Aktif</option>
-                            <option value="0">Nonaktif</option>
-                        </select>
+                        <label class="form-label">Nilai</label>
+                        <input type="number" step="0.01" class="form-control" name="nilai" id="edit_nilai" required min="0">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -151,7 +118,7 @@ $(document).ready(function() {
         serverSide: true,
         autoWidth: false,
         ajax: {
-            url: '{{ route('pegawai.index') }}',
+            url: '{{ route('indeks-struktural.index') }}',
         },
         columns: [
             {
@@ -160,19 +127,8 @@ $(document).ready(function() {
                 orderable: false,
                 searchable: false
             },
-            {data: 'nip', name: 'nip'},
-            {data: 'nama', name: 'nama'},
-            {data: 'jabatan', name: 'jabatan'},
-            {data: 'unit_kerja', name: 'unit_kerja'},
-            {
-                data: 'status',
-                name: 'status',
-                render: function(data) {
-                    return data == 1 ? 
-                        '<span class="badge bg-success">Aktif</span>' : 
-                        '<span class="badge bg-danger">Nonaktif</span>';
-                }
-            },
+            {data: 'nama_jabatan', name: 'nama_jabatan'},
+            {data: 'nilai', name: 'nilai'},
             {
                 data: 'action',
                 name: 'action',
@@ -242,11 +198,8 @@ $(document).ready(function() {
             if (response.meta.status === 'success') {
                 var data = response.data;
                 $('#editForm').attr('action', url);
-                $('#edit_nip').val(data.nip);
-                $('#edit_nama').val(data.nama);
-                $('#edit_jabatan').val(data.jabatan);
-                $('#edit_unit_kerja').val(data.unit_kerja);
-                $('#edit_status').val(data.status);
+                $('#edit_nama_jabatan').val(data.nama_jabatan);
+                $('#edit_nilai').val(data.nilai);
                 $('#editModal').modal('show');
             }
         });
@@ -354,4 +307,4 @@ $(document).ready(function() {
     });
 });
 </script>
-@endpush
+@endpush 

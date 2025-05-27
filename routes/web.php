@@ -31,6 +31,11 @@ use App\Http\Controllers\AdmissionController;
 use App\Http\Controllers\PendaftaranController;
 use App\Models\PegawaiMaster;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\IndeksStrukturalController;
+use App\Http\Controllers\IndeksJasaTidakLangsungController;
+use App\Http\Controllers\IndeksJasaLangsungNonMedisController;
+use App\Http\Controllers\TransaksiRemunerasiPegawaiController;
+use App\Http\Controllers\IndeksPegawaiController;
 
 Route::get('/faces/{filename}', function ($filename) {
     $path = storage_path('app/public/faces/' . $filename);
@@ -256,6 +261,56 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::post('detail-source/store-from-admission/{sourceId}', [DetailSourceController::class, 'storeFromAdmission'])->name('detail-source.store-from-admission');
 
     Route::get('/pembagian-klaim/laporan/{sourceId}', [PembagianKlaimController::class, 'laporan'])->name('pembagian-klaim.laporan');
+
+    // Indeks Struktural
+    Route::get('indeks-struktural', [IndeksStrukturalController::class, 'index'])->name('indeks-struktural.index');
+    Route::post('indeks-struktural', [IndeksStrukturalController::class, 'store'])->name('indeks-struktural.store');
+    Route::get('indeks-struktural/{id}', [IndeksStrukturalController::class, 'show'])->name('indeks-struktural.show');
+    Route::put('indeks-struktural/{id}', [IndeksStrukturalController::class, 'update'])->name('indeks-struktural.update');
+    Route::delete('indeks-struktural/{id}', [IndeksStrukturalController::class, 'destroy'])->name('indeks-struktural.destroy');
+
+    // Indeks Jasa Tidak Langsung
+    Route::get('indeks-jasa-tidak-langsung', [IndeksJasaTidakLangsungController::class, 'index'])->name('indeks-jasa-tidak-langsung.index');
+    Route::post('indeks-jasa-tidak-langsung', [IndeksJasaTidakLangsungController::class, 'store'])->name('indeks-jasa-tidak-langsung.store');
+    Route::get('indeks-jasa-tidak-langsung/{id}', [IndeksJasaTidakLangsungController::class, 'show'])->name('indeks-jasa-tidak-langsung.show');
+    Route::put('indeks-jasa-tidak-langsung/{id}', [IndeksJasaTidakLangsungController::class, 'update'])->name('indeks-jasa-tidak-langsung.update');
+    Route::delete('indeks-jasa-tidak-langsung/{id}', [IndeksJasaTidakLangsungController::class, 'destroy'])->name('indeks-jasa-tidak-langsung.destroy');
+
+    // Indeks Jasa Langsung Non Medis
+    Route::get('indeks-jasa-langsung-non-medis', [IndeksJasaLangsungNonMedisController::class, 'index'])->name('indeks-jasa-langsung-non-medis.index');
+    Route::post('indeks-jasa-langsung-non-medis', [IndeksJasaLangsungNonMedisController::class, 'store'])->name('indeks-jasa-langsung-non-medis.store');
+    Route::get('indeks-jasa-langsung-non-medis/{id}', [IndeksJasaLangsungNonMedisController::class, 'show'])->name('indeks-jasa-langsung-non-medis.show');
+    Route::put('indeks-jasa-langsung-non-medis/{id}', [IndeksJasaLangsungNonMedisController::class, 'update'])->name('indeks-jasa-langsung-non-medis.update');
+    Route::delete('indeks-jasa-langsung-non-medis/{id}', [IndeksJasaLangsungNonMedisController::class, 'destroy'])->name('indeks-jasa-langsung-non-medis.destroy');
+
+    // Pegawai
+    Route::get('pegawai', [PegawaiController::class, 'index'])->name('pegawai.index');
+    Route::post('pegawai', [PegawaiController::class, 'store'])->name('pegawai.store');
+    Route::get('pegawai/{id}', [PegawaiController::class, 'show'])->name('pegawai.show');
+    Route::put('pegawai/{id}', [PegawaiController::class, 'update'])->name('pegawai.update');
+    Route::delete('pegawai/{id}', [PegawaiController::class, 'destroy'])->name('pegawai.destroy');
+
+    // Transaksi Remunerasi Pegawai
+    Route::get('transaksi-remunerasi-pegawai', [TransaksiRemunerasiPegawaiController::class, 'index'])->name('transaksi-remunerasi-pegawai.index');
+    Route::post('transaksi-remunerasi-pegawai', [TransaksiRemunerasiPegawaiController::class, 'store'])->name('transaksi-remunerasi-pegawai.store');
+    Route::get('transaksi-remunerasi-pegawai/{id}', [TransaksiRemunerasiPegawaiController::class, 'show'])->name('transaksi-remunerasi-pegawai.show');
+    Route::put('transaksi-remunerasi-pegawai/{id}', [TransaksiRemunerasiPegawaiController::class, 'update'])->name('transaksi-remunerasi-pegawai.update');
+    Route::delete('transaksi-remunerasi-pegawai/{id}', [TransaksiRemunerasiPegawaiController::class, 'destroy'])->name('transaksi-remunerasi-pegawai.destroy');
+    
+    // Import dan Template untuk Transaksi Remunerasi Pegawai
+    Route::post('transaksi-remunerasi-pegawai/import', [TransaksiRemunerasiPegawaiController::class, 'import'])->name('transaksi-remunerasi-pegawai.import');
+    Route::get('transaksi-remunerasi-pegawai/template/download', [TransaksiRemunerasiPegawaiController::class, 'template'])->name('transaksi-remunerasi-pegawai.template');
+    
+    // Sinkronisasi Batch untuk Transaksi Remunerasi Pegawai
+    Route::get('transaksi-remunerasi-pegawai/get-unsynced-count', [TransaksiRemunerasiPegawaiController::class, 'getUnsyncedCount'])->name('transaksi-remunerasi-pegawai.get-unsynced-count');
+    Route::post('transaksi-remunerasi-pegawai/sync-batch', [TransaksiRemunerasiPegawaiController::class, 'syncBatch'])->name('transaksi-remunerasi-pegawai.sync-batch');
+
+    // Indeks Pegawai
+    Route::get('indeks-pegawai', [IndeksPegawaiController::class, 'index'])->name('indeks-pegawai.index');
+    Route::post('indeks-pegawai', [IndeksPegawaiController::class, 'store'])->name('indeks-pegawai.store');
+    Route::get('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'show'])->name('indeks-pegawai.show');
+    Route::put('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'update'])->name('indeks-pegawai.update');
+    Route::delete('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'destroy'])->name('indeks-pegawai.destroy');
 });
 
 require __DIR__.'/auth.php';

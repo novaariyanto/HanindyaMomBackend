@@ -12,7 +12,13 @@ class Pegawai extends Model
     protected $fillable = [
         'nama', 'nip', 'nik', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'agama_id',
         'alamat', 'province_id', 'regency_id', 'district_id', 'village_id', 'jenis_pegawai',
-        'profesi_id', 'email', 'nohp', 'is_deleted'
+        'profesi_id', 'email', 'nohp', 'is_deleted',
+        'id_jabatan_struktural',
+        'nilai_indeks_struktural',
+        'id_indeks_jtl',
+        'nilai_indeks_jtl',
+        'id_indeks_jl_non_medis',
+        'nilai_indeks_jl_non_medis'
     ];
 
 
@@ -37,4 +43,23 @@ class Pegawai extends Model
                      ->orderByDesc('tahun_masuk'); // Ambil yang paling baru
      }
 
+    public function jabatanStruktural()
+    {
+        return $this->belongsTo(IndeksStruktural::class, 'id_jabatan_struktural');
+    }
+
+    public function indeksJTL()
+    {
+        return $this->belongsTo(IndeksJasaTidakLangsung::class, 'id_indeks_jtl');
+    }
+
+    public function indeksJLNonMedis()
+    {
+        return $this->belongsTo(IndeksJasaLangsungNonMedis::class, 'id_indeks_jl_non_medis');
+    }
+
+    public function transaksiRemunerasi()
+    {
+        return $this->hasMany(TransaksiRemunerasiPegawai::class, 'id_pegawai');
+    }
 }

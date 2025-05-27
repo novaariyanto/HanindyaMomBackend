@@ -1670,7 +1670,7 @@ class DetailSourceController extends Controller
                 
 
                     return response()->json([
-                        'processed' => 1,
+                        'processed' => $success+$failed,
                         'success' => $success,
                         'failed' => $failed,
                         "message"=>$message,

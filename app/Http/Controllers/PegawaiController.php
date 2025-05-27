@@ -3,84 +3,118 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pegawai;
+use App\Models\IndeksStruktural;
+use App\Models\IndeksJasaTidakLangsung;
+use App\Models\IndeksJasaLangsungNonMedis;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
-
-
+use App\Helpers\ResponseFormatter;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+
 class PegawaiController extends Controller
 {
     //
      /**
      * Tampilkan halaman utama datatable pegawai.
      */
-    public function index(Request $request)
+    public function index()
     {
-        if ($request->ajax()) {
-            $unitKerjaIds = $request->input('unit_kerja_id');
-            $unitKerjaIdsArray = !empty($unitKerjaIds) ? explode(',', $unitKerjaIds) : [];
-
-            // Query awal untuk mengambil semua pegawai
-            $query = Pegawai::with(['mutasi.unitKerja', 'mutasiAktif.unitKerja']);
-
-            // Filter berdasarkan unit kerja jika ada parameter `unit_kerja_id`
-       // Filter berdasarkan unit kerja jika ada parameter `unit_kerja_id`
-       if (!empty($unitKerjaIdsArray)) {
-        $query->whereHas('mutasi', function ($q) use ($unitKerjaIdsArray) {
-            $q->whereIn('unit_kerja_id', $unitKerjaIdsArray)
-              ->where('status', '1'); // Hanya ambil mutasi aktif
-        });
-    }
-
-            return DataTables::eloquent($query)
-                ->addColumn('nik', function (Pegawai $pegawai) {
-                    return $pegawai->nik;
-                })
-                ->addColumn('nama', function (Pegawai $pegawai) {
-                    return $pegawai->nama;
-                })
-                ->addColumn('alamat', function (Pegawai $pegawai) {
-                    return $pegawai->alamat ?? '-';
-                })
-                ->addColumn('profesi', function (Pegawai $pegawai) {
-                    return $pegawai->profesi?->nama ?? '-'; // Asumsi ada relasi ke model Profesi
-                })
-                ->addColumn('unit_kerja', function (Pegawai $pegawai) {
-                    // Ambil nama unit kerja aktif dari relasi currentUnitKerja
-                    return $pegawai->mutasiAktif?->unitKerja?->nama ?? '-';
-                })
-                ->addColumn('action', function (Pegawai $pegawai) {
-                    // Tombol aksi (edit, delete, dll.)
+        if (request()->ajax()) {
+            $data = Pegawai::with(['jabatanStruktural', 'indeksJTL', 'indeksJLNonMedis']);
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function($row){
                     return '
-                        <a href="' . route('pegawai.show', $pegawai->id) . '" class="btn btn-info btn-sm"><i class="ti ti-eye"></i></a>';
+                        <a href="#" data-url="' . route('pegawai.show', $row->id) . '" class="btn btn-info btn-sm btn-edit"><i class="ti ti-pencil"></i></a>
+                        <a href="#" data-url="' . route('pegawai.destroy', $row->id) . '" class="btn btn-danger btn-sm btn-delete"><i class="ti ti-trash"></i></a>
+                    ';
                 })
-                ->filter(function ($query) use ($request) {
-                    // Custom filter untuk pencarian global
-                    if ($request->has('search') && !empty($request->search['value'])) {
-                        $search = $request->search['value'];
-                        $query->where(function ($q) use ($search) {
-                            $q->where('nik', 'like', '%' . $search . '%')
-                              ->orWhere('nama', 'like', '%' . $search . '%')
-                              ->orWhere('alamat', 'like', '%' . $search . '%');
-                        });
-                    }
-                })
-                ->rawColumns(['action']) // Kolom yang mengandung HTML harus di-escape secara manual
-                ->toJson();
+                ->rawColumns(['action'])
+                ->make(true);
         }
 
-        // Ambil semua unit kerja untuk dropdown filter
-        $unitKerjas = \App\Models\UnitKerja::all();
-        $title = 'Pegawai';
-        $slug = 'pegawai';
+        $jabatanStruktural = IndeksStruktural::all();
+        $indeksJTL = IndeksJasaTidakLangsung::all();
+        $indeksJLNonMedis = IndeksJasaLangsungNonMedis::all();
 
-        return view('pages.pegawai.index', compact('slug', 'title', 'unitKerjas'));
+        return view('pegawai.index', compact('jabatanStruktural', 'indeksJTL', 'indeksJLNonMedis'));
     }
 
+    public function store(Request $request)
+    {
+        $validator = validator($request->all(), [
+            'nama' => 'required|string|max:100',
+            'nip' => 'required|string|max:18|unique:pegawai',
+            'id_jabatan_struktural' => 'required|exists:indeks_struktural,id',
+            'nilai_indeks_struktural' => 'required|numeric|min:0',
+            'id_indeks_jtl' => 'required|exists:indeks_jasa_tidak_langsung,id',
+            'nilai_indeks_jtl' => 'required|numeric|min:0',
+            'id_indeks_jl_non_medis' => 'required|exists:indeks_jasa_langsung_non_medis,id',
+            'nilai_indeks_jl_non_medis' => 'required|numeric|min:0'
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseFormatter::error($validator->errors(), 'Validasi gagal', 422);
+        }
+
+        try {
+            Pegawai::create($request->all());
+            return ResponseFormatter::success(null, 'Data berhasil disimpan');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Data gagal disimpan: ' . $e->getMessage());
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $data = Pegawai::with(['jabatanStruktural', 'indeksJTL', 'indeksJLNonMedis'])->findOrFail($id);
+            return ResponseFormatter::success($data, 'Data berhasil diambil');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Data tidak ditemukan');
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validator = validator($request->all(), [
+            'nama' => 'required|string|max:100',
+            'nip' => 'required|string|max:18|unique:pegawai,nip,' . $id,
+            'id_jabatan_struktural' => 'required|exists:indeks_struktural,id',
+            'nilai_indeks_struktural' => 'required|numeric|min:0',
+            'id_indeks_jtl' => 'required|exists:indeks_jasa_tidak_langsung,id',
+            'nilai_indeks_jtl' => 'required|numeric|min:0',
+            'id_indeks_jl_non_medis' => 'required|exists:indeks_jasa_langsung_non_medis,id',
+            'nilai_indeks_jl_non_medis' => 'required|numeric|min:0'
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseFormatter::error($validator->errors(), 'Validasi gagal', 422);
+        }
+
+        try {
+            $pegawai = Pegawai::findOrFail($id);
+            $pegawai->update($request->all());
+            return ResponseFormatter::success(null, 'Data berhasil diupdate');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Data gagal diupdate: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $pegawai = Pegawai::findOrFail($id);
+            $pegawai->delete();
+            return ResponseFormatter::success(null, 'Data berhasil dihapus');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Data gagal dihapus: ' . $e->getMessage());
+        }
+    }
 
     public function export(Request $request)
     {
@@ -201,8 +235,4 @@ class PegawaiController extends Controller
         // Output file ke browser
         $writer->save('php://output');
     }
-
-
-
-
 }
