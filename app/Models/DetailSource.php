@@ -30,6 +30,6 @@ class DetailSource extends Model
 
     public function remunerasiSource()
     {
-        return $this->belongsTo(RemunerasiSource::class, 'id_remunerasi_source');
+        return $this->hasOne(RemunerasiSource::class, 'id', 'id_remunerasi_source');
     }
 } 
