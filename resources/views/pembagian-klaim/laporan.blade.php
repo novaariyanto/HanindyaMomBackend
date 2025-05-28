@@ -63,8 +63,10 @@
                         <thead class="bg-light">
                             <tr>
                                 <th width="10%">No</th>
-                                <th width="40%">Nama PPA</th>
-                                <th width="50%">Total Nominal Remunerasi</th>
+                                <th width="30%">Nama PPA</th>
+                                <th width="10%">Total Pasien Rajal</th>
+                                <th width="10%">Total Pasien Ranap</th>
+                                <th width="40%">Total Nominal Remunerasi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,6 +74,8 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ $data['nama_ppa'] }}</td>
+                                <td>{{ $data['total_pasien_rajal'] }}</td>
+                                <td>{{ $data['total_pasien_ranap'] }}</td>
                                 <td class="text-end">Rp {{ number_format($data['total_nominal_remunerasi'], 0, ',', '.') }}</td>
                             </tr>
                             @endforeach
