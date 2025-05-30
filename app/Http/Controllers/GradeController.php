@@ -27,9 +27,6 @@ class GradeController extends Controller
                 ->editColumn('persentase', function($row) {
                     return number_format($row->persentase, 2);
                 })
-                ->editColumn('persentase_top', function($row) {
-                    return number_format($row->persentase_top, 2);
-                })
                 ->rawColumns(['action'])
                 ->make(true);
         }
@@ -44,18 +41,14 @@ class GradeController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'grade' => 'required|string|max:50|unique:grade,grade',
-            'persentase' => 'required|numeric|between:0,100',
-             'persentase_top' => 'required|numeric|between:0,100'
+            'persentase' => 'required|numeric|between:0,100'
         ], [
             'grade.required' => 'Grade harus diisi',
             'grade.unique' => 'Grade sudah ada',
             'grade.max' => 'Grade maksimal 50 karakter',
             'persentase.required' => 'Persentase bottom harus diisi',
             'persentase.numeric' => 'Persentase bottom harus berupa angka',
-            'persentase.between' => 'Persentase bottom harus antara 0 dan 100',
-            'persentase_top.required' => 'Persentase top harus diisi',
-            'persentase_top.numeric' => 'Persentase top harus berupa angka',
-            'persentase_top.between' => 'Persentase top harus antara 0 dan 100'
+            'persentase.between' => 'Persentase bottom harus antara 0 dan 100'
         ]);
 
         if ($validator->fails()) {
@@ -96,18 +89,14 @@ class GradeController extends Controller
 
         $validator = Validator::make($request->all(), [
             'grade' => 'required|string|max:50|unique:grade,grade,'.$id,
-            'persentase' => 'required|numeric|between:0,100',
-              'persentase_top' => 'required|numeric|between:0,100'
+            'persentase' => 'required|numeric|between:0,100'
         ], [
             'grade.required' => 'Grade harus diisi',
             'grade.unique' => 'Grade sudah ada',
             'grade.max' => 'Grade maksimal 50 karakter',
             'persentase.required' => 'Persentase bottom harus diisi',
             'persentase.numeric' => 'Persentase bottom harus berupa angka',
-            'persentase.between' => 'Persentase bottom harus antara 0 dan 100',
-            'persentase_top.required' => 'Persentase top harus diisi',
-            'persentase_top.numeric' => 'Persentase top harus berupa angka',
-            'persentase_top.between' => 'Persentase top harus antara 0 dan 100'
+            'persentase.between' => 'Persentase bottom harus antara 0 dan 100'
         ]);
 
         if ($validator->fails()) {

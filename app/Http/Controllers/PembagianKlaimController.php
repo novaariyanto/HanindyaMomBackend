@@ -1439,7 +1439,7 @@ class PembagianKlaimController extends Controller
             $data_dokter = PembagianKlaim::where('remunerasi_source_id', $sourceId)
                 ->where('cluster', 1)
                 ->get()
-                ->groupBy('kode_dokter')
+                ->groupBy('nama_ppa')
                 ->map(function ($group) {
                     return [
                         'total_nominal_remunerasi' => $group->sum('nilai_remunerasi'),
@@ -1452,6 +1452,8 @@ class PembagianKlaimController extends Controller
                         'nama_ppa' => $group->first()->nama_ppa
                     ];
                 });
+
+       
 
             // Data untuk Perawat (cluster 2)
             $data_perawat = PembagianKlaim::where('remunerasi_source_id', $sourceId)
@@ -1515,6 +1517,7 @@ class PembagianKlaimController extends Controller
                     'jtl' => $data_jtl->sum('total_nominal_remunerasi')
                 ]
             ];
+           
 
             return view('pembagian-klaim.laporan', $formattedData);
         } catch (\Exception $e) {
