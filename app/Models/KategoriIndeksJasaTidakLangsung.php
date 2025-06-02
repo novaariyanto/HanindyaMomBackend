@@ -27,7 +27,7 @@ class KategoriIndeksJasaTidakLangsung extends Model
     // Relationship dengan IndeksJasaLangsungNonMedis
     public function indeksJasa()
     {
-        return $this->hasMany(IndeksJasaLangsungNonMedis::class, 'kategori_id');
+        return $this->hasMany(IndeksJasaTidakLangsung::class, 'kategori_id');
     }
     
     // Scope untuk status aktif

@@ -39,6 +39,7 @@ use App\Http\Controllers\IndeksPegawaiController;
 use App\Http\Controllers\PegawaiJasaNonMedisController;
 use App\Http\Controllers\KategoriIndeksJasaLangsungNonMedisController;
 use App\Http\Controllers\PegawaiJasaTidakLangsungController;
+use App\Http\Controllers\KategoriIndeksJasaTidakLangsungController;
 Route::get('/faces/{filename}', function ($filename) {
     $path = storage_path('app/public/faces/' . $filename);
     if (!file_exists($path)) {
@@ -339,6 +340,14 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::get('kategori-non-medis/{id}/edit', [KategoriIndeksJasaLangsungNonMedisController::class, 'edit'])->name('kategori-non-medis.edit');
     Route::put('kategori-non-medis/{id}', [KategoriIndeksJasaLangsungNonMedisController::class, 'update'])->name('kategori-non-medis.update');
     Route::delete('kategori-non-medis/{id}', [KategoriIndeksJasaLangsungNonMedisController::class, 'destroy'])->name('kategori-non-medis.destroy');
+
+    // Kategori Tidak Langsung
+    Route::get('kategori-tidak-langsung', [KategoriIndeksJasaTidakLangsungController::class, 'index'])->name('kategori-tidak-langsung.index');
+    Route::post('kategori-tidak-langsung', [KategoriIndeksJasaTidakLangsungController::class, 'store'])->name('kategori-tidak-langsung.store');
+    Route::get('kategori-tidak-langsung/{id}', [KategoriIndeksJasaTidakLangsungController::class, 'show'])->name('kategori-tidak-langsung.show');
+    Route::get('kategori-tidak-langsung/{id}/edit', [KategoriIndeksJasaTidakLangsungController::class, 'edit'])->name('kategori-tidak-langsung.edit');
+    Route::put('kategori-tidak-langsung/{id}', [KategoriIndeksJasaTidakLangsungController::class, 'update'])->name('kategori-tidak-langsung.update');
+    Route::delete('kategori-tidak-langsung/{id}', [KategoriIndeksJasaTidakLangsungController::class, 'destroy'])->name('kategori-tidak-langsung.destroy');
 });
 
 require __DIR__.'/auth.php';
