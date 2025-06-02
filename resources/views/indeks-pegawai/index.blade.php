@@ -37,13 +37,11 @@
                             <th>No</th>
                             <th>Nama</th>
                             <th>NIP</th>
-                            <th>TMT CPNS</th>
-                            <th>TMT di RS</th>
-                            <th>Masa Kerja di RS</th>
-                            <th>Indeks Masa Kerja</th>
-                            <th>Jabatan</th>
-                            <th>Ruang</th>
-                            <th>Total</th>
+                            <th>NIK</th>
+                            <th>Cluster 1</th>
+                            <th>Cluster 2</th>
+                            <th>Cluster 3</th>
+                            <th>Cluster 4</th>
                             <th>Opsi</th>
                         </tr>
                     </thead>
@@ -85,14 +83,24 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">TMT CPNS</label>
-                                <input type="date" class="form-control" name="tmt_cpns" required>
+                                <label class="form-label">NIK</label>
+                                <input type="text" class="form-control" name="nik" required maxlength="20">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Kolom Cluster -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Cluster 1</label>
+                                <input type="number" step="0.01" class="form-control" name="cluster_1" min="0">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">TMT di RS</label>
-                                <input type="date" class="form-control" name="tmt_di_rs" required>
+                                <label class="form-label">Cluster 2</label>
+                                <input type="number" step="0.01" class="form-control" name="cluster_2" min="0">
                             </div>
                         </div>
                     </div>
@@ -100,89 +108,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Masa Kerja di RS</label>
-                                <input type="text" class="form-control" name="masa_kerja_di_rs" required maxlength="50" placeholder="Contoh: 5 Tahun 3 Bulan">
+                                <label class="form-label">Cluster 3</label>
+                                <input type="number" step="0.01" class="form-control" name="cluster_3" min="0">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Indeks Masa Kerja</label>
-                                <input type="number" step="0.01" class="form-control" name="indeks_masa_kerja" required min="0" max="99.99">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Kualifikasi Pendidikan</label>
-                                <input type="text" class="form-control" name="kualifikasi_pendidikan" required maxlength="100">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Kualifikasi Pendidikan</label>
-                                <input type="number" class="form-control" name="indeks_kualifikasi_pendidikan" required min="0">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Resiko</label>
-                                <input type="number" class="form-control" name="indeks_resiko" required min="0">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Emergency</label>
-                                <input type="number" class="form-control" name="indeks_emergency" required min="0">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Jabatan</label>
-                                <input type="text" class="form-control" name="jabatan" required maxlength="255">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Posisi Unit Kerja</label>
-                                <input type="number" class="form-control" name="indeks_posisi_unit_kerja" required min="0">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Ruang</label>
-                                <input type="text" class="form-control" name="ruang" required maxlength="100">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Jabatan Tambahan</label>
-                                <input type="number" class="form-control" name="indeks_jabatan_tambahan" required min="0">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Performa</label>
-                                <input type="number" class="form-control" name="indeks_performa" required min="0">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Total</label>
-                                <input type="number" step="0.01" class="form-control" name="total" required min="0" max="999.99">
+                                <label class="form-label">Cluster 4</label>
+                                <input type="number" step="0.01" class="form-control" name="cluster_4" min="0">
                             </div>
                         </div>
                     </div>
@@ -226,14 +159,24 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">TMT CPNS</label>
-                                <input type="date" class="form-control" name="tmt_cpns" id="edit_tmt_cpns" required>
+                                <label class="form-label">NIK</label>
+                                <input type="text" class="form-control" name="nik" id="edit_nik" required maxlength="20">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Kolom Cluster -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Cluster 1</label>
+                                <input type="number" step="0.01" class="form-control" name="cluster_1" id="edit_cluster_1" min="0">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">TMT di RS</label>
-                                <input type="date" class="form-control" name="tmt_di_rs" id="edit_tmt_di_rs" required>
+                                <label class="form-label">Cluster 2</label>
+                                <input type="number" step="0.01" class="form-control" name="cluster_2" id="edit_cluster_2" min="0">
                             </div>
                         </div>
                     </div>
@@ -241,89 +184,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Masa Kerja di RS</label>
-                                <input type="text" class="form-control" name="masa_kerja_di_rs" id="edit_masa_kerja_di_rs" required maxlength="50">
+                                <label class="form-label">Cluster 3</label>
+                                <input type="number" step="0.01" class="form-control" name="cluster_3" id="edit_cluster_3" min="0">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Indeks Masa Kerja</label>
-                                <input type="number" step="0.01" class="form-control" name="indeks_masa_kerja" id="edit_indeks_masa_kerja" required min="0" max="99.99">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Kualifikasi Pendidikan</label>
-                                <input type="text" class="form-control" name="kualifikasi_pendidikan" id="edit_kualifikasi_pendidikan" required maxlength="100">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Kualifikasi Pendidikan</label>
-                                <input type="number" class="form-control" name="indeks_kualifikasi_pendidikan" id="edit_indeks_kualifikasi_pendidikan" required min="0">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Resiko</label>
-                                <input type="number" class="form-control" name="indeks_resiko" id="edit_indeks_resiko" required min="0">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Emergency</label>
-                                <input type="number" class="form-control" name="indeks_emergency" id="edit_indeks_emergency" required min="0">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Jabatan</label>
-                                <input type="text" class="form-control" name="jabatan" id="edit_jabatan" required maxlength="255">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Posisi Unit Kerja</label>
-                                <input type="number" class="form-control" name="indeks_posisi_unit_kerja" id="edit_indeks_posisi_unit_kerja" required min="0">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Ruang</label>
-                                <input type="text" class="form-control" name="ruang" id="edit_ruang" required maxlength="100">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Jabatan Tambahan</label>
-                                <input type="number" class="form-control" name="indeks_jabatan_tambahan" id="edit_indeks_jabatan_tambahan" required min="0">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Indeks Performa</label>
-                                <input type="number" class="form-control" name="indeks_performa" id="edit_indeks_performa" required min="0">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Total</label>
-                                <input type="number" step="0.01" class="form-control" name="total" id="edit_total" required min="0" max="999.99">
+                                <label class="form-label">Cluster 4</label>
+                                <input type="number" step="0.01" class="form-control" name="cluster_4" id="edit_cluster_4" min="0">
                             </div>
                         </div>
                     </div>
@@ -360,13 +228,11 @@ $(document).ready(function() {
             },
             {data: 'nama', name: 'nama'},
             {data: 'nip', name: 'nip'},
-            {data: 'tmt_cpns', name: 'tmt_cpns'},
-            {data: 'tmt_di_rs', name: 'tmt_di_rs'},
-            {data: 'masa_kerja_di_rs', name: 'masa_kerja_di_rs'},
-            {data: 'indeks_masa_kerja', name: 'indeks_masa_kerja'},
-            {data: 'jabatan', name: 'jabatan'},
-            {data: 'ruang', name: 'ruang'},
-            {data: 'total', name: 'total'},
+            {data: 'nik', name: 'nik'},
+            {data: 'cluster_1', name: 'cluster_1'},
+            {data: 'cluster_2', name: 'cluster_2'},
+            {data: 'cluster_3', name: 'cluster_3'},
+            {data: 'cluster_4', name: 'cluster_4'},
             {
                 data: 'action',
                 name: 'action',
@@ -401,16 +267,20 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                var response = JSON.parse(xhr.responseText);
-                if (xhr.status === 422) {
-                    var errors = response.data;
-                    var errorMessage = '';
-                    $.each(errors, function(key, value) {
-                        errorMessage += value[0] + '<br>';
-                    });
-                    toastr.error(errorMessage);
-                } else {
-                    toastr.error(response.meta.message);
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (xhr.status === 422) {
+                        var errors = response.data;
+                        var errorMessage = '';
+                        $.each(errors, function(key, value) {
+                            errorMessage += value[0] + '<br>';
+                        });
+                        toastr.error(errorMessage);
+                    } else {
+                        toastr.error(response.meta.message || 'Terjadi kesalahan pada server');
+                    }
+                } catch (e) {
+                    toastr.error('Terjadi kesalahan pada server');
                 }
             }
         });
@@ -421,28 +291,46 @@ $(document).ready(function() {
         e.preventDefault();
         var url = $(this).data('url');
         
-        $.get(url, function(response) {
-            if (response.meta.code === 200) {
-                var data = response.data;
-                $('#edit_nama').val(data.nama);
-                $('#edit_nip').val(data.nip);
-                $('#edit_tmt_cpns').val(data.tmt_cpns);
-                $('#edit_tmt_di_rs').val(data.tmt_di_rs);
-                $('#edit_masa_kerja_di_rs').val(data.masa_kerja_di_rs);
-                $('#edit_indeks_masa_kerja').val(data.indeks_masa_kerja);
-                $('#edit_kualifikasi_pendidikan').val(data.kualifikasi_pendidikan);
-                $('#edit_indeks_kualifikasi_pendidikan').val(data.indeks_kualifikasi_pendidikan);
-                $('#edit_indeks_resiko').val(data.indeks_resiko);
-                $('#edit_indeks_emergency').val(data.indeks_emergency);
-                $('#edit_jabatan').val(data.jabatan);
-                $('#edit_indeks_posisi_unit_kerja').val(data.indeks_posisi_unit_kerja);
-                $('#edit_ruang').val(data.ruang);
-                $('#edit_indeks_jabatan_tambahan').val(data.indeks_jabatan_tambahan);
-                $('#edit_indeks_performa').val(data.indeks_performa);
-                $('#edit_total').val(data.total);
-                
-                $('#editForm').attr('action', '{{ route('indeks-pegawai.update', '') }}/' + data.id);
-                $('#editModal').modal('show');
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(response) {
+                if (response.meta.code === 200) {
+                    var data = response.data;
+                    console.log('Data received:', data); // Debug
+                    console.log('TMT CPNS:', data.tmt_cpns); // Debug
+                    console.log('TMT di RS:', data.tmt_di_rs); // Debug
+                    
+                    $('#edit_nama').val(data.nama);
+                    $('#edit_nip').val(data.nip);
+                    $('#edit_nik').val(data.nik);
+                    $('#edit_cluster_1').val(data.cluster_1);
+                    $('#edit_cluster_2').val(data.cluster_2);
+                    $('#edit_cluster_3').val(data.cluster_3);
+                    $('#edit_cluster_4').val(data.cluster_4);
+                    var dataId = data.id;
+                    $('#editForm').attr('action', '{{ route('indeks-pegawai.update',':id') }}'.replace(':id', dataId));
+                    $('#editModal').modal('show');
+                } else {
+                    toastr.error(response.meta.message);
+                }
+            },
+            error: function(xhr) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (xhr.status === 422) {
+                        var errors = response.data;
+                        var errorMessage = '';
+                        $.each(errors, function(key, value) {
+                            errorMessage += value[0] + '<br>';
+                        });
+                        toastr.error(errorMessage);
+                    } else {
+                        toastr.error(response.meta.message || 'Terjadi kesalahan pada server');
+                    }
+                } catch (e) {
+                    toastr.error('Terjadi kesalahan pada server');
+                }
             }
         });
     });
@@ -465,16 +353,20 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr) {
-                var response = JSON.parse(xhr.responseText);
-                if (xhr.status === 422) {
-                    var errors = response.data;
-                    var errorMessage = '';
-                    $.each(errors, function(key, value) {
-                        errorMessage += value[0] + '<br>';
-                    });
-                    toastr.error(errorMessage);
-                } else {
-                    toastr.error(response.meta.message);
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (xhr.status === 422) {
+                        var errors = response.data;
+                        var errorMessage = '';
+                        $.each(errors, function(key, value) {
+                            errorMessage += value[0] + '<br>';
+                        });
+                        toastr.error(errorMessage);
+                    } else {
+                        toastr.error(response.meta.message || 'Terjadi kesalahan pada server');
+                    }
+                } catch (e) {
+                    toastr.error('Terjadi kesalahan pada server');
                 }
             }
         });
@@ -487,7 +379,7 @@ $(document).ready(function() {
         
         Swal.fire({
             title: 'Yakin ingin menghapus?',
-            text: 'Data yang dihapus tidak dapat dikembalikan!',
+            text: 'Data akan disembunyikan dan dapat dipulihkan kembali!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -511,8 +403,12 @@ $(document).ready(function() {
                         }
                     },
                     error: function(xhr) {
-                        var response = JSON.parse(xhr.responseText);
-                        toastr.error(response.meta.message);
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            toastr.error(response.meta.message || 'Terjadi kesalahan pada server');
+                        } catch (e) {
+                            toastr.error('Terjadi kesalahan pada server');
+                        }
                     }
                 });
             }

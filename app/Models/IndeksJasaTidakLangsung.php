@@ -13,4 +13,9 @@ class IndeksJasaTidakLangsung extends Model
     {
         return $this->hasMany(Pegawai::class, 'id_indeks_jtl');
     }
+    public function kategori()
+    {
+        return $this->belongsTo(KategoriIndeksJasaTidakLangsung::class, 'kategori_id');
+    }
+    
 } 

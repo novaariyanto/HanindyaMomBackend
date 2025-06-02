@@ -62,4 +62,9 @@ class Pegawai extends Model
     {
         return $this->hasMany(TransaksiRemunerasiPegawai::class, 'id_pegawai');
     }
+
+    public function pegawaiJasaNonMedis()
+    {
+        return $this->hasMany(PegawaiJasaNonMedis::class, 'pegawai_id');
+    }
 }

@@ -3,34 +3,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class IndeksPegawai extends Model
 {
+    use SoftDeletes;
+    
     protected $table = 'indeks_pegawai';
     
     protected $fillable = [
         'nama',
         'nip',
-        'tmt_cpns',
-        'tmt_di_rs',
-        'masa_kerja_di_rs',
-        'indeks_masa_kerja',
-        'kualifikasi_pendidikan',
-        'indeks_kualifikasi_pendidikan',
-        'indeks_resiko',
-        'indeks_emergency',
-        'jabatan',
-        'indeks_posisi_unit_kerja',
-        'ruang',
-        'indeks_jabatan_tambahan',
-        'indeks_performa',
-        'total'
+        'nik',
+        'cluster_1',
+        'cluster_2',
+        'cluster_3',
+        'cluster_4',
+        'is_deleted'
     ];
 
     protected $casts = [
-        'tmt_cpns' => 'date',
-        'tmt_di_rs' => 'date',
-        'indeks_masa_kerja' => 'decimal:2',
-        'total' => 'decimal:2'
+        'is_deleted' => 'boolean'
     ];
+    
+    protected $dates = ['deleted_at'];
 }

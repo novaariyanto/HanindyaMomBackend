@@ -36,7 +36,9 @@ use App\Http\Controllers\IndeksJasaTidakLangsungController;
 use App\Http\Controllers\IndeksJasaLangsungNonMedisController;
 use App\Http\Controllers\TransaksiRemunerasiPegawaiController;
 use App\Http\Controllers\IndeksPegawaiController;
-
+use App\Http\Controllers\PegawaiJasaNonMedisController;
+use App\Http\Controllers\KategoriIndeksJasaLangsungNonMedisController;
+use App\Http\Controllers\PegawaiJasaTidakLangsungController;
 Route::get('/faces/{filename}', function ($filename) {
     $path = storage_path('app/public/faces/' . $filename);
     if (!file_exists($path)) {
@@ -311,6 +313,32 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::get('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'show'])->name('indeks-pegawai.show');
     Route::put('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'update'])->name('indeks-pegawai.update');
     Route::delete('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'destroy'])->name('indeks-pegawai.destroy');
+    Route::post('indeks-pegawai/{id}/restore', [IndeksPegawaiController::class, 'restore'])->name('indeks-pegawai.restore');
+    Route::delete('indeks-pegawai/{id}/force-delete', [IndeksPegawaiController::class, 'forceDelete'])->name('indeks-pegawai.force-delete');
+
+    // Pegawai Jasa Non Medis
+    Route::get('pegawai-jasa-non-medis', [PegawaiJasaNonMedisController::class, 'index'])->name('pegawai-jasa-non-medis.index');
+    Route::post('pegawai-jasa-non-medis', [PegawaiJasaNonMedisController::class, 'store'])->name('pegawai-jasa-non-medis.store');
+    Route::get('pegawai-jasa-non-medis/{id}', [PegawaiJasaNonMedisController::class, 'show'])->name('pegawai-jasa-non-medis.show');
+    Route::get('pegawai-jasa-non-medis/{id}/edit', [PegawaiJasaNonMedisController::class, 'edit'])->name('pegawai-jasa-non-medis.edit');
+    Route::put('pegawai-jasa-non-medis/{id}', [PegawaiJasaNonMedisController::class, 'update'])->name('pegawai-jasa-non-medis.update');
+    Route::delete('pegawai-jasa-non-medis/{id}', [PegawaiJasaNonMedisController::class, 'destroy'])->name('pegawai-jasa-non-medis.destroy');
+
+    // Pegawai Jasa Non Medis
+    Route::get('pegawai-jasa-tidak-langsung', [PegawaiJasaTidakLangsungController::class, 'index'])->name('pegawai-jasa-tidak-langsung.index');
+    Route::post('pegawai-jasa-tidak-langsung', [PegawaiJasaTidakLangsungController::class, 'store'])->name('pegawai-jasa-tidak-langsung.store');
+    Route::get('pegawai-jasa-tidak-langsung/{id}', [PegawaiJasaTidakLangsungController::class, 'show'])->name('pegawai-jasa-tidak-langsung.show');
+    Route::get('pegawai-jasa-tidak-langsung/{id}/edit', [PegawaiJasaTidakLangsungController::class, 'edit'])->name('pegawai-jasa-tidak-langsung.edit');
+    Route::put('pegawai-jasa-tidak-langsung/{id}', [PegawaiJasaTidakLangsungController::class, 'update'])->name('pegawai-jasa-tidak-langsung.update');
+    Route::delete('pegawai-jasa-tidak-langsung/{id}', [PegawaiJasaTidakLangsungController::class, 'destroy'])->name('pegawai-jasa-tidak-langsung.destroy');
+   
+    // Kategori Non Medis
+    Route::get('kategori-non-medis', [KategoriIndeksJasaLangsungNonMedisController::class, 'index'])->name('kategori-non-medis.index');
+    Route::post('kategori-non-medis', [KategoriIndeksJasaLangsungNonMedisController::class, 'store'])->name('kategori-non-medis.store');
+    Route::get('kategori-non-medis/{id}', [KategoriIndeksJasaLangsungNonMedisController::class, 'show'])->name('kategori-non-medis.show');
+    Route::get('kategori-non-medis/{id}/edit', [KategoriIndeksJasaLangsungNonMedisController::class, 'edit'])->name('kategori-non-medis.edit');
+    Route::put('kategori-non-medis/{id}', [KategoriIndeksJasaLangsungNonMedisController::class, 'update'])->name('kategori-non-medis.update');
+    Route::delete('kategori-non-medis/{id}', [KategoriIndeksJasaLangsungNonMedisController::class, 'destroy'])->name('kategori-non-medis.destroy');
 });
 
 require __DIR__.'/auth.php';

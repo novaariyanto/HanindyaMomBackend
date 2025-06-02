@@ -21,12 +21,6 @@ class IndeksPegawaiController extends Controller
                         <a href="#" data-url="' . route('indeks-pegawai.destroy', $row->id) . '" class="btn btn-danger btn-sm btn-delete"><i class="ti ti-trash"></i></a>
                     ';
                 })
-                ->editColumn('tmt_cpns', function($row) {
-                    return $row->tmt_cpns ? $row->tmt_cpns->format('d/m/Y') : '';
-                })
-                ->editColumn('tmt_di_rs', function($row) {
-                    return $row->tmt_di_rs ? $row->tmt_di_rs->format('d/m/Y') : '';
-                })
                 ->rawColumns(['action'])
                 ->make(true);
         }
@@ -39,20 +33,12 @@ class IndeksPegawaiController extends Controller
         $validator = validator($request->all(), [
             'nama' => 'required|string|max:255',
             'nip' => 'required|string|max:30|unique:indeks_pegawai',
-            'tmt_cpns' => 'required|date',
-            'tmt_di_rs' => 'required|date',
-            'masa_kerja_di_rs' => 'required|string|max:50',
-            'indeks_masa_kerja' => 'required|numeric|min:0|max:99.99',
-            'kualifikasi_pendidikan' => 'required|string|max:100',
-            'indeks_kualifikasi_pendidikan' => 'required|integer|min:0',
-            'indeks_resiko' => 'required|integer|min:0',
-            'indeks_emergency' => 'required|integer|min:0',
-            'jabatan' => 'required|string|max:255',
-            'indeks_posisi_unit_kerja' => 'required|integer|min:0',
-            'ruang' => 'required|string|max:100',
-            'indeks_jabatan_tambahan' => 'required|integer|min:0',
-            'indeks_performa' => 'required|integer|min:0',
-            'total' => 'required|numeric|min:0|max:999.99'
+            'nik' => 'required|string|max:20|unique:indeks_pegawai',
+            'cluster_1' => 'nullable|numeric|min:0',
+            'cluster_2' => 'nullable|numeric|min:0',
+            'cluster_3' => 'nullable|numeric|min:0',
+            'cluster_4' => 'nullable|numeric|min:0',
+            'is_deleted' => 'nullable|boolean'
         ]);
 
         if ($validator->fails()) {
@@ -71,9 +57,9 @@ class IndeksPegawaiController extends Controller
     {
         try {
             $data = IndeksPegawai::findOrFail($id);
-            return ResponseFormatter::success($data, 'Data berhasil diambil');
+            return ResponseFormatter::success($data->toArray(), 'Data berhasil diambil');
         } catch (\Exception $e) {
-            return ResponseFormatter::error(null, 'Data tidak ditemukan');
+            return ResponseFormatter::error(null, 'Data tidak ditemukan: ' . $e->getMessage());
         }
     }
 
@@ -82,20 +68,12 @@ class IndeksPegawaiController extends Controller
         $validator = validator($request->all(), [
             'nama' => 'required|string|max:255',
             'nip' => 'required|string|max:30|unique:indeks_pegawai,nip,' . $id,
-            'tmt_cpns' => 'required|date',
-            'tmt_di_rs' => 'required|date',
-            'masa_kerja_di_rs' => 'required|string|max:50',
-            'indeks_masa_kerja' => 'required|numeric|min:0|max:99.99',
-            'kualifikasi_pendidikan' => 'required|string|max:100',
-            'indeks_kualifikasi_pendidikan' => 'required|integer|min:0',
-            'indeks_resiko' => 'required|integer|min:0',
-            'indeks_emergency' => 'required|integer|min:0',
-            'jabatan' => 'required|string|max:255',
-            'indeks_posisi_unit_kerja' => 'required|integer|min:0',
-            'ruang' => 'required|string|max:100',
-            'indeks_jabatan_tambahan' => 'required|integer|min:0',
-            'indeks_performa' => 'required|integer|min:0',
-            'total' => 'required|numeric|min:0|max:999.99'
+            'nik' => 'required|string|max:20|unique:indeks_pegawai,nik,' . $id,
+            'cluster_1' => 'nullable|numeric|min:0',
+            'cluster_2' => 'nullable|numeric|min:0',
+            'cluster_3' => 'nullable|numeric|min:0',
+            'cluster_4' => 'nullable|numeric|min:0',
+            'is_deleted' => 'nullable|boolean'
         ]);
 
         if ($validator->fails()) {
@@ -115,10 +93,33 @@ class IndeksPegawaiController extends Controller
     {
         try {
             $indeks = IndeksPegawai::findOrFail($id);
-            $indeks->delete();
+            // Soft delete - menandai sebagai dihapus tanpa benar-benar menghapus dari database
+            $indeks->delete(); // Ini akan menggunakan soft delete
             return ResponseFormatter::success(null, 'Data berhasil dihapus');
         } catch (\Exception $e) {
             return ResponseFormatter::error(null, 'Data gagal dihapus: ' . $e->getMessage());
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $indeks = IndeksPegawai::withTrashed()->findOrFail($id);
+            $indeks->restore();
+            return ResponseFormatter::success(null, 'Data berhasil dipulihkan');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Data gagal dipulihkan: ' . $e->getMessage());
+        }
+    }
+
+    public function forceDelete($id)
+    {
+        try {
+            $indeks = IndeksPegawai::withTrashed()->findOrFail($id);
+            $indeks->forceDelete(); // Hapus permanent
+            return ResponseFormatter::success(null, 'Data berhasil dihapus permanen');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Data gagal dihapus permanen: ' . $e->getMessage());
         }
     }
 }

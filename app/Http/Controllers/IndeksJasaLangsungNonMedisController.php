@@ -12,9 +12,12 @@ class IndeksJasaLangsungNonMedisController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $data = IndeksJasaLangsungNonMedis::query();
+            $data = IndeksJasaLangsungNonMedis::with('kategori')->select('*');
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('kategori', function($row) {
+                    return $row->kategori->nama_kategori;
+                })
                 ->addColumn('action', function($row){
                     return '
                         <a href="#" data-url="' . route('indeks-jasa-langsung-non-medis.show', $row->id) . '" class="btn btn-info btn-sm btn-edit"><i class="ti ti-pencil"></i></a>
@@ -31,8 +34,16 @@ class IndeksJasaLangsungNonMedisController extends Controller
     public function store(Request $request)
     {
         $validator = validator($request->all(), [
-            'nama_jabatan' => 'required|string|max:100',
-            'nilai' => 'required|numeric|min:0'
+            'nama_indeks' => 'required|string|max:100',
+            'nilai' => 'required|numeric|min:0',
+            'kategori_id' => 'required|exists:kategori_indeks_jasa_langsung_non_medis,id'
+        ], [
+            'nama_indeks.required' => 'Nama indeks wajib diisi',
+            'nilai.required' => 'Nilai wajib diisi',
+            'nilai.numeric' => 'Nilai harus berupa angka',
+            'nilai.min' => 'Nilai minimal 0',
+            'kategori_id.required' => 'Kategori wajib dipilih',
+            'kategori_id.exists' => 'Kategori yang dipilih tidak valid'
         ]);
 
         if ($validator->fails()) {
@@ -50,7 +61,7 @@ class IndeksJasaLangsungNonMedisController extends Controller
     public function show($id)
     {
         try {
-            $data = IndeksJasaLangsungNonMedis::findOrFail($id);
+            $data = IndeksJasaLangsungNonMedis::with('kategori')->findOrFail($id);
             return ResponseFormatter::success($data, 'Data berhasil diambil');
         } catch (\Exception $e) {
             return ResponseFormatter::error(null, 'Data tidak ditemukan');
@@ -60,8 +71,16 @@ class IndeksJasaLangsungNonMedisController extends Controller
     public function update(Request $request, $id)
     {
         $validator = validator($request->all(), [
-            'nama_jabatan' => 'required|string|max:100',
-            'nilai' => 'required|numeric|min:0'
+            'nama_indeks' => 'required|string|max:100',
+            'nilai' => 'required|numeric|min:0',
+            'kategori_id' => 'required|exists:kategori_indeks_jasa_langsung_non_medis,id'
+        ], [
+            'nama_indeks.required' => 'Nama indeks wajib diisi',
+            'nilai.required' => 'Nilai wajib diisi',
+            'nilai.numeric' => 'Nilai harus berupa angka',
+            'nilai.min' => 'Nilai minimal 0',
+            'kategori_id.required' => 'Kategori wajib dipilih',
+            'kategori_id.exists' => 'Kategori yang dipilih tidak valid'
         ]);
 
         if ($validator->fails()) {
