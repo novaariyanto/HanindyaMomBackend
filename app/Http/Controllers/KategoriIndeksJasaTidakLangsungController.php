@@ -221,15 +221,6 @@ class KategoriIndeksJasaTidakLangsungController extends Controller
         try {
             $kategoriIndeksJasaTidakLangsung = KategoriIndeksJasaTidakLangsung::findOrFail($id);
             
-            // Cek apakah kategori masih digunakan oleh indeks jasa
-            if ($kategoriIndeksJasaTidakLangsung->indeksJasa()->count() > 0) {
-                return response()->json([
-                    'meta' => [
-                        'code' => 409,
-                        'message' => 'Kategori tidak dapat dihapus karena masih digunakan oleh indeks jasa'
-                    ]
-                ], 409);
-            }
             
             $kategoriIndeksJasaTidakLangsung->delete();
             

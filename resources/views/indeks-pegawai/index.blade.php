@@ -372,48 +372,7 @@ $(document).ready(function() {
         });
     });
 
-    // Handle delete data
-    $(document).on('click', '.btn-delete', function(e) {
-        e.preventDefault();
-        var url = $(this).data('url');
-        
-        Swal.fire({
-            title: 'Yakin ingin menghapus?',
-            text: 'Data akan disembunyikan dan dapat dipulihkan kembali!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    method: 'DELETE',
-                    data: {
-                        '_token': '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.meta.code === 200) {
-                            datatable.ajax.reload();
-                            toastr.success(response.meta.message);
-                        } else {
-                            toastr.error(response.meta.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        try {
-                            var response = JSON.parse(xhr.responseText);
-                            toastr.error(response.meta.message || 'Terjadi kesalahan pada server');
-                        } catch (e) {
-                            toastr.error('Terjadi kesalahan pada server');
-                        }
-                    }
-                });
-            }
-        });
-    });
+    
 });
 </script>
 @endpush 
