@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class IndeksJasaTidakLangsung extends Model
 {
     protected $table = 'indeks_jasa_tidak_langsung';
-    protected $fillable = ['nama_indeks', 'nilai', 'kategori'];
+    protected $fillable = ['nama_indeks', 'nilai', 'kategori_id'];
 
     public function pegawai()
     {
@@ -19,7 +19,6 @@ class IndeksJasaTidakLangsung extends Model
        return $this->belongsTo(KategoriIndeksJasaTidakLangsung::class, 'kategori_id');
    }
 
- 
 
    public function pegawaiJasaTidakLangsung()
    {

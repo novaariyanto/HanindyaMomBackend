@@ -12,12 +12,9 @@ class IndeksJasaTidakLangsungController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $data = IndeksJasaTidakLangsung::with('kategori')->select('*');
+            $data = IndeksJasaTidakLangsung::query();
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('kategori', function($row) {
-                    return $row->kategori->nama_kategori;
-                })
                 ->addColumn('action', function($row){
                     return '
                         <a href="#" data-url="' . route('indeks-jasa-tidak-langsung.show', $row->id) . '" class="btn btn-info btn-sm btn-edit"><i class="ti ti-pencil"></i></a>
@@ -36,14 +33,7 @@ class IndeksJasaTidakLangsungController extends Controller
         $validator = validator($request->all(), [
             'nama_indeks' => 'required|string|max:100',
             'nilai' => 'required|numeric|min:0',
-            'kategori_id' => 'required|exists:kategori_indeks_jasa_tidak_langsung,id'
-        ], [
-            'nama_indeks.required' => 'Nama indeks wajib diisi',
-            'nilai.required' => 'Nilai wajib diisi',
-            'nilai.numeric' => 'Nilai harus berupa angka',
-            'nilai.min' => 'Nilai minimal 0',
-            'kategori_id.required' => 'Kategori wajib dipilih',
-            'kategori_id.exists' => 'Kategori yang dipilih tidak valid'
+            'kategori' => 'required|string|max:100'
         ]);
 
         if ($validator->fails()) {
@@ -61,7 +51,7 @@ class IndeksJasaTidakLangsungController extends Controller
     public function show($id)
     {
         try {
-            $data = IndeksJasaTidakLangsung::with('kategori')->findOrFail($id);
+            $data = IndeksJasaTidakLangsung::findOrFail($id);
             return ResponseFormatter::success($data, 'Data berhasil diambil');
         } catch (\Exception $e) {
             return ResponseFormatter::error(null, 'Data tidak ditemukan');
@@ -73,14 +63,7 @@ class IndeksJasaTidakLangsungController extends Controller
         $validator = validator($request->all(), [
             'nama_indeks' => 'required|string|max:100',
             'nilai' => 'required|numeric|min:0',
-            'kategori_id' => 'required|exists:kategori_indeks_jasa_tidak_langsung,id'
-        ], [
-            'nama_indeks.required' => 'Nama indeks wajib diisi',
-            'nilai.required' => 'Nilai wajib diisi',
-            'nilai.numeric' => 'Nilai harus berupa angka',
-            'nilai.min' => 'Nilai minimal 0',
-            'kategori_id.required' => 'Kategori wajib dipilih',
-            'kategori_id.exists' => 'Kategori yang dipilih tidak valid'
+            'kategori' => 'required|string|max:100'
         ]);
 
         if ($validator->fails()) {

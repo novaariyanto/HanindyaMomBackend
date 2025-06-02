@@ -71,7 +71,9 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Kategori</label>
-                        <input type="text" class="form-control" name="kategori" required maxlength="100">
+                        <select class="form-control" name="kategori_id" id="kategori_id" required>
+                            <option value="">Pilih Kategori</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -91,7 +93,7 @@
                 <h5 class="modal-title">Edit Indeks Jasa Tidak Langsung</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="editForm" method="POST">
+            <form id="editForm" method="PUT">
                 @csrf
                 @method('PUT')
                 <div class="modal-body">
@@ -105,7 +107,9 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Kategori</label>
-                        <input type="text" class="form-control" name="kategori" id="edit_kategori" required maxlength="100">
+                        <select class="form-control" name="kategori_id" id="edit_kategori_id" required>
+                            <option value="">Pilih Kategori</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -122,6 +126,36 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
+    // Load kategori data
+    function loadKategori() {
+        $.ajax({
+            url: '{{ route('kategori-tidak-langsung.index') }}',
+            type: 'GET',
+            data: {
+                'get_all': true
+            },
+            success: function(response) {
+                var options = '<option value="">Pilih Kategori</option>';
+                if (response.data && response.data.length > 0) {
+                    response.data.forEach(function(kategori) {
+                        if (kategori.status == 1) { // Hanya kategori yang aktif
+                            options += '<option value="' + kategori.id + '">' + kategori.nama_kategori + '</option>';
+                        }
+                    });
+                }
+                $('#kategori_id, #edit_kategori_id').html(options);
+            },
+            error: function(xhr) {
+                console.error('Error loading kategori:', xhr);
+                // Fallback jika gagal load kategori
+                $('#kategori_id, #edit_kategori_id').html('<option value="">Gagal memuat kategori</option>');
+            }
+        });
+    }
+
+    // Load kategori saat halaman dimuat
+    loadKategori();
+
     var datatable = $('#datatable').DataTable({
         processing: true,
         serverSide: true,
@@ -210,7 +244,7 @@ $(document).ready(function() {
                 $('#editForm').attr('action', url);
                 $('#edit_nama_indeks').val(data.nama_indeks);
                 $('#edit_nilai').val(data.nilai);
-                $('#edit_kategori').val(data.kategori);
+                $('#edit_kategori_id').val(data.kategori_indeks_jasa_tidak_langsung_id);
                 $('#editModal').modal('show');
             }
         });
@@ -262,14 +296,28 @@ $(document).ready(function() {
         });
     });
 
-  
+    // Handle Delete Button Click
+
+
     // Reset form when modal is closed
     $('#createModal').on('hidden.bs.modal', function () {
         $('#createForm')[0].reset();
+        $('#kategori_id').val('');
     });
 
     $('#editModal').on('hidden.bs.modal', function () {
         $('#editForm')[0].reset();
+        $('#edit_kategori_id').val('');
+    });
+
+    // Reload kategori when create modal is shown
+    $('#createModal').on('show.bs.modal', function () {
+        loadKategori();
+    });
+
+    // Reload kategori when edit modal is shown
+    $('#editModal').on('show.bs.modal', function () {
+        loadKategori();
     });
 });
 </script>
