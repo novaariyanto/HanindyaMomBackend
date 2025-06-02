@@ -299,50 +299,7 @@ $(document).ready(function() {
     });
 
     // Handle Delete Button Click
-    $(document).on('click', '.btn-delete', function() {
-        var url = $(this).data('url');
-        
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.meta.status === 'success') {
-                            datatable.ajax.reload();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: response.meta.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        var response = xhr.responseJSON;
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: response.meta.message
-                        });
-                    }
-                });
-            }
-        });
-    });
+
 
     // Reset form when modal is closed
     $('#createModal').on('hidden.bs.modal', function () {

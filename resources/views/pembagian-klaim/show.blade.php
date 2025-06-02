@@ -172,55 +172,7 @@
 <script>
 $(document).ready(function() {
     // Handle delete button
-    $('.btn-delete').on('click', function(e) {
-        e.preventDefault();
-        var url = $(this).data('url');
-        
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if(response.status === 'success') {
-                            Swal.fire(
-                                'Terhapus!',
-                                'Data berhasil dihapus.',
-                                'success'
-                            ).then(() => {
-                                window.location.href = '{{ route("pembagian-klaim.index") }}';
-                            });
-                        } else {
-                            Swal.fire(
-                                'Error!',
-                                response.message,
-                                'error'
-                            );
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.fire(
-                            'Error!',
-                            'Terjadi kesalahan saat menghapus data.',
-                            'error'
-                        );
-                    }
-                });
-            }
-        });
-    });
+  
 });
 </script>
 @endpush

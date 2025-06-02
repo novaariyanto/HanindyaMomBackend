@@ -13,9 +13,34 @@ class IndeksJasaTidakLangsung extends Model
     {
         return $this->hasMany(Pegawai::class, 'id_indeks_jtl');
     }
-    public function kategori()
-    {
-        return $this->belongsTo(KategoriIndeksJasaTidakLangsung::class, 'kategori_id');
-    }
-    
+   // Relationship dengan KategoriIndeksJasaTidakLangsung
+   public function kategori()
+   {
+       return $this->belongsTo(KategoriIndeksJasaTidakLangsung::class, 'kategori_id');
+   }
+
+ 
+
+   public function pegawaiJasaTidakLangsung()
+   {
+       return $this->hasMany(PegawaiJasaTidakLangsung::class, 'jasa_id');
+   }
+   
+   // Scope untuk status aktif
+   public function scopeAktif($query)
+   {
+       return $query->where('status', true);
+   }
+   
+   // Accessor untuk nama indeks dengan format title case
+   public function getNamaIndeksFormattedAttribute()
+   {
+       return ucwords(strtolower($this->nama_indeks));
+   }
+   
+   // Accessor untuk nilai terformat
+   public function getNilaiFormattedAttribute()
+   {
+       return number_format($this->nilai, 2, ',', '.');
+   }
 } 

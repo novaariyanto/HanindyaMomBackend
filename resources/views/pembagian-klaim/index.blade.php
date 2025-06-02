@@ -421,49 +421,7 @@ $(document).ready(function() {
     });
 
     // Handle Delete Button Click
-    $(document).on('click', '.btn-delete', function() {
-        var url = $(this).data('url');
-        
-        Swal.fire({
-            title: 'Konfirmasi',
-            text: 'Apakah Anda yakin ingin menghapus data ini?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        if (response.meta.status === 'success') {
-                            datatable.ajax.reload();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: response.meta.message,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal',
-                            text: 'Gagal menghapus data'
-                        });
-                    }
-                });
-            }
-        });
-    });
+
 
     // Handle Import Button Click
     $('#btn-import').click(function() {
