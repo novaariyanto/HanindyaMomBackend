@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\IndeksPegawai;
+use App\Models\Profesi;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\ResponseFormatter;
@@ -12,9 +13,15 @@ class IndeksPegawaiController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $data = IndeksPegawai::query();
+            $data = IndeksPegawai::with('profesi');
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('profesi_nama', function($row) {
+                    return $row->profesi ? $row->profesi->nama : '-';
+                })
+                ->addColumn('jenis_pegawai_label', function($row) {
+                    return $row->jenis_pegawai_label;
+                })
                 ->addColumn('action', function($row){
                     return '
                         <a href="#" data-url="' . route('indeks-pegawai.show', $row->id) . '" class="btn btn-info btn-sm btn-edit"><i class="ti ti-pencil"></i></a>
@@ -25,7 +32,8 @@ class IndeksPegawaiController extends Controller
                 ->make(true);
         }
 
-        return view('indeks-pegawai.index');
+        $profesi = Profesi::all();
+        return view('indeks-pegawai.index', compact('profesi'));
     }
 
     public function store(Request $request)
@@ -35,6 +43,8 @@ class IndeksPegawaiController extends Controller
             'nip' => 'required|string|max:30',
             'nik' => 'required|string|max:20|unique:indeks_pegawai',
             'unit' => 'nullable|string|max:255',
+            'jenis_pegawai' => 'nullable|in:PNS,PPPK,KONTRAK,HONORER',
+            'profesi_id' => 'nullable|exists:eprofile.profesi,id',
             'cluster_1' => 'nullable|numeric|min:0',
             'cluster_2' => 'nullable|numeric|min:0',
             'cluster_3' => 'nullable|numeric|min:0',
@@ -71,6 +81,8 @@ class IndeksPegawaiController extends Controller
             'nip' => 'required|string|max:30|unique:indeks_pegawai,nip,' . $id,
             'nik' => 'required|string|max:20|unique:indeks_pegawai,nik,' . $id,
             'unit' => 'nullable|string|max:255',
+            'jenis_pegawai' => 'nullable|in:PNS,PPPK,KONTRAK,HONORER',
+            'profesi_id' => 'nullable|exists:eprofile.profesi,id',
             'cluster_1' => 'nullable|numeric|min:0',
             'cluster_2' => 'nullable|numeric|min:0',
             'cluster_3' => 'nullable|numeric|min:0',

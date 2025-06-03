@@ -16,6 +16,8 @@ class IndeksPegawai extends Model
         'nip',
         'nik',
         'unit',
+        'jenis_pegawai',
+        'profesi_id',
         'cluster_1',
         'cluster_2',
         'cluster_3',
@@ -28,4 +30,23 @@ class IndeksPegawai extends Model
     ];
     
     protected $dates = ['deleted_at'];
+    
+    // Relasi ke model Profesi
+    public function profesi()
+    {
+        return $this->belongsTo(Profesi::class, 'profesi_id', 'id');
+    }
+    
+    // Accessor untuk jenis pegawai
+    public function getJenisPegawaiLabelAttribute()
+    {
+        $jenis = [
+            'PNS' => 'Pegawai Negeri Sipil',
+            'PPPK' => 'Pegawai Pemerintah dengan Perjanjian Kerja',
+            'KONTRAK' => 'Pegawai Kontrak',
+            'HONORER' => 'Tenaga Honorer'
+        ];
+        
+        return $jenis[$this->jenis_pegawai] ?? $this->jenis_pegawai;
+    }
 }

@@ -44,6 +44,8 @@
                             <th>NIP</th>
                             <th>NIK</th>
                             <th>Unit</th>
+                            <th>Jenis Pegawai</th>
+                            <th>Profesi</th>
                             <th>Cluster 1</th>
                             <th>Cluster 2</th>
                             <th>Cluster 3</th>
@@ -97,6 +99,32 @@
                             <div class="mb-3">
                                 <label class="form-label">Unit</label>
                                 <input type="text" class="form-control" name="unit" maxlength="255">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Jenis Pegawai</label>
+                                <select class="form-select" name="jenis_pegawai">
+                                    <option value="">Pilih Jenis Pegawai</option>
+                                    <option value="PNS">Pegawai Negeri Sipil</option>
+                                    <option value="PPPK">Pegawai Pemerintah dengan Perjanjian Kerja</option>
+                                    <option value="KONTRAK">Pegawai Kontrak</option>
+                                    <option value="HONORER">Tenaga Honorer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Profesi</label>
+                                <select class="form-select" name="profesi_id">
+                                    <option value="">Pilih Profesi</option>
+                                    @foreach($profesi as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -183,6 +211,32 @@
                         </div>
                     </div>
                     
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Jenis Pegawai</label>
+                                <select class="form-select" name="jenis_pegawai" id="edit_jenis_pegawai">
+                                    <option value="">Pilih Jenis Pegawai</option>
+                                    <option value="PNS">Pegawai Negeri Sipil</option>
+                                    <option value="PPPK">Pegawai Pemerintah dengan Perjanjian Kerja</option>
+                                    <option value="KONTRAK">Pegawai Kontrak</option>
+                                    <option value="HONORER">Tenaga Honorer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Profesi</label>
+                                <select class="form-select" name="profesi_id" id="edit_profesi_id">
+                                    <option value="">Pilih Profesi</option>
+                                    @foreach($profesi as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Kolom Cluster -->
                     <div class="row">
                         <div class="col-md-6">
@@ -248,6 +302,8 @@ $(document).ready(function() {
             {data: 'nip', name: 'nip'},
             {data: 'nik', name: 'nik'},
             {data: 'unit', name: 'unit'},
+            {data: 'jenis_pegawai_label', name: 'jenis_pegawai'},
+            {data: 'profesi_nama', name: 'profesi.nama'},
             {data: 'cluster_1', name: 'cluster_1'},
             {data: 'cluster_2', name: 'cluster_2'},
             {data: 'cluster_3', name: 'cluster_3'},
@@ -349,6 +405,8 @@ $(document).ready(function() {
                     $('#edit_nip').val(data.nip);
                     $('#edit_nik').val(data.nik);
                     $('#edit_unit').val(data.unit);
+                    $('#edit_jenis_pegawai').val(data.jenis_pegawai);
+                    $('#edit_profesi_id').val(data.profesi_id);
                     $('#edit_cluster_1').val(data.cluster_1);
                     $('#edit_cluster_2').val(data.cluster_2);
                     $('#edit_cluster_3').val(data.cluster_3);
