@@ -117,11 +117,11 @@ class IndeksPegawaiController extends Controller
     {
         $validator = validator($request->all(), [
             'nama' => 'required|string|max:255',
-            'nip' => 'required|string|max:30|unique:indeks_pegawai,nip,' . $id,
+            'nip' => 'required|string|max:30',
             'nik' => 'required|string|max:20|unique:indeks_pegawai,nik,' . $id,
             'unit' => 'nullable|string|max:255',
             'unit_kerja_id' => 'nullable|exists:eprofile.unit_kerja,id',
-            'jenis_pegawai' => 'nullable|in:PNS,PPPK,KONTRAK,HONORER',
+            'jenis_pegawai' => 'nullable',
             'profesi_id' => 'nullable|exists:eprofile.profesi,id',
             'cluster_1' => 'nullable|numeric|min:0',
             'cluster_2' => 'nullable|numeric|min:0',

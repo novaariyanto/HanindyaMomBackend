@@ -226,7 +226,12 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Unit</label>
-                                <input type="text" class="form-control" name="unit" id="edit_unit" maxlength="255">
+                                <select class="form-select" name="unit" id="edit_unit">
+                                    <option value="">Pilih Unit</option>
+                                    @foreach($unitKerja as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -464,13 +469,13 @@ $(document).ready(function() {
         var url = $(this).data('url');
         
         $.get(url, function(response) {
-            if(response.status === 'success') {
+            if(response.meta.status === 'success') {
                 var data = response.data;
                 $('#editForm').attr('action', url);
                 $('#edit_nama').val(data.nama);
                 $('#edit_nip').val(data.nip);
                 $('#edit_nik').val(data.nik);
-                $('#edit_unit').val(data.unit);
+                $('#edit_unit').val(data.unit_kerja_id);
                 $('#edit_jenis_pegawai').val(data.jenis_pegawai);
                 $('#edit_profesi_id').val(data.profesi_id);
                 $('#edit_cluster_1').val(data.cluster_1);
@@ -482,47 +487,7 @@ $(document).ready(function() {
         });
     });
 
-    // Event handler untuk tombol delete
-    $(document).on('click', '.btn-delete', function(e) {
-        e.preventDefault();
-        var url = $(this).data('url');
-        
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data yang dihapus tidak dapat dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        Swal.fire(
-                            'Terhapus!',
-                            response.message,
-                            'success'
-                        );
-                        table.ajax.reload();
-                    },
-                    error: function(xhr) {
-                        Swal.fire(
-                            'Gagal!',
-                            xhr.responseJSON?.message || 'Terjadi kesalahan saat menghapus data',
-                            'error'
-                        );
-                    }
-                });
-            }
-        });
-    });
+
 });
 </script>
 @endpush 
