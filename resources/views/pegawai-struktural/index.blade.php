@@ -79,7 +79,7 @@
                         <select class="form-select" name="jasa_id" required>
                             <option value="">Pilih Struktural</option>
                             @foreach($jasa as $j)
-                                <option value="{{ $j->id }}">{{ $j->nama_indeks }} ({{ $j->nilai }})</option>
+                                <option value="{{ $j->id }}">{{ $j->nama_jabatan }} ({{ $j->nilai }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -123,7 +123,7 @@
                         <select class="form-select" name="jasa_id" id="edit_jasa_id" required>
                             <option value="">Pilih Struktural</option>
                             @foreach($jasa as $j)
-                                <option value="{{ $j->id }}">{{ $j->nama_indeks }} ({{ $j->nilai }})</option>
+                                <option value="{{ $j->id }}">{{ $j->nama_jabatan }} ({{ $j->nilai }})</option>
                             @endforeach
                         </select>
                     </div>
