@@ -22,7 +22,7 @@ class PegawaiStrukturalController extends Controller
                     return $row->pegawai ? $row->pegawai->nama : '-';
                 })
                 ->addColumn('jasa_nama', function($row) {
-                    return $row->jasa ? $row->jasa->nama_indeks : '-';
+                    return $row->jasa ? $row->jasa->nama_jabatan : '-';
                 })
                 ->addColumn('nilai_formatted', function($row) {
                     return number_format($row->nilai, 2, ',', '.');
