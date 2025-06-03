@@ -21,12 +21,29 @@
                         <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
                     </form>
                 </div>
-                <div class="col-md-4 col-xl-3">
+                <div class="col-md-2 col-xl-2">
                     <select class="form-select" id="filter-unit">
                         <option value="">Semua Unit</option>
                     </select>
                 </div>
-                <div class="col-md-4 col-xl-6 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
+                <div class="col-md-2 col-xl-2">
+                    <select class="form-select" id="filter-jenis-pegawai">
+                        <option value="">Semua Jenis</option>
+                        <option value="PNS">PNS</option>
+                        <option value="PPPK">PPPK</option>
+                        <option value="KONTRAK">Kontrak</option>
+                        <option value="HONORER">Honorer</option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-xl-2">
+                    <select class="form-select" id="filter-profesi">
+                        <option value="">Semua Profesi</option>
+                    </select>
+                </div>
+                <div class="col-md-2 col-xl-3 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
+                    <button type="button" class="btn btn-success d-flex align-items-center me-2" id="btnSync">
+                        <i class="ti ti-refresh text-white me-1 fs-5"></i> Sinkron Data
+                    </button>
                     <button type="button" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
                         <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Indeks Pegawai
                     </button>
@@ -325,7 +342,17 @@ $(document).ready(function() {
 
     // Filter by unit
     $('#filter-unit').on('change', function () {
-        datatable.column(4).search(this.value).draw(); // Column 4 adalah kolom unit (index 4)
+        datatable.column(4).search(this.value).draw(); // Column 4 adalah kolom unit
+    });
+
+    // Filter by jenis pegawai
+    $('#filter-jenis-pegawai').on('change', function () {
+        datatable.column(5).search(this.value).draw(); // Column 5 adalah kolom jenis_pegawai
+    });
+
+    // Filter by profesi
+    $('#filter-profesi').on('change', function () {
+        datatable.column(6).search(this.value).draw(); // Column 6 adalah kolom profesi
     });
 
     // Populate unit filter options
@@ -346,6 +373,24 @@ $(document).ready(function() {
         });
         
         select.val(currentValue);
+        
+        // Populate profesi filter options
+        var profesiOptions = [];
+        datatable.column(6, {search: 'applied'}).data().each(function (value) {
+            if (value && value !== '-' && profesiOptions.indexOf(value) === -1) {
+                profesiOptions.push(value);
+            }
+        });
+        
+        var profesiSelect = $('#filter-profesi');
+        var currentProfesiValue = profesiSelect.val();
+        profesiSelect.find('option:not(:first)').remove();
+        
+        profesiOptions.sort().forEach(function (profesi) {
+            profesiSelect.append('<option value="' + profesi + '">' + profesi + '</option>');
+        });
+        
+        profesiSelect.val(currentProfesiValue);
     });
 
     // Handle tambah data
@@ -471,6 +516,61 @@ $(document).ready(function() {
                 } catch (e) {
                     toastr.error('Terjadi kesalahan pada server');
                 }
+            }
+        });
+    });
+
+    // Handle sinkronisasi data
+    $('#btnSync').on('click', function(e) {
+        e.preventDefault();
+        
+        // Konfirmasi sebelum sinkronisasi
+        if (!confirm('Apakah Anda yakin ingin melakukan sinkronisasi data? Proses ini akan mengambil data dari database eprofile dan memperbarui data indeks pegawai.')) {
+            return;
+        }
+        
+        var $btn = $(this);
+        var originalText = $btn.html();
+        
+        // Disable button dan ubah text
+        $btn.prop('disabled', true).html('<i class="ti ti-loader-2 text-white me-1 fs-5 fa-spin"></i> Menyinkronkan...');
+        
+        $.ajax({
+            url: '{{ route('indeks-pegawai.sync') }}',
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.meta.code === 200) {
+                    datatable.ajax.reload(); // Reload tabel
+                    toastr.success(response.meta.message);
+                } else {
+                    toastr.error(response.meta.message);
+                }
+            },
+            error: function(xhr) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (xhr.status === 422 && response.data) {
+                        // Tampilkan error dalam bentuk list
+                        var errorMessage = response.meta.message + '<br><br>Detail Error:<br>';
+                        if (Array.isArray(response.data)) {
+                            response.data.forEach(function(error) {
+                                errorMessage += '• ' + error + '<br>';
+                            });
+                        }
+                        toastr.error(errorMessage);
+                    } else {
+                        toastr.error(response.meta.message || 'Terjadi kesalahan pada server');
+                    }
+                } catch (e) {
+                    toastr.error('Terjadi kesalahan pada server');
+                }
+            },
+            complete: function() {
+                // Kembalikan button ke state semula
+                $btn.prop('disabled', false).html(originalText);
             }
         });
     });

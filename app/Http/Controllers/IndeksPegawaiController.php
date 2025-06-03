@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\IndeksPegawai;
 use App\Models\Profesi;
+use App\Models\Pegawai;
+use App\Models\PegawaiMutasi;
+use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\ResponseFormatter;
@@ -134,6 +137,69 @@ class IndeksPegawaiController extends Controller
             return ResponseFormatter::success(null, 'Data berhasil dihapus permanen');
         } catch (\Exception $e) {
             return ResponseFormatter::error(null, 'Data gagal dihapus permanen: ' . $e->getMessage());
+        }
+    }
+
+    public function sync()
+    {
+        try {
+            // Ambil semua data pegawai dari database eprofile dengan eager loading
+            $pegawaiData = Pegawai::with(['mutasiAktif.unitKerja'])
+                ->where('is_deleted', 0)
+                ->get();
+            
+            $syncedCount = 0;
+            $updatedCount = 0;
+            $errors = [];
+
+            foreach ($pegawaiData as $pegawai) {
+                try {
+                    // Cek apakah pegawai sudah ada di indeks_pegawai berdasarkan NIK
+                    $indeksPegawai = IndeksPegawai::where('nik', $pegawai->nik)->first();
+                    
+                    // Ambil unit dari mutasi aktif
+                    $unit = null;
+                    if ($pegawai->mutasiAktif && $pegawai->mutasiAktif->unitKerja) {
+                        $unit = $pegawai->mutasiAktif->unitKerja->nama;
+                    }
+                    
+                    $dataToSync = [
+                        'nama' => $pegawai->nama,
+                        'nip' => $pegawai->nip,
+                        'nik' => $pegawai->nik,
+                        'unit' => $unit,
+                        'jenis_pegawai' => $pegawai->jenis_pegawai,
+                        'profesi_id' => $pegawai->profesi_id,
+                    ];
+
+                    if ($indeksPegawai) {
+                        // Update data yang sudah ada
+                        $indeksPegawai->update($dataToSync);
+                        $updatedCount++;
+                    } else {
+                        // Buat data baru
+                        IndeksPegawai::create($dataToSync);
+                        $syncedCount++;
+                    }
+                } catch (\Exception $e) {
+                    $errors[] = "Error untuk pegawai {$pegawai->nama} (NIK: {$pegawai->nik}): " . $e->getMessage();
+                }
+            }
+
+            $message = "Sinkronisasi berhasil! Data baru: {$syncedCount}, Data diperbarui: {$updatedCount}";
+            
+            if (!empty($errors)) {
+                $message .= ". Terdapat " . count($errors) . " error.";
+                return ResponseFormatter::error($errors, $message, 422);
+            }
+
+            return ResponseFormatter::success([
+                'synced_count' => $syncedCount,
+                'updated_count' => $updatedCount
+            ], $message);
+
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Sinkronisasi gagal: ' . $e->getMessage(), 500);
         }
     }
 }

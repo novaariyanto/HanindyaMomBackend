@@ -318,6 +318,7 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::delete('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'destroy'])->name('indeks-pegawai.destroy');
     Route::post('indeks-pegawai/{id}/restore', [IndeksPegawaiController::class, 'restore'])->name('indeks-pegawai.restore');
     Route::delete('indeks-pegawai/{id}/force-delete', [IndeksPegawaiController::class, 'forceDelete'])->name('indeks-pegawai.force-delete');
+    Route::post('indeks-pegawai/sync', [IndeksPegawaiController::class, 'sync'])->name('indeks-pegawai.sync');
 
     // Pegawai Jasa Non Medis
     Route::get('pegawai-jasa-non-medis', [PegawaiJasaNonMedisController::class, 'index'])->name('pegawai-jasa-non-medis.index');
