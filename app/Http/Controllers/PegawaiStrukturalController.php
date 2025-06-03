@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PegawaiJasaTidakLangsung;
+use App\Models\PegawaiStruktural;
 use App\Models\IndeksPegawai;
-use App\Models\IndeksJasaTidakLangsung;
+use App\Models\IndeksStruktural;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\ResponseFormatter;
 use Illuminate\Support\Facades\Validator;
 
-class PegawaiJasaTidakLangsungController extends Controller
+class PegawaiStrukturalController extends Controller
 {
     public function index()
     {
         if (request()->ajax()) {
-            $data = PegawaiJasaTidakLangsung::with(['pegawai', 'jasa']);
+            $data = PegawaiStruktural::with(['pegawai', 'jasa']);
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('pegawai_nama', function($row) {
@@ -34,10 +34,10 @@ class PegawaiJasaTidakLangsungController extends Controller
                                 <i class="ti ti-dots-vertical"></i>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item btn-edit" href="javascript:void(0)" data-url="' . route('pegawai-jasa-tidak-langsung.update', $row->id) . '">
+                                <li><a class="dropdown-item btn-edit" href="javascript:void(0)" data-url="' . route('pegawai-struktural.update', $row->id) . '">
                                     <i class="ti ti-edit me-1"></i> Edit
                                 </a></li>
-                                <li><a class="dropdown-item btn-delete text-danger" href="javascript:void(0)" data-url="' . route('pegawai-jasa-tidak-langsung.destroy', $row->id) . '">
+                                <li><a class="dropdown-item btn-delete text-danger" href="javascript:void(0)" data-url="' . route('pegawai-struktural.destroy', $row->id) . '">
                                     <i class="ti ti-trash me-1"></i> Hapus
                                 </a></li>
                             </ul>
@@ -49,25 +49,25 @@ class PegawaiJasaTidakLangsungController extends Controller
         }
 
         $pegawai = IndeksPegawai::all();
-        $jasa = IndeksJasaTidakLangsung::all();
+        $jasa = IndeksStruktural::all();
         
-        return view('pegawai-jasa-tidak-langsung.index', compact('pegawai', 'jasa'));
+        return view('pegawai-struktural.index', compact('pegawai', 'jasa'));
     }
 
     public function create()
     {
         // Return view untuk form create jika diperlukan
         $pegawai = IndeksPegawai::all();
-        $jasa = IndeksJasaTidakLangsung::all();
+        $jasa = IndeksStruktural::all();
         
-        return view('pegawai-jasa-tidak-langsung.create', compact('pegawai', 'jasa'));
+        return view('pegawai-struktural.create', compact('pegawai', 'jasa'));
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'pegawai_id' => 'required|exists:indeks_pegawai,id',
-            'jasa_id' => 'required|exists:indeks_jasa_tidak_langsung,id',
+            'jasa_id' => 'required|exists:indeks_struktural,id',
             'nilai' => 'required|numeric|min:0'
         ], [
             'pegawai_id.required' => 'Pegawai wajib dipilih',
@@ -90,7 +90,7 @@ class PegawaiJasaTidakLangsungController extends Controller
         }
 
         try {
-            $pegawaiJasa = PegawaiJasaTidakLangsung::create($request->all());
+            $pegawaiJasa = PegawaiStruktural::create($request->all());
             return response()->json([
                 'meta' => [
                     'code' => 200,
@@ -111,7 +111,7 @@ class PegawaiJasaTidakLangsungController extends Controller
     public function show($id)
     {
         try {
-            $data = PegawaiJasaTidakLangsung::with(['pegawai', 'jasa'])->findOrFail($id);
+            $data = PegawaiStruktural::with(['pegawai', 'jasa'])->findOrFail($id);
             return response()->json([
                 'meta' => [
                     'code' => 200,
@@ -132,7 +132,7 @@ class PegawaiJasaTidakLangsungController extends Controller
     public function edit($id)
     {
         try {
-            $data = PegawaiJasaTidakLangsung::with(['pegawai', 'jasa'])->findOrFail($id);
+            $data = PegawaiStruktural::with(['pegawai', 'jasa'])->findOrFail($id);
             return response()->json([
                 'meta' => [
                     'code' => 200,
@@ -153,11 +153,11 @@ class PegawaiJasaTidakLangsungController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $pegawaiJasa = PegawaiJasaTidakLangsung::findOrFail($id);
+            $pegawaiJasa = PegawaiStruktural::findOrFail($id);
             
             $validator = Validator::make($request->all(), [
                 'pegawai_id' => 'required|exists:indeks_pegawai,id',
-                'jasa_id' => 'required|exists:indeks_jasa_tidak_langsung,id',
+                'jasa_id' => 'required|exists:indeks_struktural,id',
                 'nilai' => 'required|numeric|min:0'
             ], [
                 'pegawai_id.required' => 'Pegawai wajib dipilih',
@@ -201,7 +201,7 @@ class PegawaiJasaTidakLangsungController extends Controller
     public function destroy($id)
     {
         try {
-            $pegawaiJasa = PegawaiJasaTidakLangsung::findOrFail($id);
+            $pegawaiJasa = PegawaiStruktural::findOrFail($id);
             $pegawaiJasa->delete(); // Soft delete jika model menggunakan SoftDeletes
             
             return response()->json([
@@ -223,7 +223,7 @@ class PegawaiJasaTidakLangsungController extends Controller
     public function restore($id)
     {
         try {
-            $pegawaiJasa = PegawaiJasaTidakLangsung::withTrashed()->findOrFail($id);
+            $pegawaiJasa = PegawaiStruktural::withTrashed()->findOrFail($id);
             $pegawaiJasa->restore();
             
             return response()->json([
@@ -245,7 +245,7 @@ class PegawaiJasaTidakLangsungController extends Controller
     public function forceDelete($id)
     {
         try {
-            $pegawaiJasa = PegawaiJasaTidakLangsung::withTrashed()->findOrFail($id);
+            $pegawaiJasa = PegawaiStruktural::withTrashed()->findOrFail($id);
             $pegawaiJasa->forceDelete();
             
             return response()->json([

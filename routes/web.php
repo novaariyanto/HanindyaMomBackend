@@ -40,6 +40,8 @@ use App\Http\Controllers\PegawaiJasaNonMedisController;
 use App\Http\Controllers\KategoriIndeksJasaLangsungNonMedisController;
 use App\Http\Controllers\PegawaiJasaTidakLangsungController;
 use App\Http\Controllers\KategoriIndeksJasaTidakLangsungController;
+use App\Http\Controllers\PegawaiStrukturalController;
+
 Route::get('/faces/{filename}', function ($filename) {
     $path = storage_path('app/public/faces/' . $filename);
     if (!file_exists($path)) {
@@ -348,6 +350,15 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::get('kategori-tidak-langsung/{id}/edit', [KategoriIndeksJasaTidakLangsungController::class, 'edit'])->name('kategori-tidak-langsung.edit');
     Route::put('kategori-tidak-langsung/{id}', [KategoriIndeksJasaTidakLangsungController::class, 'update'])->name('kategori-tidak-langsung.update');
     Route::delete('kategori-tidak-langsung/{id}', [KategoriIndeksJasaTidakLangsungController::class, 'destroy'])->name('kategori-tidak-langsung.destroy');
+
+    // Pegawai Struktural
+    Route::get('pegawai-struktural', [PegawaiStrukturalController::class, 'index'])->name('pegawai-struktural.index');
+    Route::post('pegawai-struktural', [PegawaiStrukturalController::class, 'store'])->name('pegawai-struktural.store');
+    Route::get('pegawai-struktural/{id}', [PegawaiStrukturalController::class, 'show'])->name('pegawai-struktural.show');
+    Route::get('pegawai-struktural/{id}/edit', [PegawaiStrukturalController::class, 'edit'])->name('pegawai-struktural.edit');
+    Route::put('pegawai-struktural/{id}', [PegawaiStrukturalController::class, 'update'])->name('pegawai-struktural.update');
+    Route::delete('pegawai-struktural/{id}', [PegawaiStrukturalController::class, 'destroy'])->name('pegawai-struktural.destroy');
+    
 });
 
 require __DIR__.'/auth.php';

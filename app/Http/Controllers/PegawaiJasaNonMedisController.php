@@ -34,7 +34,7 @@ class PegawaiJasaNonMedisController extends Controller
                                 <i class="ti ti-dots-vertical"></i>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item btn-edit" href="javascript:void(0)" data-url="' . route('pegawai-jasa-non-medis.edit', $row->id) . '">
+                                <li><a class="dropdown-item btn-edit" href="javascript:void(0)" data-url="' . route('pegawai-jasa-non-medis.update', $row->id) . '">
                                     <i class="ti ti-edit me-1"></i> Edit
                                 </a></li>
                                 <li><a class="dropdown-item btn-delete text-danger" href="javascript:void(0)" data-url="' . route('pegawai-jasa-non-medis.destroy', $row->id) . '">
