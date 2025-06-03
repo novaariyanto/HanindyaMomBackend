@@ -141,7 +141,7 @@
             contentType: false, // Prevent jQuery from automatically setting content type
             success: function(response) {
                 // Handle success
-                console.log(response);
+                // console.log(response);
     
                 if (response.meta.code === 200) {
                     // Reload DataTable
@@ -149,6 +149,7 @@
                
                     // Hide the modal
                     $('#createModal').modal('hide');
+                 
                     $('#successToast .msg-box').text(response.meta.message);
     
                     $('#successToast').toast('show');  // Menampilkan toast
@@ -170,13 +171,9 @@
             },
             error: function(xhr) {
                     // $('#createModal').modal('hide');
-
-    console.log(xhr);
-               
-
+                console.log(xhr);
                 $('#failedToast .msg-box').text(xhr.responseJSON.meta.message);
-    
-    $('#failedToast').toast('show');  // Menampilkan toast
+                $('#failedToast').toast('show');  // Menampilkan toast
 
             }
         });
@@ -198,43 +195,20 @@
     
                 if (response.meta.code === 200) {
                     // Reload DataTable
-                    $('#datatable').DataTable().ajax.reload();
-    
+                    $('#datatable').DataTable().ajax.reload();    
                     // Sembunyikan modal
-                    $('#createModal').modal('hide');
-    
+                    $('#editModal').modal('hide');
                     // Tampilkan notifikasi sukses
                     $('#successToast .msg-box').text(response.meta.message);
-    
-    $('#successToast').toast('show');  // Menampilkan toast
-
+                    $('#successToast').toast('show');  // Menampilkan toast
                 } else {
                     // Handle jika respons tidak sesuai dengan yang diharapkan
                     alert('Gagal memperbarui data. Silakan coba lagi.');
                 }
             },
             error: function(xhr) {
-                // Handle jika terjadi error
-    
-                // Tampilkan notifikasi error
-                // $.notify({
-                //     icon: 'fas fa-exclamation-circle',
-                //     message: xhr.responseJSON.meta.message // Pesan error
-                // }, {
-                //     type: "danger",
-                //     placement: {
-                //         from: 'top',
-                //         align: 'right'
-                //     },
-                //     delay: 1000, // Durasi dalam milidetik sebelum notifikasi menghilang
-                //     timer: 1000, // Mengatur timer untuk noti
-                // });
-                // alert("X");
-
                 $('#failedToast .msg-box').text(xhr.responseJson.meta.message);
-    
-    $('#failedToast').toast('show');  // Menampilkan toast
-
+                $('#failedToast').toast('show');  // Menampilkan toast
             }
         });
     });
