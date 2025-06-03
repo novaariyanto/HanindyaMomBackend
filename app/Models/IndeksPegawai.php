@@ -37,11 +37,15 @@ class IndeksPegawai extends Model
     {
         return $this->belongsTo(Profesi::class, 'profesi_id', 'id');
     }
+    public function jenisPegawai()
+    {
+        return $this->belongsTo(JenisPegawai::class, 'jenis_pegawai', 'id');
+    }
     
     // Relasi ke model UnitKerja
     public function unitKerja()
     {
-        return $this->belongsTo(UnitKerja::class, 'unit_kerja_id', 'id');
+        return $this->belongsTo(UnitKerja::class, 'unit', 'id');
     }
     
     // Accessor untuk jenis pegawai

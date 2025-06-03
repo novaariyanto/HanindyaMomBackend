@@ -6,6 +6,7 @@ use App\Models\IndeksPegawai;
 use App\Models\Profesi;
 use App\Models\Pegawai;
 use App\Models\PegawaiMutasi;
+use App\Models\JenisPegawai;
 use App\Models\UnitKerja;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -16,7 +17,39 @@ class IndeksPegawaiController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $data = IndeksPegawai::with('profesi', 'unitKerja');
+            $data = IndeksPegawai::with('profesi', 'unitKerja','jenisPegawai');
+
+            // Filter berdasarkan profesi
+            if (request()->has('profesi_id') && request('profesi_id') != '') {
+                $data->where('profesi_id', request('profesi_id'));
+            }
+
+            // Filter berdasarkan unit kerja
+            if (request()->has('unit_kerja_id') && request('unit_kerja_id') != '') {
+                $data->where('unit', request('unit_kerja_id'));
+            }
+
+            // Filter berdasarkan jenis pegawai
+            if (request()->has('jenis_pegawai') && request('jenis_pegawai') != '') {
+                $data->where('jenis_pegawai', request('jenis_pegawai'));
+            }
+
+            // Filter berdasarkan pencarian global
+            if (request()->has('search') && request('search') != '') {
+                $searchValue = request('search');
+                $data->where(function($query) use ($searchValue) {
+                    $query->where('nama', 'like', "%{$searchValue}%")
+                          ->orWhere('nip', 'like', "%{$searchValue}%")
+                          ->orWhere('nik', 'like', "%{$searchValue}%")
+                          ->orWhereHas('profesi', function($q) use ($searchValue) {
+                              $q->where('nama', 'like', "%{$searchValue}%");
+                          })
+                          ->orWhereHas('unitKerja', function($q) use ($searchValue) {
+                              $q->where('nama', 'like', "%{$searchValue}%");
+                          });
+                });
+            }
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('profesi_nama', function($row) {
@@ -28,6 +61,9 @@ class IndeksPegawaiController extends Controller
                 ->addColumn('jenis_pegawai_label', function($row) {
                     return $row->jenis_pegawai_label;
                 })
+                ->addColumn('jenis_pegawai', function($row) {
+                    return $row->jenisPegawai?$row->jenisPegawai->nama:'-';
+                })
                 ->addColumn('action', function($row){
                     return '
                         <a href="#" data-url="' . route('indeks-pegawai.show', $row->id) . '" class="btn btn-info btn-sm btn-edit"><i class="ti ti-pencil"></i></a>
@@ -37,9 +73,11 @@ class IndeksPegawaiController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-
-        $profesi = Profesi::all();
-        return view('indeks-pegawai.index', compact('profesi'));
+        $jenisPegawai = JenisPegawai::all();
+        $dprofesi = Profesi::all();
+        
+        $unitKerja = UnitKerja::all();
+        return view('indeks-pegawai.index', compact('dprofesi','jenisPegawai','unitKerja'));
     }
 
     public function store(Request $request)
@@ -151,7 +189,6 @@ class IndeksPegawaiController extends Controller
         try {
             // Ambil semua data pegawai dari database eprofile dengan eager loading
             $pegawaiData = Pegawai::with(['mutasiAktif.unitKerja'])
-                ->where('is_deleted', 0)
                 ->get();
           
             $syncedCount = 0;
