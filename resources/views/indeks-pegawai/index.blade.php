@@ -21,7 +21,12 @@
                         <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
                     </form>
                 </div>
-                <div class="col-md-8 col-xl-9 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
+                <div class="col-md-4 col-xl-3">
+                    <select class="form-select" id="filter-unit">
+                        <option value="">Semua Unit</option>
+                    </select>
+                </div>
+                <div class="col-md-4 col-xl-6 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
                     <button type="button" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
                         <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Indeks Pegawai
                     </button>
@@ -38,6 +43,7 @@
                             <th>Nama</th>
                             <th>NIP</th>
                             <th>NIK</th>
+                            <th>Unit</th>
                             <th>Cluster 1</th>
                             <th>Cluster 2</th>
                             <th>Cluster 3</th>
@@ -85,6 +91,12 @@
                             <div class="mb-3">
                                 <label class="form-label">NIK</label>
                                 <input type="text" class="form-control" name="nik" required maxlength="20">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Unit</label>
+                                <input type="text" class="form-control" name="unit" maxlength="255">
                             </div>
                         </div>
                     </div>
@@ -163,6 +175,12 @@
                                 <input type="text" class="form-control" name="nik" id="edit_nik" required maxlength="20">
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Unit</label>
+                                <input type="text" class="form-control" name="unit" id="edit_unit" maxlength="255">
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Kolom Cluster -->
@@ -229,6 +247,7 @@ $(document).ready(function() {
             {data: 'nama', name: 'nama'},
             {data: 'nip', name: 'nip'},
             {data: 'nik', name: 'nik'},
+            {data: 'unit', name: 'unit'},
             {data: 'cluster_1', name: 'cluster_1'},
             {data: 'cluster_2', name: 'cluster_2'},
             {data: 'cluster_3', name: 'cluster_3'},
@@ -246,6 +265,31 @@ $(document).ready(function() {
 
     $('#input-search').on('keyup', function () {
         datatable.search(this.value).draw();
+    });
+
+    // Filter by unit
+    $('#filter-unit').on('change', function () {
+        datatable.column(4).search(this.value).draw(); // Column 4 adalah kolom unit (index 4)
+    });
+
+    // Populate unit filter options
+    datatable.on('draw', function () {
+        var units = [];
+        datatable.column(4, {search: 'applied'}).data().each(function (value) {
+            if (value && units.indexOf(value) === -1) {
+                units.push(value);
+            }
+        });
+        
+        var select = $('#filter-unit');
+        var currentValue = select.val();
+        select.find('option:not(:first)').remove();
+        
+        units.sort().forEach(function (unit) {
+            select.append('<option value="' + unit + '">' + unit + '</option>');
+        });
+        
+        select.val(currentValue);
     });
 
     // Handle tambah data
@@ -304,6 +348,7 @@ $(document).ready(function() {
                     $('#edit_nama').val(data.nama);
                     $('#edit_nip').val(data.nip);
                     $('#edit_nik').val(data.nik);
+                    $('#edit_unit').val(data.unit);
                     $('#edit_cluster_1').val(data.cluster_1);
                     $('#edit_cluster_2').val(data.cluster_2);
                     $('#edit_cluster_3').val(data.cluster_3);

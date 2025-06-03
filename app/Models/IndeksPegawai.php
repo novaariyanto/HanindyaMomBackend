@@ -15,6 +15,7 @@ class IndeksPegawai extends Model
         'nama',
         'nip',
         'nik',
+        'unit',
         'cluster_1',
         'cluster_2',
         'cluster_3',
