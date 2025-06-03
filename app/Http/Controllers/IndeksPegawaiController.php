@@ -40,13 +40,7 @@ class IndeksPegawaiController extends Controller
                 $data->where(function($query) use ($searchValue) {
                     $query->where('nama', 'like', "%{$searchValue}%")
                           ->orWhere('nip', 'like', "%{$searchValue}%")
-                          ->orWhere('nik', 'like', "%{$searchValue}%")
-                          ->orWhereHas('profesi', function($q) use ($searchValue) {
-                              $q->where('nama', 'like', "%{$searchValue}%");
-                          })
-                          ->orWhereHas('unitKerja', function($q) use ($searchValue) {
-                              $q->where('nama', 'like', "%{$searchValue}%");
-                          });
+                          ->orWhere('nik', 'like', "%{$searchValue}%");
                 });
             }
 
