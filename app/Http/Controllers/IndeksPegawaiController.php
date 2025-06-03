@@ -16,11 +16,14 @@ class IndeksPegawaiController extends Controller
     public function index()
     {
         if (request()->ajax()) {
-            $data = IndeksPegawai::with('profesi');
+            $data = IndeksPegawai::with('profesi', 'unitKerja');
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('profesi_nama', function($row) {
                     return $row->profesi ? $row->profesi->nama : '-';
+                })
+                ->addColumn('unit_kerja_nama', function($row) {
+                    return $row->unitKerja ? $row->unitKerja->nama : ($row->unit ?? '-');
                 })
                 ->addColumn('jenis_pegawai_label', function($row) {
                     return $row->jenis_pegawai_label;
@@ -46,6 +49,7 @@ class IndeksPegawaiController extends Controller
             'nip' => 'required|string|max:30',
             'nik' => 'required|string|max:20|unique:indeks_pegawai',
             'unit' => 'nullable|string|max:255',
+            'unit_kerja_id' => 'nullable|exists:eprofile.unit_kerja,id',
             'jenis_pegawai' => 'nullable|in:PNS,PPPK,KONTRAK,HONORER',
             'profesi_id' => 'nullable|exists:eprofile.profesi,id',
             'cluster_1' => 'nullable|numeric|min:0',
@@ -84,6 +88,7 @@ class IndeksPegawaiController extends Controller
             'nip' => 'required|string|max:30|unique:indeks_pegawai,nip,' . $id,
             'nik' => 'required|string|max:20|unique:indeks_pegawai,nik,' . $id,
             'unit' => 'nullable|string|max:255',
+            'unit_kerja_id' => 'nullable|exists:eprofile.unit_kerja,id',
             'jenis_pegawai' => 'nullable|in:PNS,PPPK,KONTRAK,HONORER',
             'profesi_id' => 'nullable|exists:eprofile.profesi,id',
             'cluster_1' => 'nullable|numeric|min:0',
@@ -142,12 +147,13 @@ class IndeksPegawaiController extends Controller
 
     public function sync()
     {
+       
         try {
             // Ambil semua data pegawai dari database eprofile dengan eager loading
             $pegawaiData = Pegawai::with(['mutasiAktif.unitKerja'])
                 ->where('is_deleted', 0)
                 ->get();
-            
+          
             $syncedCount = 0;
             $updatedCount = 0;
             $errors = [];
@@ -158,9 +164,13 @@ class IndeksPegawaiController extends Controller
                     $indeksPegawai = IndeksPegawai::where('nik', $pegawai->nik)->first();
                     
                     // Ambil unit dari mutasi aktif
-                    $unit = null;
-                    if ($pegawai->mutasiAktif && $pegawai->mutasiAktif->unitKerja) {
-                        $unit = $pegawai->mutasiAktif->unitKerja->nama;
+                    $unit = "-";
+                    $unitKerjaId = null;
+                    if ($pegawai->mutasiAktif) {
+                        $unitKerjaId = $pegawai->mutasiAktif->unit_kerja_id;
+                        if ($pegawai->mutasiAktif->unitKerja) {
+                            $unit = $pegawai->mutasiAktif->unitKerja->nama;
+                        }
                     }
                     
                     $dataToSync = [
@@ -168,13 +178,14 @@ class IndeksPegawaiController extends Controller
                         'nip' => $pegawai->nip,
                         'nik' => $pegawai->nik,
                         'unit' => $unit,
+                        'unit_kerja_id' => $unitKerjaId,
                         'jenis_pegawai' => $pegawai->jenis_pegawai,
                         'profesi_id' => $pegawai->profesi_id,
                     ];
 
                     if ($indeksPegawai) {
                         // Update data yang sudah ada
-                        $indeksPegawai->update($dataToSync);
+                        IndeksPegawai::where('nik', $pegawai->nik)->update($dataToSync);
                         $updatedCount++;
                     } else {
                         // Buat data baru

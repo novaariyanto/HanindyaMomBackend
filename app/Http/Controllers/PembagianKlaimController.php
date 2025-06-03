@@ -135,7 +135,7 @@ class PembagianKlaimController extends Controller
             $EMBALACE = 0;
             $Dokter_Umum_IGD = 0;
             
-            $DPJP = $tpendaftaran->KDDOKTER;
+            $DPJP = @$tpendaftaran->KDDOKTER;
             // ------------	
             $DOKTERKONSUL = "";
             $KONSULEN = "";
@@ -189,7 +189,7 @@ class PembagianKlaimController extends Controller
                         $LABORATORIST = $row->KDDOKTER;
                     }else if($row->UNIT == '163'){
                         $TOTALLPA += $row->TARIFRS;
-                        $DOKTERLPA = $row->KDDOKTER;
+                        $DOKTERLPA = 884;
                     }
                     
                 }
@@ -321,9 +321,6 @@ class PembagianKlaimController extends Controller
                 $update = DetailSource::where('id', $detailSource->id)
                 ->update([
                     'status_pembagian_klaim'=>1,
-                    'biaya_riil_rs'=>$data_admission->total_tarif_rs,
-                    'biaya_diajukan'=>$data_admission->total_tarif_rs,
-                    'biaya_disetujui'=>$data_admission->total_tarif_rs,
                     'total_remunerasi'=>$total_remunerasi,
                     'idxdaftar'=>$idxdaftar,
                     'nomr'=>$nomr
@@ -367,11 +364,11 @@ class PembagianKlaimController extends Controller
     
             }else{
                 // bpjps
-                $sep = $data_detail_source->no_sep;
+                 $sep = $data_detail_source->no_sep;
                 $data = $this->getIdxDaftar($sep);
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
-                  
+                
                 $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
                 $selisih = $selisih*-1;
                 if ($data_detail_source->biaya_disetujui != 0) {
@@ -487,7 +484,7 @@ class PembagianKlaimController extends Controller
                         $LABORATORIST = $row->KDDOKTER;
                     }else if($row->UNIT == '163'){
                         $TOTALLPA += $row->TARIFRS;
-                        $DOKTERLPA = $row->KDDOKTER;
+                        $DOKTERLPA = 884;
                     }
                     
                     
@@ -550,11 +547,13 @@ class PembagianKlaimController extends Controller
             
             
             $pembagian = [];
-            if(count($kddokter) > 0){
+            
+            if(count($kddokter) > 0 && $kddokter[0] != ""){
                 $dpjpraber = $this->groupAndCount($kddokter);
                 if(count($dpjpraber['filtered']) > 1){
-                    $DPJPRABER  =$dpjpraber['most_frequent']['value'];
-                    $DOKTERRABER = $dpjpraber['min_frequent']['value'];
+                    $DPJPRABER  =$tadmission->dokter_penanggungjawab;
+                    $notdpjp = current(array_filter($dpjpraber['most_frequent']['value'], fn($val) => $val !== $DPJP));
+                    $DOKTERRABER = $notdpjp;
                     $DPJP = "";
                }else{
                     
@@ -655,10 +654,12 @@ class PembagianKlaimController extends Controller
                         'nilai_remunerasi'=>$nilai_remunerasi,
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ]; 
-                    $total_remunerasi += $nilai_remunerasi;          
+                    $total_remunerasi += $nilai_remunerasi;        
+                         
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
             }
+            
     
             foreach($dokters_umum as $dokter){
                 $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
@@ -679,7 +680,7 @@ class PembagianKlaimController extends Controller
                     'nomr'=>$nomr,
                     'tanggal'=>$data_detail_source->tgl_verifikasi,
                     'nama_ppa'=>$nama_dokter,
-                    'kode_dokter'=>@$kode_dokter,
+                    'kode_dokter'=>@$dokter,
                     'sumber_value'=>0.01*$data_sumber['VERIFIKASITOTAL'],
                     'nilai_remunerasi'=>0.01*$data_sumber['VERIFIKASITOTAL']*(1/count($dokters_umum)),
                     'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
@@ -725,6 +726,8 @@ class PembagianKlaimController extends Controller
             "data"=>$data_detail_source
         ];
     }
+    
+    
     function groupAndCount(array $data): array {
         // Hitung jumlah kemunculan
         if(!is_array($data)){
@@ -1439,7 +1442,7 @@ class PembagianKlaimController extends Controller
             $data_dokter = PembagianKlaim::where('remunerasi_source_id', $sourceId)
                 ->where('cluster', 1)
                 ->get()
-                ->groupBy('nama_ppa')
+                ->groupBy('kode_dokter')
                 ->map(function ($group) {
                     return [
                         'total_nominal_remunerasi' => $group->sum('nilai_remunerasi'),
@@ -1452,8 +1455,6 @@ class PembagianKlaimController extends Controller
                         'nama_ppa' => $group->first()->nama_ppa
                     ];
                 });
-
-       
 
             // Data untuk Perawat (cluster 2)
             $data_perawat = PembagianKlaim::where('remunerasi_source_id', $sourceId)
@@ -1517,7 +1518,6 @@ class PembagianKlaimController extends Controller
                     'jtl' => $data_jtl->sum('total_nominal_remunerasi')
                 ]
             ];
-           
 
             return view('pembagian-klaim.laporan', $formattedData);
         } catch (\Exception $e) {

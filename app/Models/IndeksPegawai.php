@@ -16,6 +16,7 @@ class IndeksPegawai extends Model
         'nip',
         'nik',
         'unit',
+        'unit_kerja_id',
         'jenis_pegawai',
         'profesi_id',
         'cluster_1',
@@ -35,6 +36,12 @@ class IndeksPegawai extends Model
     public function profesi()
     {
         return $this->belongsTo(Profesi::class, 'profesi_id', 'id');
+    }
+    
+    // Relasi ke model UnitKerja
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_kerja_id', 'id');
     }
     
     // Accessor untuk jenis pegawai

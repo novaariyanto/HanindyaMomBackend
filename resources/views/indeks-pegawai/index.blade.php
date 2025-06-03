@@ -294,6 +294,88 @@
     </div>
 </div>
 
+<!-- Modal Loading Sinkronisasi -->
+<div class="modal fade" id="syncModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <i class="ti ti-refresh text-primary me-2"></i>
+                    Proses Sinkronisasi Data
+                </h5>
+            </div>
+            <div class="modal-body text-center py-4">
+                <!-- Loading Spinner -->
+                <div class="mb-4">
+                    <div class="spinner-border text-primary" role="status" style="width: 4rem; height: 4rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                
+                <!-- Progress Info -->
+                <h6 class="mb-3">Menyinkronkan data pegawai...</h6>
+                <p class="text-muted mb-4">Mohon tunggu, proses ini mungkin memerlukan beberapa saat tergantung jumlah data yang akan disinkronkan.</p>
+                
+                <!-- Progress Bar -->
+                <div class="progress mb-3" style="height: 8px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                         role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                </div>
+                
+                <!-- Status Text -->
+                <small class="text-muted">Mengambil data dari database eprofile dan memperbarui indeks pegawai...</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi Sinkronisasi -->
+<div class="modal fade" id="confirmSyncModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="ti ti-alert-triangle text-warning me-2"></i>
+                    Konfirmasi Sinkronisasi
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="ti ti-database-import text-primary" style="font-size: 4rem;"></i>
+                </div>
+                <h6 class="text-center mb-3">Apakah Anda yakin ingin melakukan sinkronisasi data?</h6>
+                <div class="alert alert-info border-0 bg-light-info">
+                    <div class="d-flex align-items-center">
+                        <i class="ti ti-info-circle text-info me-2"></i>
+                        <div>
+                            <strong>Proses ini akan:</strong>
+                            <ul class="mb-0 mt-2 ps-3">
+                                <li>Mengambil data pegawai dari database eprofile</li>
+                                <li>Memperbarui data indeks pegawai yang sudah ada</li>
+                                <li>Menambahkan pegawai baru yang belum terdaftar</li>
+                                <li>Menyinkronkan: Nama, NIP, NIK, Unit, Jenis Pegawai, dan Profesi</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted text-center mb-0">
+                    <small>Proses ini mungkin memerlukan beberapa saat tergantung jumlah data.</small>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="ti ti-x me-1"></i> Batal
+                </button>
+                <button type="button" class="btn btn-success" id="confirmSyncBtn">
+                    <i class="ti ti-refresh me-1"></i> Ya, Lakukan Sinkronisasi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -318,7 +400,7 @@ $(document).ready(function() {
             {data: 'nama', name: 'nama'},
             {data: 'nip', name: 'nip'},
             {data: 'nik', name: 'nik'},
-            {data: 'unit', name: 'unit'},
+            {data: 'unit_kerja_nama', name: 'unit_kerja_nama'},
             {data: 'jenis_pegawai_label', name: 'jenis_pegawai'},
             {data: 'profesi_nama', name: 'profesi.nama'},
             {data: 'cluster_1', name: 'cluster_1'},
@@ -520,20 +602,29 @@ $(document).ready(function() {
         });
     });
 
-    // Handle sinkronisasi data
+    // Handle sinkronisasi data - trigger modal konfirmasi
     $('#btnSync').on('click', function(e) {
         e.preventDefault();
+        $('#confirmSyncModal').modal('show');
+    });
+
+    // Handle konfirmasi sinkronisasi
+    $('#confirmSyncBtn').on('click', function(e) {
+        e.preventDefault();
         
-        // Konfirmasi sebelum sinkronisasi
-        if (!confirm('Apakah Anda yakin ingin melakukan sinkronisasi data? Proses ini akan mengambil data dari database eprofile dan memperbarui data indeks pegawai.')) {
-            return;
-        }
+        // Tutup modal konfirmasi
+        $('#confirmSyncModal').modal('hide');
         
-        var $btn = $(this);
-        var originalText = $btn.html();
+        var $btnSync = $('#btnSync');
+        var originalText = $btnSync.html();
         
         // Disable button dan ubah text
-        $btn.prop('disabled', true).html('<i class="ti ti-loader-2 text-white me-1 fs-5 fa-spin"></i> Menyinkronkan...');
+        $btnSync.prop('disabled', true).html('<i class="ti ti-loader-2 text-white me-1 fs-5 fa-spin"></i> Menyinkronkan...');
+        
+        // Tampilkan modal loading setelah konfirmasi modal tertutup
+        setTimeout(function() {
+            $('#syncModal').modal('show');
+        }, 300);
         
         $.ajax({
             url: '{{ route('indeks-pegawai.sync') }}',
@@ -542,40 +633,59 @@ $(document).ready(function() {
                 _token: '{{ csrf_token() }}'
             },
             success: function(response) {
+                // Sembunyikan modal loading
+                $('#syncModal').modal('hide');
+                
                 if (response.meta.code === 200) {
                     datatable.ajax.reload(); // Reload tabel
-                    toastr.success(response.meta.message);
+                    
+                    // Tampilkan notifikasi sukses dengan detail
+                    var successMessage = response.meta.message;
+                    if (response.data && (response.data.synced_count > 0 || response.data.updated_count > 0)) {
+                        successMessage += '<br><br><strong>Detail:</strong><br>';
+                        successMessage += '• Data baru ditambahkan: ' + response.data.synced_count + '<br>';
+                        successMessage += '• Data yang diperbarui: ' + response.data.updated_count;
+                    }
+                    
+                    toastr.success(successMessage, 'Sinkronisasi Berhasil!', {
+                        timeOut: 8000,
+                        extendedTimeOut: 4000
+                    });
                 } else {
-                    toastr.error(response.meta.message);
+                    toastr.error(response.meta.message, 'Sinkronisasi Gagal!');
                 }
             },
             error: function(xhr) {
+                // Sembunyikan modal loading
+                $('#syncModal').modal('hide');
+                
                 try {
                     var response = JSON.parse(xhr.responseText);
                     if (xhr.status === 422 && response.data) {
                         // Tampilkan error dalam bentuk list
-                        var errorMessage = response.meta.message + '<br><br>Detail Error:<br>';
+                        var errorMessage = response.meta.message + '<br><br><strong>Detail Error:</strong><br>';
                         if (Array.isArray(response.data)) {
                             response.data.forEach(function(error) {
                                 errorMessage += '• ' + error + '<br>';
                             });
                         }
-                        toastr.error(errorMessage);
+                        toastr.error(errorMessage, 'Sinkronisasi Gagal!', {
+                            timeOut: 10000,
+                            extendedTimeOut: 5000
+                        });
                     } else {
-                        toastr.error(response.meta.message || 'Terjadi kesalahan pada server');
+                        toastr.error(response.meta.message || 'Terjadi kesalahan pada server', 'Sinkronisasi Gagal!');
                     }
                 } catch (e) {
-                    toastr.error('Terjadi kesalahan pada server');
+                    toastr.error('Terjadi kesalahan pada server', 'Sinkronisasi Gagal!');
                 }
             },
             complete: function() {
                 // Kembalikan button ke state semula
-                $btn.prop('disabled', false).html(originalText);
+                $btnSync.prop('disabled', false).html(originalText);
             }
         });
     });
-
-    
 });
 </script>
 @endpush 

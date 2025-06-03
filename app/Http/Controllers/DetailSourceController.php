@@ -702,7 +702,7 @@ class DetailSourceController extends Controller
                         $LABORATORIST = $row->KDDOKTER;
                     }else if($row->UNIT == '163'){
                         $TOTALLPA += $row->TARIFRS;
-                        $DOKTERLPA = $row->KDDOKTER;
+                        $DOKTERLPA = 884;
                     }
                     
                 }
@@ -997,7 +997,7 @@ class DetailSourceController extends Controller
                         $LABORATORIST = $row->KDDOKTER;
                     }else if($row->UNIT == '163'){
                         $TOTALLPA += $row->TARIFRS;
-                        $DOKTERLPA = $row->KDDOKTER;
+                        $DOKTERLPA = 884;
                     }
                     
                     
