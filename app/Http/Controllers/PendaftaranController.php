@@ -114,7 +114,7 @@ class PendaftaranController extends Controller
         // Isi data
         $row = 2;
         foreach ($data as $item) {
-            $sheet->setCellValue('A' . $row, $item->NOMR);
+            $sheet->setCellValue('A' . $row, $item->NOMR."-".$item->IDXDAFTAR);
             $sheet->setCellValue('B' . $row, $item->TGLREG ? date('d-m-Y', strtotime($item->TGLREG)) : '');
             $sheet->setCellValue('C' . $row, 0);
             $sheet->setCellValue('D' . $row, 0);

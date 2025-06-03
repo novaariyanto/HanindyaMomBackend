@@ -244,7 +244,7 @@ $(document).ready(function() {
                 searchable: false
             },
             {data: 'no_sep', name: 'no_sep', render: function(data, type, row) {
-                return data.length < 16 ? `${data}-${row.idxdaftar}` : data;
+                return data.length < 16 ? `${data}` : data;
             }},
             {data: 'tgl_verifikasi', name: 'tgl_verifikasi', render: function(data) {
                 return moment(data).format('DD/MM/YYYY');

@@ -119,7 +119,12 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Unit</label>
-                                <input type="text" class="form-control" name="unit" maxlength="255">
+                                <select class="form-select" name="unit">
+                                    <option value="">Pilih Unit</option>
+                                    @foreach($unitKerja as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>

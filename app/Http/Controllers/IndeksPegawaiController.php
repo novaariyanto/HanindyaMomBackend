@@ -82,7 +82,7 @@ class IndeksPegawaiController extends Controller
             'nik' => 'required|string|max:20|unique:indeks_pegawai',
             'unit' => 'nullable|string|max:255',
             'unit_kerja_id' => 'nullable|exists:eprofile.unit_kerja,id',
-            'jenis_pegawai' => 'nullable|in:PNS,PPPK,KONTRAK,HONORER',
+            'jenis_pegawai' => 'nullable',
             'profesi_id' => 'nullable|exists:eprofile.profesi,id',
             'cluster_1' => 'nullable|numeric|min:0',
             'cluster_2' => 'nullable|numeric|min:0',

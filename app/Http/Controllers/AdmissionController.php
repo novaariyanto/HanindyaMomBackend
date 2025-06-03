@@ -113,7 +113,7 @@ class AdmissionController extends Controller
         // Isi data
         $row = 2;
         foreach ($data as $item) {
-            $sheet->setCellValue('A' . $row, $item->nomr);
+            $sheet->setCellValue('A' . $row, $item->nomr."-".$item->id_admission);
             $sheet->setCellValue('B' . $row, $item->keluarrs ? date('d-m-Y', strtotime($item->keluarrs)) : '');
             $sheet->setCellValue('C' . $row, $item->total_tarif_rs);
             $sheet->setCellValue('D' . $row, $item->total_tarif_rs);

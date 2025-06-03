@@ -127,7 +127,7 @@
         });
     });
     
-    $(document).on('submit', '#form', function(e) {
+    $(document).on('submit', '#createForm', function(e) {
         e.preventDefault(); // Stop the default form submission
         var reload = $(this).attr('data-reload');
         var formData = new FormData(this); // Create FormData object from the form
