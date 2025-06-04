@@ -338,7 +338,7 @@ class PembagianKlaimController extends Controller
                             'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                         ];     
                         $total_remunerasi += $nilai_remunerasi;          
-                        // $savePembagianKlaim = PembagianKlaim::create($data);
+                        $savePembagianKlaim = PembagianKlaim::create($data);
                     }
             }  
           
@@ -1079,31 +1079,68 @@ class PembagianKlaimController extends Controller
         return null; // atau bisa return string error
     }
     
-    function getIdxDaftar($sep) {
-        
-        $tbpjs = Tbpjs::where('sep', $sep)->first();
-        if($tbpjs){
-            $idxdaftar = $tbpjs->idxdaftar;
-             $nomr = $tbpjs->noMr;
-            if($nomr == ""){
-                $response = $tbpjs->response;
-                $nomr = $this->ambilNoMR($response);
+   function getIdxDaftar($sep) {
+        if(strpos($sep,"-") !== false){
+            $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $sep)->first();
+            if($tpendaftaran){
+                $idxdaftar = $tpendaftaran->IDXDAFTAR;
+                $nomr = $tpendaftaran->NOMR;
             }
-            if($nomr == ""){
-                $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
-                $data = json_decode($datasep);
-                $idxdaftar = $data->data->idxdaftar;
-                $nomr = $data->data->nomr;
-            }
-        
-            
-           
         }else{
-            $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
-            $data = json_decode($datasep);
-            $idxdaftar = $data->data->idxdaftar;
-            $nomr = $data->data->nomr;
-           
+            $detailSource = DetailSource::where('no_sep', $sep)->where('idxdaftar', '>', 1);
+            if($detailSource->count() > 0){
+                $idxdaftar = $detailSource->orderBy('idxdaftar', 'desc')->first()->idxdaftar;
+                $nomr = $detailSource->orderBy('idxdaftar', 'desc')->first()->nomr;
+            }else{
+                $tbpjs = Tbpjs::where('sep', $sep)->first();
+                if($tbpjs){
+                    $idxdaftar = $tbpjs->idxdaftar;
+                    $nomr = $tbpjs->noMr;
+                    if($nomr == ""){
+                        $response = $tbpjs->response;
+                        $nomr = $this->ambilNoMR($response);
+                    }
+                    if($nomr == ""){
+                        
+                        $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
+                        $data = json_decode($datasep);
+                        if(@$data->success){
+                            $idxdaftar = $data->data->idxdaftar;
+                            $nomr = $data->data->nomr;
+                        }else{
+                            $pendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar);
+                            if($pendaftaran->count() > 0){
+                                $pendaftaran = $pendaftaran->first();
+                                $nomr = $pendaftaran->NOMR;
+                            }
+
+                        }
+                        
+                    
+                    }
+                
+                    
+                
+                }else{
+                
+                    $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
+                    $data = json_decode($datasep);
+            
+                    
+                    if($data->success){
+                        $idxdaftar = $data->data->idxdaftar;
+                        $nomr = $data->data->nomr;
+                    }else{
+                        return [
+                            'idxdaftar' => "",
+                            'nomr' => ""
+                        ];
+                    }
+                
+                
+                }
+
+            }
         }
         
         

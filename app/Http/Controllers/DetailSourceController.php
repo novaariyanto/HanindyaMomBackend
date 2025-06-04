@@ -591,10 +591,15 @@ class DetailSourceController extends Controller
     
     
                     $selisih = $totalTarifRs-$totalTarifRs;
-                    $persentase_selisih = $selisih/$totalTarifRs;
-                    $persentase_selisih = $persentase_selisih*100;
-                    
-                    $persentase_selisih = round($persentase_selisih, 2);
+                    if($selisih > 0){
+                         $persentase_selisih = $selisih/$totalTarifRs;
+                        $persentase_selisih = $persentase_selisih*100;
+                        
+                        $persentase_selisih = round($persentase_selisih, 2);
+                    }else{
+                        $persentase_selisih = 0;
+                    }
+                   
                 
             
                     $grade = Grade::where('persentase', '>=', $persentase_selisih)
@@ -725,10 +730,11 @@ class DetailSourceController extends Controller
     
             }
 
-            if(in_array($tpendaftaran->KDPOLY,[31,168,169])){
+            if(in_array(@$tpendaftaran->KDPOLY,[31,168,169])){
                 $TINDAKANRAJAL = "813";
                 $DPJP = "813";
-            }else if(in_array($row->UNIT,[101])){
+            }
+            if(in_array(@$tpendaftaran->KDPOLY,[101])){
                 $TINDAKANRAJAL = "832";
                 $DPJP = "832";
             }
@@ -851,7 +857,7 @@ class DetailSourceController extends Controller
                             'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                         ];     
                         $total_remunerasi += $nilai_remunerasi;          
-                        // $savePembagianKlaim = PembagianKlaim::create($data);
+                        $savePembagianKlaim = PembagianKlaim::create($data);
                     }
             }  
           
@@ -1527,59 +1533,66 @@ class DetailSourceController extends Controller
       
     }
     function getIdxDaftar($sep) {
-        if(strlen($sep) != 19){
+        if(strpos($sep,"-") !== false){
             $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $sep)->first();
             if($tpendaftaran){
                 $idxdaftar = $tpendaftaran->IDXDAFTAR;
                 $nomr = $tpendaftaran->NOMR;
             }
         }else{
-            $tbpjs = Tbpjs::where('sep', $sep)->first();
-            if($tbpjs){
-                $idxdaftar = $tbpjs->idxdaftar;
-                $nomr = $tbpjs->noMr;
-                if($nomr == ""){
-                    $response = $tbpjs->response;
-                    $nomr = $this->ambilNoMR($response);
-                }
-                if($nomr == ""){
+            $detailSource = DetailSource::where('no_sep', $sep)->where('idxdaftar', '>', 1);
+            if($detailSource->count() > 0){
+                $idxdaftar = $detailSource->orderBy('idxdaftar', 'desc')->first()->idxdaftar;
+                $nomr = $detailSource->orderBy('idxdaftar', 'desc')->first()->nomr;
+            }else{
+                $tbpjs = Tbpjs::where('sep', $sep)->first();
+                if($tbpjs){
+                    $idxdaftar = $tbpjs->idxdaftar;
+                    $nomr = $tbpjs->noMr;
+                    if($nomr == ""){
+                        $response = $tbpjs->response;
+                        $nomr = $this->ambilNoMR($response);
+                    }
+                    if($nomr == ""){
+                        
+                        $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
+                        $data = json_decode($datasep);
+                        if(@$data->success){
+                            $idxdaftar = $data->data->idxdaftar;
+                            $nomr = $data->data->nomr;
+                        }else{
+                            $pendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar);
+                            if($pendaftaran->count() > 0){
+                                $pendaftaran = $pendaftaran->first();
+                                $nomr = $pendaftaran->NOMR;
+                            }
+
+                        }
+                        
                     
+                    }
+                
+                    
+                
+                }else{
+                
                     $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
                     $data = json_decode($datasep);
-                    if(@$data->success){
+            
+                    
+                    if($data->success){
                         $idxdaftar = $data->data->idxdaftar;
                         $nomr = $data->data->nomr;
                     }else{
-                        $pendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar);
-                        if($pendaftaran->count() > 0){
-                            $pendaftaran = $pendaftaran->first();
-                            $nomr = $pendaftaran->NOMR;
-                        }
-
+                        return [
+                            'idxdaftar' => "",
+                            'nomr' => ""
+                        ];
                     }
-                    
-                 
-                }
-            
                 
-            
-            }else{
-               
-                $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
-                $data = json_decode($datasep);
-          
                 
-                if($data->success){
-                      $idxdaftar = $data->data->idxdaftar;
-                      $nomr = $data->data->nomr;
-                }else{
-                     return [
-                        'idxdaftar' => "",
-                        'nomr' => ""
-                    ];
                 }
-              
-            
+
             }
         }
         
