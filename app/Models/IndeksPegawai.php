@@ -60,4 +60,22 @@ class IndeksPegawai extends Model
         
         return $jenis[$this->jenis_pegawai] ?? $this->jenis_pegawai;
     }
+    
+    // Relasi ke indeks jasa tidak langsung
+    public function indeksJasaTidakLangsung()
+    {
+        return $this->hasMany(PegawaiJasaTidakLangsung::class, 'pegawai_id');
+    }
+    
+    // Relasi ke indeks jasa langsung non medis
+    public function indeksJasaLangsungNonMedis()
+    {
+        return $this->hasMany(PegawaiJasaNonMedis::class, 'pegawai_id');
+    }
+    
+    // Relasi ke indeks struktural
+    public function indeksStruktural()
+    {
+        return $this->hasMany(PegawaiStruktural::class, 'pegawai_id');
+    }
 }

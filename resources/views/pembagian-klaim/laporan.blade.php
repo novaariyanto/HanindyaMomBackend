@@ -82,8 +82,8 @@
                         </tbody>
                         <tfoot>
                             <tr class="fw-bold bg-light">
-                                <td colspan="2" class="text-end">Total Dokter</td>
-                                <td class="text-end">Rp {{ number_format($total_per_kategori['dokter'], 0, ',', '.') }}</td>
+                                <td colspan="3" class="text-end">Total Dokter</td>
+                                <td colspan="2" class="text-end">Rp {{ number_format($total_per_kategori['dokter'], 0, ',', '.') }}</td>
                             </tr>
                         </tfoot>
                     </table>

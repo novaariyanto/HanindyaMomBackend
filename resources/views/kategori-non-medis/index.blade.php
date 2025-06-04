@@ -37,6 +37,7 @@
                             <th>No</th>
                             <th>Nama Kategori</th>
                             <th>Deskripsi</th>
+                            <th>Bobot</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>
@@ -68,6 +69,11 @@
                     <div class="mb-3">
                         <label class="form-label">Deskripsi</label>
                         <textarea class="form-control" name="deskripsi" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Bobot</label>
+                        <input type="number" class="form-control" name="bobot" step="0.01" min="0" max="1" placeholder="Contoh: 0.5">
+                        <small class="form-text text-muted">Nilai bobot antara 0 - 1</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -108,6 +114,11 @@
                         <textarea class="form-control" name="deskripsi" id="edit_deskripsi" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Bobot</label>
+                        <input type="number" class="form-control" name="bobot" id="edit_bobot" step="0.01" min="0" max="1" placeholder="Contoh: 0.5">
+                        <small class="form-text text-muted">Nilai bobot antara 0 - 1</small>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Status</label>
                         <select class="form-control" name="status" id="edit_status" required>
                             <option value="">Pilih Status</option>
@@ -146,6 +157,7 @@ $(document).ready(function() {
             },
             {data: 'nama_kategori', name: 'nama_kategori'},
             {data: 'deskripsi', name: 'deskripsi'},
+            {data: 'bobot', name: 'bobot'},
             {
                 data: 'status_badge',
                 name: 'status',
@@ -182,6 +194,7 @@ $(document).ready(function() {
                     var data = response.data;
                     $('#edit_nama_kategori').val(data.nama_kategori);
                     $('#edit_deskripsi').val(data.deskripsi);
+                    $('#edit_bobot').val(data.bobot);
                     $('#edit_status').val(data.status);
                     
                     $('#editForm').attr('action', url.replace('/edit', ''));

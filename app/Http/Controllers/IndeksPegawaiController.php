@@ -60,8 +60,9 @@ class IndeksPegawaiController extends Controller
                 })
                 ->addColumn('action', function($row){
                     return '
-                        <a href="#" data-url="' . route('indeks-pegawai.show', $row->id) . '" class="btn btn-info btn-sm btn-edit"><i class="ti ti-pencil"></i></a>
-                        <a href="#" data-url="' . route('indeks-pegawai.destroy', $row->id) . '" class="btn btn-danger btn-sm btn-delete"><i class="ti ti-trash"></i></a>
+                        <a href="' . route('indeks-pegawai.detail', $row->id) . '" class="btn btn-primary btn-sm" title="Detail"><i class="ti ti-eye"></i></a>
+                        <a href="#" data-url="' . route('indeks-pegawai.show', $row->id) . '" class="btn btn-warning btn-sm btn-edit" title="Edit"><i class="ti ti-pencil"></i></a>
+                        <a href="#" data-url="' . route('indeks-pegawai.destroy', $row->id) . '" class="btn btn-danger btn-sm btn-delete" title="Hapus"><i class="ti ti-trash"></i></a>
                     ';
                 })
                 ->rawColumns(['action'])
@@ -106,10 +107,34 @@ class IndeksPegawaiController extends Controller
     public function show($id)
     {
         try {
-            $data = IndeksPegawai::findOrFail($id);
+            $data = IndeksPegawai::with([
+                'profesi', 
+                'unitKerja', 
+                'jenisPegawai',
+                'indeksJasaTidakLangsung.jasa.kategori',
+                'indeksJasaLangsungNonMedis.jasa.kategori', 
+                'indeksStruktural.jasa'
+            ])->findOrFail($id);
+            
+            // Jika request adalah AJAX (untuk modal edit), return JSON
+            if (request()->ajax()) {
+                return ResponseFormatter::success($data->toArray(), 'Data berhasil diambil');
+            }
+            
+            // Jika request ke route detail atau bukan AJAX, return view detail
+            if (request()->routeIs('indeks-pegawai.detail') || !request()->ajax()) {
+                return view('indeks-pegawai.show', compact('data'));
+            }
+            
+            // Default return JSON jika tidak ada kondisi yang terpenuhi
             return ResponseFormatter::success($data->toArray(), 'Data berhasil diambil');
         } catch (\Exception $e) {
-            return ResponseFormatter::error(null, 'Data tidak ditemukan: ' . $e->getMessage());
+            if (request()->ajax()) {
+                return ResponseFormatter::error(null, 'Data tidak ditemukan: ' . $e->getMessage());
+            }
+            
+            return redirect()->route('indeks-pegawai.index')
+                ->with('error', 'Data tidak ditemukan: ' . $e->getMessage());
         }
     }
 
@@ -152,6 +177,31 @@ class IndeksPegawaiController extends Controller
             return ResponseFormatter::success(null, 'Data berhasil dihapus');
         } catch (\Exception $e) {
             return ResponseFormatter::error(null, 'Data gagal dihapus: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get pegawai info untuk AJAX reload
+     */
+    public function getPegawaiInfo($id)
+    {
+        try {
+            $data = IndeksPegawai::with([
+                'profesi', 
+                'unitKerja', 
+                'jenisPegawai'
+            ])->findOrFail($id);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Data berhasil diambil',
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
         }
     }
 

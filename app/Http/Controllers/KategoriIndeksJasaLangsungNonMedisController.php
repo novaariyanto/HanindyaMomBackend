@@ -81,10 +81,13 @@ class KategoriIndeksJasaLangsungNonMedisController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_kategori' => 'required|string|max:255|unique:kategori_indeks_jasa_langsung_non_medis,nama_kategori',
             'deskripsi' => 'nullable|string',
+            'bobot' => 'nullable|numeric|between:0,1',
             'status' => 'required|boolean'
         ], [
             'nama_kategori.required' => 'Nama kategori wajib diisi',
             'nama_kategori.unique' => 'Nama kategori sudah ada',
+            'bobot.numeric' => 'Bobot harus berupa angka',
+            'bobot.between' => 'Bobot harus bernilai antara 0 dan 1',
             'status.required' => 'Status wajib dipilih'
         ]);
 
@@ -177,10 +180,13 @@ class KategoriIndeksJasaLangsungNonMedisController extends Controller
             $validator = Validator::make($request->all(), [
                 'nama_kategori' => 'required|string|max:255|unique:kategori_indeks_jasa_langsung_non_medis,nama_kategori,'.$kategoriIndeksJasaLangsungNonMedis->id,
                 'deskripsi' => 'nullable|string',
+                'bobot' => 'nullable|numeric|between:0,1',
                 'status' => 'required|boolean'
             ], [
                 'nama_kategori.required' => 'Nama kategori wajib diisi',
                 'nama_kategori.unique' => 'Nama kategori sudah ada',
+                'bobot.numeric' => 'Bobot harus berupa angka',
+                'bobot.between' => 'Bobot harus bernilai antara 0 dan 1',
                 'status.required' => 'Status wajib dipilih'
             ]);
 

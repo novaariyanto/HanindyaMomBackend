@@ -14,10 +14,12 @@ class KategoriIndeksJasaLangsungNonMedis extends Model
     protected $fillable = [
         'nama_kategori',
         'deskripsi',
+        'bobot',
         'status'
     ];
     
     protected $casts = [
+        'bobot' => 'decimal:2',
         'status' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -40,5 +42,11 @@ class KategoriIndeksJasaLangsungNonMedis extends Model
     public function getNamaKategoriFormattedAttribute()
     {
         return ucwords(strtolower($this->nama_kategori));
+    }
+    
+    // Accessor untuk format bobot
+    public function getBobotFormattedAttribute()
+    {
+        return number_format($this->bobot, 2);
     }
 }

@@ -492,6 +492,153 @@ $(document).ready(function() {
         });
     });
 
+    // Event handler untuk tombol delete
+    $(document).on('click', '.btn-delete', function(e) {
+        e.preventDefault();
+        const url = $(this).data('url');
+        
+        Swal.fire({
+            title: 'Konfirmasi Hapus',
+            text: 'Apakah Anda yakin ingin menghapus data ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        if (response.meta && response.meta.code === 200) {
+                            Swal.fire('Berhasil!', response.meta.message, 'success');
+                            table.ajax.reload();
+                        }
+                    },
+                    error: function(xhr) {
+                        let message = 'Terjadi kesalahan saat menghapus data';
+                        if (xhr.responseJSON && xhr.responseJSON.meta) {
+                            message = xhr.responseJSON.meta.message;
+                        }
+                        Swal.fire('Error!', message, 'error');
+                    }
+                });
+            }
+        });
+    });
+
+    // Event handler untuk form submit
+    $('#createForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.meta && response.meta.code === 200) {
+                    Swal.fire('Berhasil!', response.meta.message, 'success');
+                    $('#createModal').modal('hide');
+                    $('#createForm')[0].reset();
+                    table.ajax.reload();
+                }
+            },
+            error: function(xhr) {
+                let message = 'Terjadi kesalahan saat menyimpan data';
+                if (xhr.responseJSON && xhr.responseJSON.meta) {
+                    message = xhr.responseJSON.meta.message;
+                    if (xhr.responseJSON.data) {
+                        let errors = [];
+                        for (let field in xhr.responseJSON.data) {
+                            errors.push(xhr.responseJSON.data[field][0]);
+                        }
+                        message = errors.join('<br>');
+                    }
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    html: message
+                });
+            }
+        });
+    });
+
+    // Event handler untuk form edit submit
+    $('#editForm').on('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        formData.append('_method', 'PUT');
+        
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.meta && response.meta.code === 200) {
+                    Swal.fire('Berhasil!', response.meta.message, 'success');
+                    $('#editModal').modal('hide');
+                    table.ajax.reload();
+                }
+            },
+            error: function(xhr) {
+                let message = 'Terjadi kesalahan saat mengupdate data';
+                if (xhr.responseJSON && xhr.responseJSON.meta) {
+                    message = xhr.responseJSON.meta.message;
+                    if (xhr.responseJSON.data) {
+                        let errors = [];
+                        for (let field in xhr.responseJSON.data) {
+                            errors.push(xhr.responseJSON.data[field][0]);
+                        }
+                        message = errors.join('<br>');
+                    }
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    html: message
+                });
+            }
+        });
+    });
+
+    // Cek apakah ada parameter edit di URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId = urlParams.get('edit');
+    if (editId) {
+        // Load data dan buka modal edit
+        const editUrl = '{{ route("indeks-pegawai.show", ":id") }}'.replace(':id', editId);
+        $.get(editUrl, function(response) {
+            if(response.meta.status === 'success') {
+                var data = response.data;
+                $('#editForm').attr('action', editUrl);
+                $('#edit_nama').val(data.nama);
+                $('#edit_nip').val(data.nip);
+                $('#edit_nik').val(data.nik);
+                $('#edit_unit').val(data.unit_kerja_id);
+                $('#edit_jenis_pegawai').val(data.jenis_pegawai);
+                $('#edit_profesi_id').val(data.profesi_id);
+                $('#edit_cluster_1').val(data.cluster_1);
+                $('#edit_cluster_2').val(data.cluster_2);
+                $('#edit_cluster_3').val(data.cluster_3);
+                $('#edit_cluster_4').val(data.cluster_4);
+                $('#editModal').modal('show');
+                
+                // Hapus parameter dari URL setelah modal terbuka
+                history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    }
 
 });
 </script>
