@@ -292,7 +292,7 @@ class ProporsiFairnessController extends Controller
                     'jenis' => $row[1],
                     'grade' => $row[2],
                     'ppa' => $row[3],
-                    'value' => $row[4],
+                    'value' => (float)$row[4],
                     'sumber' => $row[5],
                     'flag' => $row[6]
                 ];
@@ -309,7 +309,7 @@ class ProporsiFairnessController extends Controller
 
                 if ($rowValidator->fails()) {
                     $failed++;
-                    $errors[] = "Baris " . ($index + 2) . ": " . implode(', ', $rowValidator->errors()->all());
+                    $errors[] = json_encode($rowData)."Baris " . ($index + 2) . ": " . implode(', ', $rowValidator->errors()->all());
                     continue;
                 }
 

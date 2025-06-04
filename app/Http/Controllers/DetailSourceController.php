@@ -580,7 +580,7 @@ class DetailSourceController extends Controller
         // foreach($detail_source as $row){
             // $data_detail_source = $row;
         if($data_detail_source->jenis == 'Rawat Jalan'){
-            if(strlen($data_detail_source->no_sep) < 16){
+            if(strpos($data_detail_source->no_sep,"-") !== false){
                     //membaca idxdaftar dan nomr / pasien umum
                     $idxdaftar = $data_detail_source->idxdaftar;
                     $data_pendaftaran = Tpendaftaran::where('IDXDAFTAR',$idxdaftar)->first();
@@ -591,10 +591,16 @@ class DetailSourceController extends Controller
     
     
                     $selisih = $totalTarifRs-$totalTarifRs;
-                    $persentase_selisih = $selisih/$totalTarifRs;
-                    $persentase_selisih = $persentase_selisih*100;
+                    if($selisih > 0){
+                       
+                        $persentase_selisih = $selisih/$totalTarifRs;
+                        $persentase_selisih = $persentase_selisih*100;
                     
-                    $persentase_selisih = round($persentase_selisih, 2);
+                        $persentase_selisih = round($persentase_selisih, 2);
+                    }else{
+                        $persentase_selisih = 0;
+                    }
+                   
                 
             
                     $grade = Grade::where('persentase', '>=', $persentase_selisih)
@@ -692,8 +698,11 @@ class DetailSourceController extends Controller
                     // $ASISTEN = "127";
                 }
                 if(in_array($row->id_kategori, [3,41,30,4,5,6,28,22,23,24,25,26,27,29,30])){
-                    $TINDAKANRAJAL_HARGA += $row->TARIFRS;
-                    $TINDAKANRAJAL = $row->KDDOKTER;
+                     if(!in_array($row->UNIT,[31,101,168,169])){
+                        $TINDAKANRAJAL_HARGA += $row->TARIFRS;
+                        $TINDAKANRAJAL = $row->KDDOKTER;
+                     }
+                   
                 }
                 if(in_array($row->id_kategori, [14])){
                     
@@ -712,7 +721,7 @@ class DetailSourceController extends Controller
                 }
                 if(in_array($row->id_kategori, [21])){
                     $HD  = $row->KDDOKTER;
-                    $DOKTERHDRAJAL = $row->KDDOKTER;
+                    $DOKTERHDRAJAL = "";
                     $PERAWATHDRAJAL = 127;
                 }
                 if(in_array($row->KODETARIF,['07'])){
@@ -852,7 +861,7 @@ class DetailSourceController extends Controller
             }      
         }else if($data_detail_source->jenis == 'Rawat Inap'){
             // bpjps
-            if(strlen($data_detail_source->no_sep) < 16){
+            if(strpos($data_detail_source->no_sep,"-") !== false){
                 //membaca idxdaftar dan nomr / pasien umum
                 $idxdaftar = $data_detail_source->idxdaftar;
                 $data_admission = Tadmission::where('id_admission',$idxdaftar)->first();
@@ -860,13 +869,19 @@ class DetailSourceController extends Controller
                 $data_admission->total_tarif_rs = $totalTarifRs;
                 $idxdaftar = $data_admission->id_admission;
                 $nomr = $data_admission->nomr;
-    
-    
-                $selisih = $totalTarifRs-$totalTarifRs;
-                $persentase_selisih = $selisih/$totalTarifRs;
-                $persentase_selisih = $persentase_selisih*100;
                 
-                $persentase_selisih = round($persentase_selisih, 2);
+                $selisih = $totalTarifRs-$totalTarifRs;
+                if($selisih > 0){
+                    
+                    $persentase_selisih = $selisih/$totalTarifRs;
+                    $persentase_selisih = $persentase_selisih*100;
+
+                    $persentase_selisih = round($persentase_selisih, 2);
+                }else{
+                    $persentase_selisih = 0;
+                }
+               
+            
             
     
                 $grade = Grade::where('persentase', '>=', $persentase_selisih)
@@ -1010,7 +1025,7 @@ class DetailSourceController extends Controller
                 }
                 if(in_array($row->id_kategori, [21])){
                     $HD  = $row->KDDOKTER;
-                    $DOKTERHDRANAP = $row->KDDOKTER;
+                    $DOKTERHDRANAP = "";
                     $TOTALHD += $row->TARIFRS;
                     $PERAWAT_HD_RANAP = 8;
                 }
