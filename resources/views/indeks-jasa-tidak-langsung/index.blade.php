@@ -30,6 +30,19 @@
         </div>
 
         <div class="card card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Filter Kategori</label>
+                    <select class="form-control" id="filter-kategori">
+                        <option value="">Semua Kategori</option>
+                    </select>
+                </div>
+                <div class="col-md-8 d-flex align-items-end">
+                    <button type="button" class="btn btn-secondary me-2" id="btn-reset-filter">
+                        <i class="ti ti-refresh me-1"></i> Reset Filter
+                    </button>
+                </div>
+            </div>
             <div class="table-responsive">
                 <table class="table table-striped" id="datatable">
                     <thead>
@@ -136,19 +149,24 @@ $(document).ready(function() {
             },
             success: function(response) {
                 var options = '<option value="">Pilih Kategori</option>';
+                var filterOptions = '<option value="">Semua Kategori</option>';
+                
                 if (response.data && response.data.length > 0) {
                     response.data.forEach(function(kategori) {
                         if (kategori.status == 1) { // Hanya kategori yang aktif
                             options += '<option value="' + kategori.id + '">' + kategori.nama_kategori + '</option>';
+                            filterOptions += '<option value="' + kategori.id + '">' + kategori.nama_kategori + '</option>';
                         }
                     });
                 }
                 $('#kategori_id, #edit_kategori_id').html(options);
+                $('#filter-kategori').html(filterOptions);
             },
             error: function(xhr) {
                 console.error('Error loading kategori:', xhr);
                 // Fallback jika gagal load kategori
                 $('#kategori_id, #edit_kategori_id').html('<option value="">Gagal memuat kategori</option>');
+                $('#filter-kategori').html('<option value="">Gagal memuat kategori</option>');
             }
         });
     }
@@ -162,6 +180,9 @@ $(document).ready(function() {
         autoWidth: false,
         ajax: {
             url: '{{ route('indeks-jasa-tidak-langsung.index') }}',
+            data: function(d) {
+                d.kategori_filter = $('#filter-kategori').val();
+            }
         },
         columns: [
             {
@@ -187,52 +208,19 @@ $(document).ready(function() {
         datatable.search(this.value).draw();
     });
 
-    // Handle Create Form Submit
-    $('#createForm').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var url = form.attr('action');
-        
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: form.serialize(),
-            success: function(response) {
-                if (response.meta.status === 'success') {
-                    $('#createModal').modal('hide');
-                    form[0].reset();
-                    datatable.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.meta.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                }
-            },
-            error: function(xhr) {
-                var response = xhr.responseJSON;
-                var errorMessage = '';
-                
-                if (response.meta.status === 'error') {
-                    if (typeof response.data === 'object') {
-                        $.each(response.data, function(key, value) {
-                            errorMessage += value[0] + '<br>';
-                        });
-                    } else {
-                        errorMessage = response.meta.message;
-                    }
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        html: errorMessage
-                    });
-                }
-            }
-        });
+    // Handle kategori filter change
+    $('#filter-kategori').on('change', function() {
+        datatable.draw();
     });
+
+    // Handle reset filter
+    $('#btn-reset-filter').on('click', function() {
+        $('#filter-kategori').val('');
+        $('#input-search').val('');
+        datatable.search('').draw();
+    });
+
+    // Handle Create Form Submit
 
     // Handle Edit Button Click
     $(document).on('click', '.btn-edit', function() {
@@ -244,57 +232,14 @@ $(document).ready(function() {
                 $('#editForm').attr('action', url);
                 $('#edit_nama_indeks').val(data.nama_indeks);
                 $('#edit_nilai').val(data.nilai);
-                $('#edit_kategori_id').val(data.kategori_indeks_jasa_tidak_langsung_id);
+                $('#edit_kategori_id').val(data.kategori_id);
                 $('#editModal').modal('show');
             }
         });
     });
 
     // Handle Edit Form Submit
-    $('#editForm').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var url = form.attr('action');
-        
-        $.ajax({
-            url: url,
-            type: 'PUT',
-            data: form.serialize(),
-            success: function(response) {
-                if (response.meta.status === 'success') {
-                    $('#editModal').modal('hide');
-                    datatable.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.meta.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                }
-            },
-            error: function(xhr) {
-                var response = xhr.responseJSON;
-                var errorMessage = '';
-                
-                if (response.meta.status === 'error') {
-                    if (typeof response.data === 'object') {
-                        $.each(response.data, function(key, value) {
-                            errorMessage += value[0] + '<br>';
-                        });
-                    } else {
-                        errorMessage = response.meta.message;
-                    }
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        html: errorMessage
-                    });
-                }
-            }
-        });
-    });
+  
 
     // Handle Delete Button Click
 

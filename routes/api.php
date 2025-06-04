@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\FaceController;
 use App\Http\Controllers\Api\JadwalAbsensiController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\KategoriIndeksJasaTidakLangsungController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProporsiFairnessController;
@@ -45,3 +47,6 @@ Route::prefix('proporsi-fairness')->group(function () {
     Route::put('/{id}', [ProporsiFairnessController::class, 'update']);
     Route::delete('/{id}', [ProporsiFairnessController::class, 'destroy']);
 });
+Route::get('/pegawai-by-unit/{unitId}', [PegawaiController::class, 'getByUnit']);
+Route::get('/jasa-by-kategori/{kategoriId}', [KategoriIndeksJasaTidakLangsungController::class, 'getByKategori']);
+

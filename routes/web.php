@@ -93,10 +93,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/shift/{uuid}/update-jam', [ShiftController::class, 'updateJamKerja'])->name('shift.update_jam');
 
     // Export Shift
-Route::get('/shift/export', [ShiftController::class, 'export'])->name('shift.export');
+    Route::get('/shift/export', [ShiftController::class, 'export'])->name('shift.export');
 
-// Import Shift
-Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.import');
+    // Import Shift
+    Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.import');
 
     Route::resource('shift', ShiftController::class);
 
@@ -294,6 +294,8 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::get('pegawai/{id}', [PegawaiController::class, 'show'])->name('pegawai.show');
     Route::put('pegawai/{id}', [PegawaiController::class, 'update'])->name('pegawai.update');
     Route::delete('pegawai/{id}', [PegawaiController::class, 'destroy'])->name('pegawai.destroy');
+
+  
 
     // Transaksi Remunerasi Pegawai
     Route::get('transaksi-remunerasi-pegawai', [TransaksiRemunerasiPegawaiController::class, 'index'])->name('transaksi-remunerasi-pegawai.index');

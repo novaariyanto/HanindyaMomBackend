@@ -9,11 +9,17 @@ use App\Helpers\ResponseFormatter;
 
 class IndeksJasaTidakLangsungController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        if (request()->ajax()) {
-            $data = IndeksJasaTidakLangsung::with('kategori')->select('*');
-            return DataTables::of($data)
+        if ($request->ajax()) {
+            $query = IndeksJasaTidakLangsung::with('kategori')->select('*');
+            
+            // Filter berdasarkan kategori jika ada
+            if ($request->filled('kategori_filter')) {
+                $query->where('kategori_id', $request->kategori_filter);
+            }
+            
+            return DataTables::of($query)
                 ->addIndexColumn()
                 ->addColumn('kategori', function($row) {
                     return $row->kategori->nama_kategori;

@@ -9,7 +9,7 @@ use App\Models\IndeksJasaLangsungNonMedis;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\ResponseFormatter;
-
+use App\Models\IndeksPegawai;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -42,6 +42,14 @@ class PegawaiController extends Controller
         $indeksJLNonMedis = IndeksJasaLangsungNonMedis::all();
 
         return view('pegawai.index', compact('jabatanStruktural', 'indeksJTL', 'indeksJLNonMedis'));
+    }
+    public function getByUnit($unitId)
+    {
+        $pegawai = IndeksPegawai::where('unit_kerja_id', $unitId)->get();
+        return response()->json([
+            'meta' => ['code' => 200],
+            'data' => $pegawai
+        ]);
     }
 
     public function store(Request $request)

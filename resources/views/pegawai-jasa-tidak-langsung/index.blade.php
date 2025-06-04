@@ -13,7 +13,7 @@
     
     <div class="row">
         <div class="col-12">
-            <div class="card">
+            <div class="card">  
                 <div class="card-header bg-light">
                     <h5 class="card-title mb-0">Data Pegawai Jasa Tidak Langsung</h5>
                 </div>
@@ -66,21 +66,33 @@
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
+                        <label class="form-label">Unit</label>
+                        <select class="form-select" name="unit_id" id="create_unit_id" required>
+                            <option value="">Pilih Unit</option>
+                            @foreach($units as $unit)
+                                <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Pegawai</label>
-                        <select class="form-select" name="pegawai_id" required>
+                        <select class="form-select" name="pegawai_id" id="create_pegawai_id" required>
                             <option value="">Pilih Pegawai</option>
-                            @foreach($pegawai as $p)
-                                <option value="{{ $p->id }}">{{ $p->nama }} - {{ $p->nip }}</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kategori Jasa Tidak Langsung</label>
+                        <select class="form-select" name="kategori_jasa_id" id="create_kategori_jasa_id" required>
+                            <option value="">Pilih Kategori Jasa</option>
+                            @foreach($kategoriJasa as $kategori)
+                                <option value="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Jasa Tidak Langsung</label>
-                        <select class="form-select" name="jasa_id" required>
+                        <select class="form-select" name="jasa_id" id="create_jasa_id" required>
                             <option value="">Pilih Jasa Tidak Langsung</option>
-                            @foreach($jasa as $j)
-                                <option value="{{ $j->id }}">{{ $j->nama_indeks }} ({{ $j->nilai }})</option>
-                            @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
@@ -110,11 +122,26 @@
                 @method('PUT')
                 <div class="modal-body">
                     <div class="mb-3">
+                        <label class="form-label">Unit</label>
+                        <select class="form-select" name="unit_id" id="edit_unit_id" required>
+                            <option value="">Pilih Unit</option>
+                            @foreach($units as $unit)
+                                <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Pegawai</label>
                         <select class="form-select" name="pegawai_id" id="edit_pegawai_id" required>
                             <option value="">Pilih Pegawai</option>
-                            @foreach($pegawai as $p)
-                                <option value="{{ $p->id }}">{{ $p->nama }} - {{ $p->nip }}</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kategori Jasa Tidak Langsung</label>
+                        <select class="form-select" name="kategori_jasa_id" id="edit_kategori_jasa_id" required>
+                            <option value="">Pilih Kategori Jasa</option>
+                            @foreach($kategoriJasa as $kategori)
+                                <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -122,9 +149,6 @@
                         <label class="form-label">Jasa Tidak Langsung</label>
                         <select class="form-select" name="jasa_id" id="edit_jasa_id" required>
                             <option value="">Pilih Jasa Tidak Langsung</option>
-                            @foreach($jasa as $j)
-                                <option value="{{ $j->id }}">{{ $j->nama_indeks }} ({{ $j->nilai }})</option>
-                            @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
@@ -199,18 +223,68 @@ $(document).ready(function() {
         @endforeach
     };
 
+    // Fungsi untuk memuat data pegawai berdasarkan unit
+    function loadPegawai(unitId, targetSelect) {
+        if (!unitId) {
+            targetSelect.html('<option value="">Pilih Pegawai</option>');
+            return;
+        }
+
+        $.get('/api/pegawai-by-unit/' + unitId, function(response) {
+            var options = '<option value="">Pilih Pegawai</option>';
+            $.each(response.data, function(index, item) {
+                options += '<option value="' + item.id + '">' + item.nama + ' - ' + item.nik + '</option>';
+            });
+            targetSelect.html(options);
+        });
+    }
+
+    // Fungsi untuk memuat data jasa berdasarkan kategori
+    function loadJasa(kategoriId, targetSelect) {
+        if (!kategoriId) {
+            targetSelect.html('<option value="">Pilih Jasa Tidak Langsung</option>');
+            return;
+        }
+
+        $.get('/api/jasa-by-kategori/' + kategoriId, function(response) {
+            var options = '<option value="">Pilih Jasa Tidak Langsung</option>';
+            $.each(response.data, function(index, item) {
+                options += '<option value="' + item.id + '">' + item.nama_indeks + ' (' + item.nilai + ')</option>';
+            });
+            targetSelect.html(options);
+        });
+    }
+
+    // Event handler untuk perubahan unit pada form tambah
+    $('#create_unit_id').on('change', function() {
+        loadPegawai($(this).val(), $('#create_pegawai_id'));
+    });
+
+    // Event handler untuk perubahan kategori jasa pada form tambah
+    $('#create_kategori_jasa_id').on('change', function() {
+        loadJasa($(this).val(), $('#create_jasa_id'));
+    });
+
+    // Event handler untuk perubahan unit pada form edit
+    $('#edit_unit_id').on('change', function() {
+        loadPegawai($(this).val(), $('#edit_pegawai_id'));
+    });
+
+    // Event handler untuk perubahan kategori jasa pada form edit
+    $('#edit_kategori_jasa_id').on('change', function() {
+        loadJasa($(this).val(), $('#edit_jasa_id'));
+    });
+
     // Auto-fill nilai untuk form create
-    $('select[name="jasa_id"]').on('change', function() {
+    $('#create_jasa_id').on('change', function() {
         var jasaId = $(this).val();
         var nilaiInput = $(this).closest('form').find('input[name="nilai"]');
         
         if (jasaId && jasaData[jasaId]) {
-            // Animasi loading
             nilaiInput.addClass('bg-light').prop('readonly', true);
             setTimeout(function() {
                 nilaiInput.val(jasaData[jasaId]);
                 nilaiInput.removeClass('bg-light').prop('readonly', false);
-                // Highlight untuk menunjukkan nilai telah terisi
                 nilaiInput.addClass('border-success');
                 setTimeout(function() {
                     nilaiInput.removeClass('border-success');
@@ -226,12 +300,10 @@ $(document).ready(function() {
         var jasaId = $(this).val();
         
         if (jasaId && jasaData[jasaId]) {
-            // Animasi loading
             $('#edit_nilai').addClass('bg-light').prop('readonly', true);
             setTimeout(function() {
                 $('#edit_nilai').val(jasaData[jasaId]);
                 $('#edit_nilai').removeClass('bg-light').prop('readonly', false);
-                // Highlight untuk menunjukkan nilai telah terisi
                 $('#edit_nilai').addClass('border-success');
                 setTimeout(function() {
                     $('#edit_nilai').removeClass('border-success');
@@ -243,52 +315,7 @@ $(document).ready(function() {
     });
 
     // Handle Create Form Submit
-    $('#createForm').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var url = form.attr('action');
-        
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: form.serialize(),
-            success: function(response) {
-                if (response.meta.code === 200) {
-                    $('#createModal').modal('hide');
-                    form[0].reset();
-                    datatable.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.meta.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                }
-            },
-            error: function(xhr) {
-                var response = xhr.responseJSON;
-                var errorMessage = '';
-                
-                if (response.meta.code === 422) {
-                    if (typeof response.data === 'object') {
-                        $.each(response.data, function(key, value) {
-                            errorMessage += value[0] + '<br>';
-                        });
-                    } else {
-                        errorMessage = response.meta.message;
-                    }
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        html: errorMessage
-                    });
-                }
-            }
-        });
-    });
-
+  
     // Handle Edit Button Click
     $(document).on('click', '.btn-edit', function() {
         var url = $(this).data('url');
@@ -297,73 +324,36 @@ $(document).ready(function() {
             if (response.meta.code === 200) {
                 var data = response.data;
                 $('#editForm').attr('action', url);
-                $('#edit_pegawai_id').val(data.pegawai_id);
-                $('#edit_jasa_id').val(data.jasa_id);
-                $('#edit_nilai').val(data.nilai);
+                $('#edit_unit_id').val(data.unit_id).trigger('change');
+                $('#edit_kategori_jasa_id').val(data.kategori_jasa_id).trigger('change');
+                
+                // Tunggu sebentar untuk memastikan data pegawai dan jasa sudah dimuat
+                setTimeout(function() {
+                    $('#edit_pegawai_id').val(data.pegawai_id);
+                    $('#edit_jasa_id').val(data.jasa_id);
+                    $('#edit_nilai').val(data.nilai);
+                }, 500);
+                
                 $('#editModal').modal('show');
             }
         });
     });
 
     // Handle Edit Form Submit
-    $('#editForm').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var url = form.attr('action');
-        
-        $.ajax({
-            url: url,
-            type: 'PUT',
-            data: form.serialize(),
-            success: function(response) {
-                if (response.meta.code === 200) {
-                    $('#editModal').modal('hide');
-                    datatable.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.meta.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                }
-            },
-            error: function(xhr) {
-                var response = xhr.responseJSON;
-                var errorMessage = '';
-                
-                if (response.meta.code === 422) {
-                    if (typeof response.data === 'object') {
-                        $.each(response.data, function(key, value) {
-                            errorMessage += value[0] + '<br>';
-                        });
-                    } else {
-                        errorMessage = response.meta.message;
-                    }
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        html: errorMessage
-                    });
-                }
-            }
-        });
-    });
-
-    // Handle Delete Button Click
- 
+   
 
     // Reset form when modal is closed
     $('#createModal').on('hidden.bs.modal', function () {
         $('#createForm')[0].reset();
-        // Reset styling pada field nilai
-        $('#createForm input[name="nilai"]').removeClass('bg-light border-success').prop('readonly', false);
+        $('#create_pegawai_id').html('<option value="">Pilih Pegawai</option>');
+        $('#create_jasa_id').html('<option value="">Pilih Jasa Tidak Langsung</option>');
+        $('input[name="nilai"]').removeClass('bg-light border-success').prop('readonly', false);
     });
 
     $('#editModal').on('hidden.bs.modal', function () {
         $('#editForm')[0].reset();
-        // Reset styling pada field nilai
+        $('#edit_pegawai_id').html('<option value="">Pilih Pegawai</option>');
+        $('#edit_jasa_id').html('<option value="">Pilih Jasa Tidak Langsung</option>');
         $('#edit_nilai').removeClass('bg-light border-success').prop('readonly', false);
     });
 });
