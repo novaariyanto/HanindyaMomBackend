@@ -572,8 +572,7 @@ class DetailSourceController extends Controller
             ], 500);
         }
     }
-      
-    function hitung($sourceId,DetailSource $detailSource) {
+     function hitung($sourceId,DetailSource $detailSource) {
         $failed = 0;
         $success = 0;
         $message = [];
@@ -693,16 +692,10 @@ class DetailSourceController extends Controller
                     // $ASISTEN = "127";
                 }
                 if(in_array($row->id_kategori, [3,41,30,4,5,6,28,22,23,24,25,26,27,29,30])){
-                    if(in_array($row->UNIT,[31,168,169])){
-                        $TINDAKANRAJAL_HARGA += $row->TARIFRS;
-                        $TINDAKANRAJAL = "884";
-                    }if(in_array($row->UNIT,[101])){
-                        $TINDAKANRAJAL_HARGA += $row->TARIFRS;
-                        $TINDAKANRAJAL = "832";
-                    }else{
-                        $TINDAKANRAJAL_HARGA += $row->TARIFRS;
-                        $TINDAKANRAJAL = $row->KDDOKTER;
-                    }
+                 
+                    $TINDAKANRAJAL_HARGA += $row->TARIFRS;
+                    $TINDAKANRAJAL = $row->KDDOKTER;
+                   
                 }
                 if(in_array($row->id_kategori, [14])){
                     
@@ -730,6 +723,14 @@ class DetailSourceController extends Controller
                 }
     
     
+            }
+
+            if(in_array($tpendaftaran->KDPOLY,[31,168,169])){
+                $TINDAKANRAJAL = "813";
+                $DPJP = "813";
+            }else if(in_array($row->UNIT,[101])){
+                $TINDAKANRAJAL = "832";
+                $DPJP = "832";
             }
             
             $data_sumber = [
@@ -850,9 +851,10 @@ class DetailSourceController extends Controller
                             'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                         ];     
                         $total_remunerasi += $nilai_remunerasi;          
-                        $savePembagianKlaim = PembagianKlaim::create($data);
+                        // $savePembagianKlaim = PembagianKlaim::create($data);
                     }
             }  
+          
                // RADIOLOGIST
             if($data_sumber['TOTALRADIOLOGI'] > 0){
                 if(@$proporsi_fairness_radiologi["id"] != ""){
@@ -1179,10 +1181,10 @@ class DetailSourceController extends Controller
             $total_remunerasi = 0;
             $proporsi_fairness_radiologi = [];
             $proporsi_fairness_laboratorist = [];
-
+             
             foreach($proporsi_fairness as $row){
                 
-                
+              
                 if(@${$row['ppa']} != "" && @${$row['ppa']} != 0){
     
                     $divisi_id = $divisi->search(function ($item, $key) use ($row) {
@@ -1277,6 +1279,8 @@ class DetailSourceController extends Controller
                 }
 
             }
+            
+
             
             if(count($dokters_umum) > 0){
                 foreach($dokters_umum as $dokter){
@@ -1416,7 +1420,6 @@ class DetailSourceController extends Controller
             "data"=>$data_detail_source
         ];
     }
-    
     
     
     function groupAndCount(array $data): array {

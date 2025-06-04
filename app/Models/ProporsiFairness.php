@@ -20,7 +20,7 @@ class ProporsiFairness extends Model
     ];
 
     protected $casts = [
-        'value' => 'decimal:2',
+        'value' => 'decimal:3',
         'del' => 'boolean'
     ];
 
