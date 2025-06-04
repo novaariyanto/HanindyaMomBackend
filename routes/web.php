@@ -93,10 +93,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/shift/{uuid}/update-jam', [ShiftController::class, 'updateJamKerja'])->name('shift.update_jam');
 
     // Export Shift
-Route::get('/shift/export', [ShiftController::class, 'export'])->name('shift.export');
+    Route::get('/shift/export', [ShiftController::class, 'export'])->name('shift.export');
 
-// Import Shift
-Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.import');
+    // Import Shift
+    Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.import');
 
     Route::resource('shift', ShiftController::class);
 
@@ -295,6 +295,8 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::put('pegawai/{id}', [PegawaiController::class, 'update'])->name('pegawai.update');
     Route::delete('pegawai/{id}', [PegawaiController::class, 'destroy'])->name('pegawai.destroy');
 
+  
+
     // Transaksi Remunerasi Pegawai
     Route::get('transaksi-remunerasi-pegawai', [TransaksiRemunerasiPegawaiController::class, 'index'])->name('transaksi-remunerasi-pegawai.index');
     Route::post('transaksi-remunerasi-pegawai', [TransaksiRemunerasiPegawaiController::class, 'store'])->name('transaksi-remunerasi-pegawai.store');
@@ -314,6 +316,7 @@ Route::post('/shift/import', [ShiftController::class, 'import'])->name('shift.im
     Route::get('indeks-pegawai', [IndeksPegawaiController::class, 'index'])->name('indeks-pegawai.index');
     Route::post('indeks-pegawai', [IndeksPegawaiController::class, 'store'])->name('indeks-pegawai.store');
     Route::get('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'show'])->name('indeks-pegawai.show');
+    Route::get('indeks-pegawai/{id}/detail', [IndeksPegawaiController::class, 'show'])->name('indeks-pegawai.detail');
     Route::put('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'update'])->name('indeks-pegawai.update');
     Route::delete('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'destroy'])->name('indeks-pegawai.destroy');
     Route::post('indeks-pegawai/{id}/restore', [IndeksPegawaiController::class, 'restore'])->name('indeks-pegawai.restore');

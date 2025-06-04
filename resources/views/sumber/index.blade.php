@@ -136,52 +136,7 @@ $(document).ready(function() {
     });
 
     // Handle Create Form Submit
-    $('#createForm').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var url = form.attr('action');
-        
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: form.serialize(),
-            success: function(response) {
-                if (response.meta.status === 'success') {
-                    $('#createModal').modal('hide');
-                    form[0].reset();
-                    datatable.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.meta.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                }
-            },
-            error: function(xhr) {
-                var response = xhr.responseJSON;
-                var errorMessage = '';
-                
-                if (response.meta.status === 'error') {
-                    if (typeof response.data === 'object') {
-                        $.each(response.data, function(key, value) {
-                            errorMessage += value[0] + '<br>';
-                        });
-                    } else {
-                        errorMessage = response.meta.message;
-                    }
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        html: errorMessage
-                    });
-                }
-            }
-        });
-    });
-
+   
     // Handle Edit Button Click
     $(document).on('click', '.btn-edit', function() {
         var url = $(this).data('url');
@@ -194,50 +149,7 @@ $(document).ready(function() {
     });
 
     // Handle Edit Form Submit
-    $('#editForm').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var url = form.attr('action');
-        
-        $.ajax({
-            url: url,
-            type: 'PUT',
-            data: form.serialize(),
-            success: function(response) {
-                if (response.meta.status === 'success') {
-                    $('#editModal').modal('hide');
-                    datatable.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.meta.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                }
-            },
-            error: function(xhr) {
-                var response = xhr.responseJSON;
-                var errorMessage = '';
-                
-                if (response.meta.status === 'error') {
-                    if (typeof response.data === 'object') {
-                        $.each(response.data, function(key, value) {
-                            errorMessage += value[0] + '<br>';
-                        });
-                    } else {
-                        errorMessage = response.meta.message;
-                    }
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        html: errorMessage
-                    });
-                }
-            }
-        });
-    });
+
 
     // Handle Delete Button Click
 

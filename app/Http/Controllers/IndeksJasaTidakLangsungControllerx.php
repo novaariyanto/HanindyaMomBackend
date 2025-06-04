@@ -27,7 +27,7 @@ class IndeksJasaTidakLangsungController extends Controller
 
         return view('indeks-jasa-tidak-langsung.index');
     }
-
+  
     public function store(Request $request)
     {
         $validator = validator($request->all(), [

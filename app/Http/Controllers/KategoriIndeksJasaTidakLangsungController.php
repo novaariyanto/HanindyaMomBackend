@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\KategoriIndeksJasaTidakLangsung;
+use App\Models\IndeksJasaTidakLangsung;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -64,7 +65,14 @@ class KategoriIndeksJasaTidakLangsungController extends Controller
         
         return view('kategori-tidak-langsung.index');
     }
-
+    public function getByKategori($kategoriId)
+    {
+        $jasa = IndeksJasaTidakLangsung::where('kategori_id', $kategoriId)->get();
+        return response()->json([
+            'meta' => ['code' => 200],
+            'data' => $jasa
+        ]);
+    }
     /**
      * Show the form for creating a new resource.
      */

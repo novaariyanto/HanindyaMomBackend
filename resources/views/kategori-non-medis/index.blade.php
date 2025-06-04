@@ -37,6 +37,7 @@
                             <th>No</th>
                             <th>Nama Kategori</th>
                             <th>Deskripsi</th>
+                            <th>Bobot</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>
@@ -68,6 +69,11 @@
                     <div class="mb-3">
                         <label class="form-label">Deskripsi</label>
                         <textarea class="form-control" name="deskripsi" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Bobot</label>
+                        <input type="number" class="form-control" name="bobot" step="0.01" min="0" max="1" placeholder="Contoh: 0.5">
+                        <small class="form-text text-muted">Nilai bobot antara 0 - 1</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -108,6 +114,11 @@
                         <textarea class="form-control" name="deskripsi" id="edit_deskripsi" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Bobot</label>
+                        <input type="number" class="form-control" name="bobot" id="edit_bobot" step="0.01" min="0" max="1" placeholder="Contoh: 0.5">
+                        <small class="form-text text-muted">Nilai bobot antara 0 - 1</small>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Status</label>
                         <select class="form-control" name="status" id="edit_status" required>
                             <option value="">Pilih Status</option>
@@ -146,6 +157,7 @@ $(document).ready(function() {
             },
             {data: 'nama_kategori', name: 'nama_kategori'},
             {data: 'deskripsi', name: 'deskripsi'},
+            {data: 'bobot', name: 'bobot'},
             {
                 data: 'status_badge',
                 name: 'status',
@@ -167,57 +179,7 @@ $(document).ready(function() {
     });
 
     // Handle Create Form Submit
-    $('#createForm').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var url = form.attr('action');
-        
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: form.serialize(),
-            success: function(response) {
-                if (response.meta.code === 200) {
-                    $('#createModal').modal('hide');
-                    form[0].reset();
-                    datatable.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.meta.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                }
-            },
-            error: function(xhr) {
-                var response = xhr.responseJSON;
-                var errorMessage = '';
-                
-                if (response.meta.code === 422) {
-                    if (typeof response.data === 'object') {
-                        $.each(response.data, function(key, value) {
-                            errorMessage += value[0] + '<br>';
-                        });
-                    } else {
-                        errorMessage = response.meta.message;
-                    }
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        html: errorMessage
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: response.meta.message || 'Terjadi kesalahan pada server'
-                    });
-                }
-            }
-        });
-    });
+ 
 
     // Handle Edit Button Click
     $(document).on('click', '.btn-edit', function(e) {
@@ -232,6 +194,7 @@ $(document).ready(function() {
                     var data = response.data;
                     $('#edit_nama_kategori').val(data.nama_kategori);
                     $('#edit_deskripsi').val(data.deskripsi);
+                    $('#edit_bobot').val(data.bobot);
                     $('#edit_status').val(data.status);
                     
                     $('#editForm').attr('action', url.replace('/edit', ''));
@@ -249,57 +212,7 @@ $(document).ready(function() {
     });
 
     // Handle Edit Form Submit
-    $('#editForm').on('submit', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        var url = form.attr('action');
-        
-        $.ajax({
-            url: url,
-            type: 'PUT',
-            data: form.serialize(),
-            success: function(response) {
-                if (response.meta.code === 200) {
-                    $('#editModal').modal('hide');
-                    datatable.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.meta.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                }
-            },
-            error: function(xhr) {
-                var response = xhr.responseJSON;
-                var errorMessage = '';
-                
-                if (response.meta.code === 422) {
-                    if (typeof response.data === 'object') {
-                        $.each(response.data, function(key, value) {
-                            errorMessage += value[0] + '<br>';
-                        });
-                    } else {
-                        errorMessage = response.meta.message;
-                    }
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        html: errorMessage
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: response.meta.message || 'Terjadi kesalahan pada server'
-                    });
-                }
-            }
-        });
-    });
-
+ 
     // Handle Delete Button Click
    
 

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\PegawaiJasaTidakLangsung;
 use App\Models\IndeksPegawai;
 use App\Models\IndeksJasaTidakLangsung;
+use App\Models\UnitKerja;
+use App\Models\KategoriIndeksJasaTidakLangsung;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Helpers\ResponseFormatter;
@@ -50,8 +52,10 @@ class PegawaiJasaTidakLangsungController extends Controller
 
         $pegawai = IndeksPegawai::all();
         $jasa = IndeksJasaTidakLangsung::all();
+        $units = UnitKerja::all();
+        $kategoriJasa = KategoriIndeksJasaTidakLangsung::all();
         
-        return view('pegawai-jasa-tidak-langsung.index', compact('pegawai', 'jasa'));
+        return view('pegawai-jasa-tidak-langsung.index', compact('pegawai', 'jasa', 'units', 'kategoriJasa'));
     }
 
     public function create()

@@ -6,6 +6,12 @@ use App\Http\Controllers\Api\FaceController;
 use App\Http\Controllers\Api\JadwalAbsensiController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\Api\PegawaiStrukturalApiController;
+use App\Http\Controllers\Api\PegawaiJasaTidakLangsungApiController;
+use App\Http\Controllers\Api\PegawaiJasaNonMedisApiController;
+use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\KategoriIndeksJasaTidakLangsungController;
+use App\Http\Controllers\KategoriIndeksJasaLangsungNonMedisController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProporsiFairnessController;
@@ -45,3 +51,22 @@ Route::prefix('proporsi-fairness')->group(function () {
     Route::put('/{id}', [ProporsiFairnessController::class, 'update']);
     Route::delete('/{id}', [ProporsiFairnessController::class, 'destroy']);
 });
+
+// Routes untuk Pegawai Struktural API
+Route::apiResource('pegawai-struktural', PegawaiStrukturalApiController::class);
+Route::get('/indeks-struktural-options', [PegawaiStrukturalApiController::class, 'getIndeksOptions']);
+
+// Routes untuk Pegawai Jasa Tidak Langsung API
+Route::apiResource('pegawai-jasa-tidak-langsung', PegawaiJasaTidakLangsungApiController::class);
+Route::get('/indeks-jasa-tidak-langsung-options', [PegawaiJasaTidakLangsungApiController::class, 'getIndeksOptions']);
+Route::get('/kategori-jasa-tidak-langsung-options', [App\Http\Controllers\Api\IndeksJasaTidakLangsungApiController::class, 'getKategoriOptions']);
+
+// Routes untuk Pegawai Jasa Non Medis API
+Route::apiResource('pegawai-jasa-non-medis', PegawaiJasaNonMedisApiController::class);
+Route::get('/indeks-jasa-non-medis-options', [PegawaiJasaNonMedisApiController::class, 'getIndeksOptions']);
+Route::get('/kategori-jasa-non-medis-options', [App\Http\Controllers\Api\IndeksJasaLangsungNonMedisApiController::class, 'getKategoriOptions']);
+
+Route::get('/pegawai-by-unit/{unitId}', [PegawaiController::class, 'getByUnit']);
+Route::get('/jasa-by-kategori/{kategoriId}', [KategoriIndeksJasaTidakLangsungController::class, 'getByKategori']);
+Route::get('/pegawai-info/{id}', [App\Http\Controllers\IndeksPegawaiController::class, 'getPegawaiInfo']);
+
