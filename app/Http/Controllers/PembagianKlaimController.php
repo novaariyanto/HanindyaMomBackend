@@ -225,7 +225,7 @@ class PembagianKlaimController extends Controller
                      
                  }
             
-                 if($row->unit = 17){
+                 if($row->unit == 17){
                     // cari dokter radiologi
                     $TOTALRADIOLOGI += $row->TARIFRS;
                     // $RADIOLOGIST = $row->KDDOKTER;
@@ -272,6 +272,7 @@ class PembagianKlaimController extends Controller
                 "VERIFIKASITOTAL" => $VERIFIKASITOTAL,
                 "TOTALBANKDARAH" => $TOTALBANKDARAH
             ];
+            
             
     
             
@@ -493,7 +494,7 @@ class PembagianKlaimController extends Controller
             $tadmission = Tadmission::where('id_admission', $idxdaftar)->first();
             $databilling = Tbillranap::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
             $databilling_rajal = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
-    
+          
     
             $VERIFIKASITOTAL = $data_detail_source->biaya_disetujui;
             $pisau = 0; //
@@ -552,13 +553,13 @@ class PembagianKlaimController extends Controller
             
 
             $billing= [];
-            foreach($databilling as $row){
-                $billing[] = $row;
+            foreach($databilling as $row1){
+                $billing[] = $row1;
             }
-            foreach($databilling_rajal as $row){
-                $billing[] = $row;
+            foreach($databilling_rajal as $row2){
+                $billing[] = $row2;
             }
-          
+           
 
             foreach($billing as $row){
                 
@@ -609,7 +610,7 @@ class PembagianKlaimController extends Controller
                    $TOTALBANKDARAH += $row->TARIFRS;
                     
                 }
-                if($row->unit = 17){
+                if($row->unit == 17){
                     // cari dokter radiologi
                     $TOTALRADIOLOGI += $row->TARIFRS;
                     // $RADIOLOGIST = $row->KDDOKTER;
@@ -655,7 +656,8 @@ class PembagianKlaimController extends Controller
                 "TOTALBANKDARAH" => $TOTALBANKDARAH
             ];
           
-    
+            echo json_encode($billing);
+            die;
             
             // cari data proporsi
             $proporsi_fairness = ProporsiFairness::
