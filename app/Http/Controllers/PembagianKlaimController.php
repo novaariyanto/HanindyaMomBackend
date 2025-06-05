@@ -869,6 +869,7 @@ class PembagianKlaimController extends Controller
             }else{
                 $data['persentase_remunerasi'] = round($total_remunerasi/$data_detail_source->biaya_disetujui*100, 2);
             }
+           
             
             if($savePembagianKlaim){
                 $update = DetailSource::where('id', $detailSource->id)
