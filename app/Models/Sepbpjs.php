@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Tbpjs extends Model
+class Sepbpjs extends Model
 {
     //
     protected $connection = 'simrs';
-    protected $table = 't_bpjs';
+    protected $table = 'sep_bpjs';
     protected $guarded = ["id"];
 
     public function pendaftaran()
