@@ -1256,7 +1256,7 @@ class DetailSourceController extends Controller
                 
                 if($nilai_remunerasi > 0){   
                    
-                    $data = [
+                    $data[] = [
                         'groups'=>$row['groups'],
                         'jenis'=>$row['jenis'],
                         'grade'=>$grade,
@@ -1279,7 +1279,7 @@ class DetailSourceController extends Controller
                     ]; 
                     $total_remunerasi += $nilai_remunerasi;        
                          
-                    $savePembagianKlaim = PembagianKlaim::create($data);
+                    // $savePembagianKlaim = PembagianKlaim::create($data);
                 }
                
                 if($row['ppa'] == "Dokter_Umum_IGD"){
@@ -1295,7 +1295,7 @@ class DetailSourceController extends Controller
                 foreach($dokter_bankdarah as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
                 
-                    $data = [
+                    $data[] = [
                         'groups'=>($data_detail_source->jenis == 'Rawat Jalan')?"RJTL":"RITL",
                         'jenis'=>$data_detail_source->jenis,
                         'grade'=>$grade,
@@ -1317,7 +1317,7 @@ class DetailSourceController extends Controller
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
                     $total_remunerasi += $persentase_bankdarah[$key]*(0.1*$data_sumber['TOTALBANKDARAH']);  
-                    $savePembagianKlaim = PembagianKlaim::create($data);
+                    // $savePembagianKlaim = PembagianKlaim::create($data);
                 }
             }
             
@@ -1325,7 +1325,7 @@ class DetailSourceController extends Controller
                 foreach($dokters_umum as $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
                 
-                    $data = [
+                    $data[] = [
                         'groups'=>($data_detail_source->jenis == 'Rawat Jalan')?"RJTL":"RITL",
                         'jenis'=>$data_detail_source->jenis,
                         'grade'=>$grade,
@@ -1347,7 +1347,7 @@ class DetailSourceController extends Controller
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
                     $total_remunerasi += (1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL'];  
-                    $savePembagianKlaim = PembagianKlaim::create($data);
+                    // $savePembagianKlaim = PembagianKlaim::create($data);
                 }
             }
           
@@ -1364,6 +1364,8 @@ class DetailSourceController extends Controller
             }else{
                 $data['persentase_remunerasi'] = round($total_remunerasi/$data_detail_source->biaya_disetujui*100, 2);
             }
+            echo json_encode($data);
+            die;
             
             if($savePembagianKlaim){
                 $update = DetailSource::where('id', $detailSource->id)

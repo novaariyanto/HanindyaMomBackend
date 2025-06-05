@@ -734,7 +734,7 @@ class PembagianKlaimController extends Controller
                 
                 if($nilai_remunerasi > 0){   
                    
-                    $data[] = [
+                    $data = [
                         'groups'=>$row['groups'],
                         'jenis'=>$row['jenis'],
                         'grade'=>$grade,
@@ -757,7 +757,7 @@ class PembagianKlaimController extends Controller
                     ]; 
                     $total_remunerasi += $nilai_remunerasi;        
                          
-                    // $savePembagianKlaim = PembagianKlaim::create($data);
+                    $savePembagianKlaim = PembagianKlaim::create($data);
                 }
                
                 if($row['ppa'] == "Dokter_Umum_IGD"){
