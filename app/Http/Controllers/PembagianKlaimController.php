@@ -1045,7 +1045,11 @@ class PembagianKlaimController extends Controller
         return null; // atau bisa return string error
     }
     
+<<<<<<< HEAD
     function getIdxDaftar($sep) {
+=======
+   function getIdxDaftar($sep) {
+>>>>>>> 720572e64ba7f09b47257de1cf62f6cef5a27987
         if(strpos($sep,"-") !== false){
             $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $sep)->first();
             if($tpendaftaran){
