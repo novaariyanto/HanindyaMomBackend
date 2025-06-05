@@ -12,6 +12,7 @@ use App\Models\Tbillranap;
 use App\Models\Tpendaftaran;
 use App\Models\Tadmission;
 use App\Models\Moperasi;
+use App\Models\Tradiologi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -78,10 +79,18 @@ class PembagianKlaimController extends Controller
     
     
                     $selisih = $totalTarifRs-$totalTarifRs;
-                    $persentase_selisih = $selisih/$totalTarifRs;
-                    $persentase_selisih = $persentase_selisih*100;
+                    if($selisih > 0){
+                        $persentase_selisih = $selisih/$totalTarifRs;
+                        $persentase_selisih = $persentase_selisih*100;
+                        $persentase_selisih = round($persentase_selisih, 2);
+                    }else{
+                        if($data_pendaftaran->KDPOLY == 201){
+                            $persentase_selisih = 0;
+                        }else{
+                            $persentase_selisih = 10;
+                        }
+                    }
                     
-                    $persentase_selisih = round($persentase_selisih, 2);
                 
             
                     $grade = Grade::where('persentase', '>=', $persentase_selisih)
@@ -216,10 +225,19 @@ class PembagianKlaimController extends Controller
                      
                  }
             
-                if($row->unit = 17){
+                 if($row->unit = 17){
                     // cari dokter radiologi
                     $TOTALRADIOLOGI += $row->TARIFRS;
-                    $RADIOLOGIST = $row->KDDOKTER;
+                    // $RADIOLOGIST = $row->KDDOKTER;
+                    // cari dokterariologi
+                    $radiologi = Tradiologi::where('IDXDAFTAR', $idxdaftar)->where('NOMR', $nomr)->first();
+                    if($radiologi){
+                        $RADIOLOGIST = $radiologi->DRRADIOLOGI;
+                    }else{
+                        $RADIOLOGIST = $row->KDDOKTER;
+                    } 
+                    
+
                     $RADIOGRAFER = "16";
                 }
                 if(in_array($row->id_kategori, [21])){
@@ -239,7 +257,7 @@ class PembagianKlaimController extends Controller
             if(in_array($tpendaftaran->KDPOLY,[31,168,169])){
                 $TINDAKANRAJAL = "813";
                 $DPJP = "813";
-            }else if(in_array($row->UNIT,[101])){
+            }else if(in_array($tpendaftaran->KDPOLY,[101])){
                 $TINDAKANRAJAL = "832";
                 $DPJP = "832";
             }
@@ -594,7 +612,16 @@ class PembagianKlaimController extends Controller
                 if($row->unit = 17){
                     // cari dokter radiologi
                     $TOTALRADIOLOGI += $row->TARIFRS;
-                    $RADIOLOGIST = $row->KDDOKTER;
+                    // $RADIOLOGIST = $row->KDDOKTER;
+                    // cari dokterariologi
+                    $radiologi = Tradiologi::where('IDXDAFTAR', $idxdaftar)->where('NOMR', $nomr)->first();
+                    if($radiologi){
+                        $RADIOLOGIST = $radiologi->DRRADIOLOGI;
+                    }else{
+                        $RADIOLOGIST = $row->KDDOKTER;
+                    } 
+                    
+
                     $RADIOGRAFER = "16";
                 }
                 if(in_array($row->id_kategori, [21])){
@@ -734,7 +761,7 @@ class PembagianKlaimController extends Controller
                 
                 if($nilai_remunerasi > 0){   
                    
-                    $data[] = [
+                    $data = [
                         'groups'=>$row['groups'],
                         'jenis'=>$row['jenis'],
                         'grade'=>$grade,
@@ -757,7 +784,7 @@ class PembagianKlaimController extends Controller
                     ]; 
                     $total_remunerasi += $nilai_remunerasi;        
                          
-                    // $savePembagianKlaim = PembagianKlaim::create($data);
+                    $savePembagianKlaim = PembagianKlaim::create($data);
                 }
                
                 if($row['ppa'] == "Dokter_Umum_IGD"){
@@ -831,7 +858,7 @@ class PembagianKlaimController extends Controller
           
     
             // RADIOLOGIST
-          
+         
           
             
 

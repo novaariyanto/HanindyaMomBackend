@@ -26,6 +26,7 @@ use App\Models\Tbillranap;
 use App\Models\Tpendaftaran;
 use App\Models\Tadmission;
 use App\Models\Moperasi;
+use App\Models\Tradiologi;
 use App\Models\Divisi;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
@@ -738,10 +739,19 @@ class DetailSourceController extends Controller
                      
                  }
             
-                if($row->unit = 17){
+                 if($row->unit = 17){
                     // cari dokter radiologi
                     $TOTALRADIOLOGI += $row->TARIFRS;
-                    $RADIOLOGIST = $row->KDDOKTER;
+                    // $RADIOLOGIST = $row->KDDOKTER;
+                    // cari dokterariologi
+                    $radiologi = Tradiologi::where('IDXDAFTAR', $idxdaftar)->where('NOMR', $nomr)->first();
+                    if($radiologi){
+                        $RADIOLOGIST = $radiologi->DRRADIOLOGI;
+                    }else{
+                        $RADIOLOGIST = $row->KDDOKTER;
+                    } 
+                    
+
                     $RADIOGRAFER = "16";
                 }
                 if(in_array($row->id_kategori, [21])){
@@ -1116,7 +1126,16 @@ class DetailSourceController extends Controller
                 if($row->unit = 17){
                     // cari dokter radiologi
                     $TOTALRADIOLOGI += $row->TARIFRS;
-                    $RADIOLOGIST = $row->KDDOKTER;
+                    // $RADIOLOGIST = $row->KDDOKTER;
+                    // cari dokterariologi
+                    $radiologi = Tradiologi::where('IDXDAFTAR', $idxdaftar)->where('NOMR', $nomr)->first();
+                    if($radiologi){
+                        $RADIOLOGIST = $radiologi->DRRADIOLOGI;
+                    }else{
+                        $RADIOLOGIST = $row->KDDOKTER;
+                    } 
+                    
+
                     $RADIOGRAFER = "16";
                 }
                 if(in_array($row->id_kategori, [21])){
