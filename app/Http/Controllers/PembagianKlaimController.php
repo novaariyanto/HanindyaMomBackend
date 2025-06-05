@@ -61,6 +61,8 @@ class PembagianKlaimController extends Controller
     }
    
     function hitung($sourceId,DetailSource $detailSource) {
+      
+       
         $failed = 0;
         $success = 0;
         $message = [];
@@ -75,8 +77,8 @@ class PembagianKlaimController extends Controller
                     $totalTarifRs = $data_pendaftaran->getTotalTarifRsAttribute();
                     $data_pendaftaran->total_tarif_rs = $totalTarifRs;
                     $idxdaftar = $data_pendaftaran->IDXDAFTAR;
-                    $nomr = $data_pendaftaran->nomr;
-    
+                    $nomr = $data_pendaftaran->NOMR;
+                   
     
                     $selisih = $totalTarifRs-$totalTarifRs;
                     if($selisih > 0){
@@ -98,6 +100,7 @@ class PembagianKlaimController extends Controller
                         ->first();
                         
                     $grade = $grade->grade;
+                    $VERIFIKASITOTAL = $totalTarifRs;
             }else{
                 // bpjps
                 $sep = $data_detail_source->no_sep;
@@ -128,13 +131,15 @@ class PembagianKlaimController extends Controller
                     $grade = $grade->grade;
                     $sep = $data_detail_source->no_sep;
     
+                 $VERIFIKASITOTAL = $data_detail_source->biaya_disetujui;
             }
+        
     
             $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar)->first();
             $databilling = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
+           
             
-            
-            $VERIFIKASITOTAL = $data_detail_source->biaya_disetujui;
+           
             $pisau = 0; //v
             $TOTALLPA = 0;//v
             $TOTALPATKLIN = 0;//v
@@ -191,7 +196,7 @@ class PembagianKlaimController extends Controller
                    
                 }
                
-                if($row->unit == 15){
+                if($row->UNIT == 15){
                     $pisau += 1;
                     $data_operasi = Moperasi::where(['IDXDAFTAR' => $idxdaftar, 'nomr' => $nomr])->where('status', '!=', 'batal')->get();
                     foreach($data_operasi as $row_operasi){
@@ -225,9 +230,9 @@ class PembagianKlaimController extends Controller
                      
                  }
             
-                 if($row->unit == 17){
+                if($row->UNIT == 17){
                     // cari dokter radiologi
-                    $TOTALRADIOLOGI += $row->TARIFRS;
+                     $TOTALRADIOLOGI += $row->TARIFRS;
                     // $RADIOLOGIST = $row->KDDOKTER;
                     // cari dokterariologi
                     $radiologi = Tradiologi::where('IDXDAFTAR', $idxdaftar)->where('NOMR', $nomr)->first();
@@ -272,6 +277,7 @@ class PembagianKlaimController extends Controller
                 "VERIFIKASITOTAL" => $VERIFIKASITOTAL,
                 "TOTALBANKDARAH" => $TOTALBANKDARAH
             ];
+         
             
             
     
@@ -415,13 +421,28 @@ class PembagianKlaimController extends Controller
            
 
             if($savePembagianKlaim){
-                $update = DetailSource::where('id', $detailSource->id)
-                ->update([
-                    'status_pembagian_klaim'=>1,
-                    'total_remunerasi'=>$total_remunerasi,
-                    'idxdaftar'=>$idxdaftar,
-                    'nomr'=>$nomr
-                ]);
+              
+                if($data_detail_source->biaya_disetujui == 0){
+                    
+                    $update = DetailSource::where('id', $detailSource->id)
+                    ->update([
+                            'status_pembagian_klaim'=>1,
+                            'idxdaftar'=>$idxdaftar,
+                            'biaya_disetujui'=>$VERIFIKASITOTAL,
+                            'biaya_riil_rs'=>$VERIFIKASITOTAL,
+                            'biaya_diajukan'=>$VERIFIKASITOTAL,
+                            'total_remunerasi'=>$total_remunerasi,
+                            'nomr'=>$nomr
+                        ]);
+                }else{
+                    $update = DetailSource::where('id', $detailSource->id)
+                    ->update([
+                            'status_pembagian_klaim'=>1,
+                            'idxdaftar'=>$idxdaftar,
+                            'total_remunerasi'=>$total_remunerasi,
+                            'nomr'=>$nomr
+                        ]);
+                }
                 $failed += 0;
                 $success += 1;
                     $message[] = "data $detailSource->no_sep berhasil di proses";
@@ -458,6 +479,8 @@ class PembagianKlaimController extends Controller
                     ->first();
                     
                 $grade = $grade->grade;
+                
+                $VERIFIKASITOTAL = $totalTarifRs;
     
             }else{
                 // bpjps
@@ -489,14 +512,15 @@ class PembagianKlaimController extends Controller
                     $grade = $grade->grade;
                     $sep = $data_detail_source->no_sep;
     
+                $VERIFIKASITOTAL = $data_detail_source->biaya_disetujui;
             }
-            
+          
             $tadmission = Tadmission::where('id_admission', $idxdaftar)->first();
             $databilling = Tbillranap::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
             $databilling_rajal = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
           
     
-            $VERIFIKASITOTAL = $data_detail_source->biaya_disetujui;
+            
             $pisau = 0; //
             $TOTALLPA = 0;//
             $TOTALPATKLIN = 0;//
@@ -563,20 +587,8 @@ class PembagianKlaimController extends Controller
 
             foreach($billing as $row){
                 
-                if($row->id_kategori == 2||$row->id_kategori == 1){
-                    if(!($row->KDDOKTER == $DPJP) && !in_array($row->KDDOKTER, [415,800,856,888])){
-                        $kdprofesi = Dokter::where('KDDOKTER', $row->KDDOKTER)->first()->KDPROFESI;
-                        if($kdprofesi == 1){
-                            $kddokter[] = $row->KDDOKTER;
-                        }else{
-                            if (!in_array($row->KDDOKTER, $dokters_umum)) {
-                                $dokters_umum[] = $row->KDDOKTER;
-                            }
-                        }
-                    }
-                }
-    
-                if($row->unit == 15){
+               
+                if($row->UNIT == 15){
                     $pisau += 1;
                     $data_operasi = Moperasi::where(['IDXDAFTAR' => $idxdaftar, 'nomr' => $nomr])->where('status', '!=', 'batal')->get();
                     foreach($data_operasi as $row_operasi){
@@ -589,6 +601,32 @@ class PembagianKlaimController extends Controller
     
                     $PENATA = "9";
                     $ASISTEN = "10";
+                }else if($row->UNIT == 17){
+                    // cari dokter radiologi
+                     $TOTALRADIOLOGI += $row->TARIFRS;
+                    // $RADIOLOGIST = $row->KDDOKTER;
+                    // cari dokterariologi
+                    $radiologi = Tradiologi::where('IDXDAFTAR', $idxdaftar)->where('NOMR', $nomr)->first();
+                    if($radiologi){
+                        $RADIOLOGIST = $radiologi->DRRADIOLOGI;
+                    }else{
+                        $RADIOLOGIST = $row->KDDOKTER;
+                    } 
+                    
+
+                    $RADIOGRAFER = "16";
+                }
+                if($row->id_kategori == 2||$row->id_kategori == 1){
+                    if(!($row->KDDOKTER == $DPJP) && !in_array($row->KDDOKTER, [415,800,856,888])){
+                        $kdprofesi = Dokter::where('KDDOKTER', $row->KDDOKTER)->first()->KDPROFESI;
+                        if($kdprofesi == 1){
+                            $kddokter[] = $row->KDDOKTER;
+                        }else{
+                            if (!in_array($row->KDDOKTER, $dokters_umum)) {
+                                $dokters_umum[] = $row->KDDOKTER;
+                            }
+                        }
+                    }
                 }
                 
                 if(in_array($row->id_kategori, [14])){
@@ -610,21 +648,7 @@ class PembagianKlaimController extends Controller
                    $TOTALBANKDARAH += $row->TARIFRS;
                     
                 }
-                if($row->unit == 17){
-                    // cari dokter radiologi
-                    $TOTALRADIOLOGI += $row->TARIFRS;
-                    // $RADIOLOGIST = $row->KDDOKTER;
-                    // cari dokterariologi
-                    $radiologi = Tradiologi::where('IDXDAFTAR', $idxdaftar)->where('NOMR', $nomr)->first();
-                    if($radiologi){
-                        $RADIOLOGIST = $radiologi->DRRADIOLOGI;
-                    }else{
-                        $RADIOLOGIST = $row->KDDOKTER;
-                    } 
-                    
-
-                    $RADIOGRAFER = "16";
-                }
+               
                 if(in_array($row->id_kategori, [21])){
                     $HD  = $row->KDDOKTER;
                     $DOKTERHDRANAP = $row->KDDOKTER;
@@ -655,6 +679,7 @@ class PembagianKlaimController extends Controller
                 "TOTALHD" => $TOTALHD,
                 "TOTALBANKDARAH" => $TOTALBANKDARAH
             ];
+           
           
           
             
@@ -873,13 +898,27 @@ class PembagianKlaimController extends Controller
            
             
             if($savePembagianKlaim){
-                $update = DetailSource::where('id', $detailSource->id)
-            ->update([
-                    'status_pembagian_klaim'=>1,
-                    'idxdaftar'=>$idxdaftar,
-                    'total_remunerasi'=>$total_remunerasi,
-                    'nomr'=>$nomr
-                ]);
+                if($data_detail_source->biaya_disetujui == 0){
+                    
+                    $update = DetailSource::where('id', $detailSource->id)
+                    ->update([
+                            'status_pembagian_klaim'=>1,
+                            'idxdaftar'=>$idxdaftar,
+                            'biaya_disetujui'=>$VERIFIKASITOTAL,
+                            'total_remunerasi'=>$total_remunerasi,
+                            'nomr'=>$nomr
+                        ]);
+                }else{
+                    $update = DetailSource::where('id', $detailSource->id)
+                    ->update([
+                            'status_pembagian_klaim'=>1,
+                            'idxdaftar'=>$idxdaftar,
+                            'total_remunerasi'=>$total_remunerasi,
+                            'nomr'=>$nomr
+                        ]);
+                }
+
+               
                 $success += 1;
                 $failed += 0;
                     $message[] = "data $detailSource->no_sep berhasil diproses";
@@ -895,6 +934,7 @@ class PembagianKlaimController extends Controller
             }
             
         }
+       
         return [
             "failed"=>$failed,
             "success"=>$success,
