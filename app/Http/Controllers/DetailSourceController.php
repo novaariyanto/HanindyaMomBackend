@@ -1170,8 +1170,7 @@ class DetailSourceController extends Controller
                 "TOTALBANKDARAH" => $TOTALBANKDARAH
             ];
           
-            echo json_encode($billing);
-            die;
+          
             
             // cari data proporsi
             $proporsi_fairness = ProporsiFairness::

@@ -656,8 +656,7 @@ class PembagianKlaimController extends Controller
                 "TOTALBANKDARAH" => $TOTALBANKDARAH
             ];
           
-            echo json_encode($billing);
-            die;
+          
             
             // cari data proporsi
             $proporsi_fairness = ProporsiFairness::
@@ -903,6 +902,7 @@ class PembagianKlaimController extends Controller
             "data"=>$data_detail_source
         ];
     }
+    
     
     
     function groupAndCount(array $data): array {
