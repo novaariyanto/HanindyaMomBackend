@@ -1045,11 +1045,7 @@ class PembagianKlaimController extends Controller
         return null; // atau bisa return string error
     }
     
-<<<<<<< HEAD
     function getIdxDaftar($sep) {
-=======
-   function getIdxDaftar($sep) {
->>>>>>> 720572e64ba7f09b47257de1cf62f6cef5a27987
         if(strpos($sep,"-") !== false){
             $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $sep)->first();
             if($tpendaftaran){
@@ -1062,12 +1058,12 @@ class PembagianKlaimController extends Controller
                 $idxdaftar = $detailSource->orderBy('idxdaftar', 'desc')->first()->idxdaftar;
                 $nomr = $detailSource->orderBy('idxdaftar', 'desc')->first()->nomr;
             }else{
-                $tbpjs = Tbpjs::where('sep', $sep)->first();
+                $tbpjs = Sepbpjs::where('noSep', $sep)->first();
                 if($tbpjs){
                     $idxdaftar = $tbpjs->idxdaftar;
-                    $nomr = $tbpjs->noMr;
+                    $nomr = $tbpjs->peserta_noMr;
                     if($nomr == ""){
-                        $response = $tbpjs->response;
+                        $response = $tbpjs->responseJSON;
                         $nomr = $this->ambilNoMR($response);
                     }
                     if($nomr == ""){

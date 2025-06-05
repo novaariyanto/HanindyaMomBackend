@@ -15,6 +15,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Carbon\Carbon;
+use App\Models\Sepbpjs;
 use App\Models\Tbpjs;
 use App\Models\Dokter;
 use App\Models\ProporsiFairness;
@@ -1504,12 +1505,12 @@ class DetailSourceController extends Controller
                 $idxdaftar = $detailSource->orderBy('idxdaftar', 'desc')->first()->idxdaftar;
                 $nomr = $detailSource->orderBy('idxdaftar', 'desc')->first()->nomr;
             }else{
-                $tbpjs = Tbpjs::where('sep', $sep)->first();
+                $tbpjs = Sepbpjs::where('noSep', $sep)->first();
                 if($tbpjs){
                     $idxdaftar = $tbpjs->idxdaftar;
-                    $nomr = $tbpjs->noMr;
+                    $nomr = $tbpjs->peserta_noMr;
                     if($nomr == ""){
-                        $response = $tbpjs->response;
+                        $response = $tbpjs->responseJSON;
                         $nomr = $this->ambilNoMR($response);
                     }
                     if($nomr == ""){
