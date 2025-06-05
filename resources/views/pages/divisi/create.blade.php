@@ -1,4 +1,4 @@
-<form action="{{ route('divisi.store') }}" method="POST" id="form">
+<form action="{{ route('divisi.store') }}" method="POST" id="createForm">
     <div class="modal-header">
         <h5 class="modal-title" id="createModalLabel">Buat Divisi</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -26,7 +26,12 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="submit" class="btn btn-primary">Simpan</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="ti ti-x me-2"></i>Batal
+        </button>
+        <button type="submit" class="btn btn-primary">
+            <i class="ti ti-device-floppy me-2"></i>
+            <span class="btn-text">Simpan</span>
+        </button>
     </div>
 </form>

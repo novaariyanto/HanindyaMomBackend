@@ -87,6 +87,46 @@ $(document).ready(function() {
             .search(this.value)
             .draw();
     });
+
+    // Enhanced form submission handler untuk create form
+  
 });
 </script>
+
+<style>
+/* Loading Animation */
+.fa-spin {
+    animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Disabled button state */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Loading state untuk input */
+.form-control:disabled {
+    opacity: 0.5;
+    background-color: #f8f9fa;
+}
+
+/* Loading overlay untuk modal */
+.modal.loading::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1055;
+    pointer-events: none;
+}
+</style>
 @endpush

@@ -42,8 +42,7 @@
     <div class="card card-body">
         
 <form action="{{ route('role.menu.store',$id) }}" method="POST" id="form">
-        
-
+        @csrf
 
         <!-- Tampilkan daftar menu yang sudah ditetapkan ke role -->
         <h4 class="mt-4 mb-3">Menu</h4>
@@ -113,7 +112,10 @@
             @endforeach
         </ul>
 
-        <button type="submit" class="btn btn-primary">Simpan</button>
+        <button type="submit" class="btn btn-primary">
+            <i class="ti ti-device-floppy me-2"></i>
+            <span class="btn-text">Simpan Menu</span>
+        </button>
 
 </form>
 
@@ -175,6 +177,27 @@
     .form-check-label i {
         margin-right: 8px;
     }
+    
+    /* Loading Animation */
+    .fa-spin {
+        animation: fa-spin 1s infinite linear;
+    }
+    
+    @keyframes fa-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Disabled button state */
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    /* Loading state untuk checkbox */
+    .form-check-input:disabled {
+        opacity: 0.5;
+    }
 </style>
 
 @endsection
@@ -216,7 +239,7 @@
 
         // Ketika checkbox anak dicentang, centang juga parent-nya
         $('.submenu-list .form-check-input').on('change', function() {
-            var parentCheckbox = $(this).closest('.menu-item').parents('ul').closest('.menu-item').find('.form-check-input');
+            var parentCheckbox = $(this).closest('li.menu-item').parents('ul').prev('.menu-content').find('.form-check-input');
 
             // Jika checkbox anak dicentang, centang parent
             if ($(this).prop('checked')) {
@@ -224,7 +247,7 @@
             }
             // Jika checkbox anak tidak dicentang, periksa apakah harus mencentang parent
             else {
-                var anyChildChecked = $(this).closest('.submenu-list').find('.form-check-input:checked').length > 0;
+                var anyChildChecked = $(this).closest('ul').find('.form-check-input:checked').length > 0;
                 if (!anyChildChecked) {
                     parentCheckbox.prop('checked', false);
                 }
@@ -232,7 +255,7 @@
         });
 
         // Ketika checkbox parent dicentang, centang semua children-nya
-        $('.menu-list .form-check-input').on('change', function() {
+        $('.menu-list > .menu-item > .menu-content .form-check-input').on('change', function() {
             var childrenCheckboxes = $(this).closest('.menu-item').find('.submenu-list .form-check-input');
 
             // Jika checkbox parent dicentang, centang semua children
@@ -250,6 +273,99 @@
             var isChecked = $(this).prop('checked');
             // Centang atau hilangkan centang semua checkbox
             $('.form-check-input').prop('checked', isChecked);
+        });
+
+        // Handle form submission dengan AJAX
+        $('#form').on('submit', function(e) {
+            e.preventDefault();
+            
+            // Tampilkan loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const btnIcon = submitBtn.find('i');
+            const btnText = submitBtn.find('.btn-text');
+            const originalText = btnText.text();
+            
+            submitBtn.prop('disabled', true);
+            btnIcon.removeClass('ti-device-floppy').addClass('ti-loader-2 fa-spin');
+            btnText.text('Menyimpan...');
+            
+            // Nonaktifkan semua checkbox saat loading
+            $('.form-check-input').prop('disabled', true);
+            
+            // Kumpulkan data menu yang dipilih
+            const selectedMenus = [];
+            $('input[name="menus[]"]:checked').each(function() {
+                selectedMenus.push($(this).val());
+            });
+            
+            // Validasi - pastikan ada menu yang dipilih
+            if (selectedMenus.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan!',
+                    text: 'Silakan pilih minimal satu menu untuk role ini!',
+                    confirmButtonText: 'OK'
+                });
+                
+                // Kembalikan tombol ke state semula
+                submitBtn.prop('disabled', false);
+                btnIcon.removeClass('ti-loader-2 fa-spin').addClass('ti-device-floppy');
+                btnText.text(originalText);
+                // Mengaktifkan kembali semua checkbox
+                $('.form-check-input').prop('disabled', false);
+                return;
+            }
+            
+            // Kirim data ke server
+            $.ajax({
+                url: $(this).attr('action'),
+                method: 'POST',
+                data: {
+                    menus: selectedMenus,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.meta && response.meta.code === 200) {
+                        // Tampilkan pesan sukses
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: response.meta.message || 'Menu berhasil disimpan untuk role ini.',
+                            timer: 3000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            // Redirect ke halaman role index
+                            window.location.href = "{{ route('role.index') }}";
+                        });
+                    } else {
+                        throw new Error(response.meta.message || 'Terjadi kesalahan tidak dikenal');
+                    }
+                },
+                error: function(xhr) {
+                    let message = 'Terjadi kesalahan saat menyimpan menu.';
+                    
+                    if (xhr.responseJSON && xhr.responseJSON.meta) {
+                        message = xhr.responseJSON.meta.message;
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        message = xhr.responseJSON.message;
+                    }
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: message,
+                        confirmButtonText: 'OK'
+                    });
+                },
+                complete: function() {
+                    // Kembalikan tombol ke state semula
+                    submitBtn.prop('disabled', false);
+                    btnIcon.removeClass('ti-loader-2 fa-spin').addClass('ti-device-floppy');
+                    btnText.text(originalText);
+                    // Mengaktifkan kembali semua checkbox
+                    $('.form-check-input').prop('disabled', false);
+                }
+            });
         });
     });
 </script>

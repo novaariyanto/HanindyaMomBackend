@@ -48,24 +48,38 @@ class DivisiController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'nama' => 'required|string|max:191',
-            'keterangan' => 'nullable|string',
-        ]);
+        try {
+            // Validasi input
+            $validator = Validator::make($request->all(), [
+                'nama' => 'required|string|max:191|unique:divisis,nama',
+                'keterangan' => 'nullable|string|max:1000',
+            ]);
 
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator->errors(), 'Gagal Menyimpan Divisi: ' . $validator->errors()->first(), 422);
+            if ($validator->fails()) {
+                return ResponseFormatter::error(
+                    $validator->errors(), 
+                    'Validasi gagal: ' . $validator->errors()->first(), 
+                    422
+                );
+            }
+
+            // Simpan data divisi
+            $divisi = new Divisi;
+            $divisi->nama = trim($request->nama);
+            $divisi->keterangan = $request->keterangan ? trim($request->keterangan) : null;
+
+            if (!$divisi->save()) {
+                return ResponseFormatter::error(null, 'Gagal menyimpan data divisi', 500);
+            }
+
+            return ResponseFormatter::success(
+                $divisi, 
+                'Berhasil menyimpan divisi: ' . $divisi->nama
+            );
+
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Terjadi kesalahan: ' . $e->getMessage(), 500);
         }
-
-        $divisi = new Divisi;
-        $divisi->nama = $request->nama;
-        $divisi->keterangan = $request->keterangan;
-
-        if (!$divisi->save()) {
-            return ResponseFormatter::error(null, 'Gagal Menyimpan Divisi', 500);
-        }
-
-        return ResponseFormatter::success($divisi, 'Berhasil Menyimpan Divisi');
     }
 
     /**
@@ -84,25 +98,42 @@ class DivisiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'nama' => 'required|string|max:191',
-            'keterangan' => 'nullable|string',
-        ]);
+        try {
+            // Cari divisi berdasarkan UUID
+            $divisi = Divisi::where('uuid', $id)->firstOrFail();
 
-        if ($validator->fails()) {
-            return ResponseFormatter::error($validator->errors(), 'Gagal Mengubah Divisi', 422);
+            // Validasi input dengan unique rule yang mengecualikan record saat ini
+            $validator = Validator::make($request->all(), [
+                'nama' => 'required|string|max:191|unique:divisis,nama,' . $divisi->id,
+                'keterangan' => 'nullable|string|max:1000',
+            ]);
+
+            if ($validator->fails()) {
+                return ResponseFormatter::error(
+                    $validator->errors(), 
+                    'Validasi gagal: ' . $validator->errors()->first(), 
+                    422
+                );
+            }
+
+            // Update data divisi
+            $divisi->nama = trim($request->nama);
+            $divisi->keterangan = $request->keterangan ? trim($request->keterangan) : null;
+
+            if (!$divisi->save()) {
+                return ResponseFormatter::error(null, 'Gagal memperbarui data divisi', 500);
+            }
+
+            return ResponseFormatter::success(
+                $divisi, 
+                'Berhasil memperbarui divisi: ' . $divisi->nama
+            );
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return ResponseFormatter::error(null, 'Divisi tidak ditemukan', 404);
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Terjadi kesalahan: ' . $e->getMessage(), 500);
         }
-
-        $divisi = Divisi::where('uuid',$id)->first();
-
-        $divisi->nama = $request->nama;
-        $divisi->keterangan = $request->keterangan;
-
-        if (!$divisi->save()) {
-            return ResponseFormatter::error(null, 'Gagal Mengubah Divisi', 500);
-        }
-
-        return ResponseFormatter::success($divisi, 'Berhasil Mengubah Divisi');
     }
 
     /**

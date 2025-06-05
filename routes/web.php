@@ -244,6 +244,7 @@ Route::middleware('auth')->group(function () {
     Route::get('pembagian-klaim/{id}', [PembagianKlaimController::class, 'show'])->name('pembagian-klaim.show');
     Route::put('pembagian-klaim/{id}', [PembagianKlaimController::class, 'update'])->name('pembagian-klaim.update');
     Route::delete('pembagian-klaim/{id}', [PembagianKlaimController::class, 'destroy'])->name('pembagian-klaim.destroy');
+    Route::get('pembagian-klaim/template/download', [PembagianKlaimController::class, 'downloadTemplate'])->name('pembagian-klaim.template');
     
     // Route untuk mendapatkan data pembagian klaim berdasarkan detail source
     Route::get('detail-source/{id}/pembagian-klaim', [PembagianKlaimController::class, 'getByDetailSource'])

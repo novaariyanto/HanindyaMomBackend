@@ -143,41 +143,63 @@ class RoleController extends Controller
 
 
     public function storeMenu(Request $request, $id)
-{
-    // Validasi input
-    $validated = $request->validate([
-        'menus' => 'required|array',
-        'menus.*' => 'exists:menus,uuid', // Pastikan UUID menu valid
-    ]);
+    {
+        try {
+            // Validasi input
+            $validator = Validator::make($request->all(), [
+                'menus' => 'required|array|min:1',
+                'menus.*' => 'exists:menus,uuid',
+            ]);
 
-    // Cari role berdasarkan ID menggunakan Spatie
-    $role = Role::findById($id);
+            if ($validator->fails()) {
+                return ResponseFormatter::error(
+                    $validator->errors(), 
+                    'Validasi gagal: ' . $validator->errors()->first(), 
+                    422
+                );
+            }
 
-    // Ambil route dari menu, lalu filter null
-    $routes = Menu::whereIn('uuid', $validated['menus'])
-        ->pluck('route')
-        ->filter() // Menghapus route yang null
-        ->toArray();
+            // Cari role berdasarkan ID
+            $role = Role::findOrFail($id);
 
-        // return $routes;
-    // Ambil ID menu berdasarkan UUID
-    $menuIds = Menu::whereIn('uuid', $validated['menus'])->pluck('id')->toArray();
+            // Ambil route dari menu yang valid (bukan null atau kosong)
+            $routes = Menu::whereIn('uuid', $request->menus)
+                ->whereNotNull('route')
+                ->where('route', '!=', '')
+                ->where('route', '!=', '#')
+                ->pluck('route')
+                ->toArray();
 
-    // Sinkronkan menu ke role (jika ada pivot role-menus)
-    $role->menus()->sync($menuIds);
+            // Ambil ID menu berdasarkan UUID
+            $menuIds = Menu::whereIn('uuid', $request->menus)->pluck('id')->toArray();
 
-    // Sinkronkan permission (mengasumsikan setiap route adalah permission)
-    $permissions = Permission::whereIn('name', $routes)->pluck('name')->toArray();
-    $role->syncPermissions($permissions);
+            // Sinkronkan menu ke role
+            $role->menus()->sync($menuIds);
 
-    // Kunci cache unik berdasarkan role ID
-$cacheKey = 'user_menus_' . $role->id;
+            // Sinkronkan permission berdasarkan route yang valid
+            if (!empty($routes)) {
+                $permissions = Permission::whereIn('name', $routes)->pluck('name')->toArray();
+                $role->syncPermissions($permissions);
+            }
 
-// Hapus cache untuk kunci ini
-Cache::forget($cacheKey);
+            // Hapus cache menu untuk role ini
+            $cacheKey = 'user_menus_' . $role->id;
+            Cache::forget($cacheKey);
 
-    return ResponseFormatter::success([], 'Berhasil Menambahkan Menu dan Permissions');
-}
+            return ResponseFormatter::success(
+                [
+                    'menu_count' => count($menuIds),
+                    'permission_count' => count($routes)
+                ], 
+                'Berhasil menyimpan ' . count($menuIds) . ' menu untuk role ' . $role->name
+            );
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return ResponseFormatter::error(null, 'Role tidak ditemukan', 404);
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Terjadi kesalahan: ' . $e->getMessage(), 500);
+        }
+    }
 
 
 
