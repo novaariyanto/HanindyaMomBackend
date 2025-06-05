@@ -592,10 +592,18 @@ class DetailSourceController extends Controller
     
     
                     $selisih = $totalTarifRs-$totalTarifRs;
-                    $persentase_selisih = $selisih/$totalTarifRs;
-                    $persentase_selisih = $persentase_selisih*100;
+                    if($selisih > 0){
+                        $persentase_selisih = $selisih/$totalTarifRs;
+                        $persentase_selisih = $persentase_selisih*100;
+                        $persentase_selisih = round($persentase_selisih, 2);
+                    }else{
+                        if($data_pendaftaran->KDPOLY == 201){
+                            $persentase_selisih = 0;
+                        }else{
+                            $persentase_selisih = 10;
+                        }
+                    }
                     
-                    $persentase_selisih = round($persentase_selisih, 2);
                 
             
                     $grade = Grade::where('persentase', '>=', $persentase_selisih)
@@ -753,7 +761,7 @@ class DetailSourceController extends Controller
             if(in_array($tpendaftaran->KDPOLY,[31,168,169])){
                 $TINDAKANRAJAL = "813";
                 $DPJP = "813";
-            }else if(in_array($row->UNIT,[101])){
+            }else if(in_array($tpendaftaran->KDPOLY,[101])){
                 $TINDAKANRAJAL = "832";
                 $DPJP = "832";
             }
