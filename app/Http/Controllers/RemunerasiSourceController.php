@@ -153,6 +153,9 @@ class RemunerasiSourceController extends Controller
                          <a href="' . route('pembagian-klaim.laporan', ['sourceId' => $row->id]) . '" class="btn btn-success btn-sm" title="Lihat Laporan Pembagian Klaim">
                             <i class="ti ti-file"></i>
                         </a>
+                          <a href="' . route('detail-source.showpembagian', ['id' => $row->id]) . '" class="btn btn-secondary btn-sm" title="Lihat Laporan Pembagian Klaim">
+                            <i class="ti ti-eye"></i>
+                        </a>
                         <a href="#" data-url="' . route('remunerasi-source.show', $row->id) . '" class="btn btn-info btn-sm btn-edit"><i class="ti ti-pencil"></i></a>
                         <a href="#" data-url="' . route('remunerasi-source.destroy', $row->id) . '" class="btn btn-danger btn-sm btn-delete"><i class="ti ti-trash"></i></a>
                     ';

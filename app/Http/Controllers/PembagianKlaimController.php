@@ -205,12 +205,13 @@ class PembagianKlaimController extends Controller
                         $OPERATOR[] = $row_operasi->kode_dokteroperator;
                         if($row_operasi->kode_dokteranastesi != ""){
                             $ANESTESI = $row_operasi->kode_dokteranastesi;
+                            $PENATA = "9";
                         }
                         
                     }
-    
-                    $PENATA = "9";
                     $ASISTEN = "10";
+                   
+                  
                 }
                 if(in_array($row->id_kategori, [14])){
                         
@@ -261,11 +262,12 @@ class PembagianKlaimController extends Controller
                 }
     
             }
-
-            if(in_array($tpendaftaran->KDPOLY,[31,168,169])){
-                $TINDAKANRAJAL = "813";
-                $DPJP = "813";
-            }else if(in_array($tpendaftaran->KDPOLY,[101])){
+            
+            if(in_array(@$tpendaftaran->KDPOLY,[31,168,169])){
+                $TINDAKANRAJAL = $tpendaftaran->KDDOKTER;
+                $DPJP = "813" ;
+                
+            }else if(in_array(@$tpendaftaran->KDPOLY,[101])){
                 $TINDAKANRAJAL = "832";
                 $DPJP = "832";
             }
@@ -315,6 +317,8 @@ class PembagianKlaimController extends Controller
                                 $cluster = 1;
                             }else if($row->ppa == "STRUKTURAL"){
                                 $cluster = 3;
+                            }else if($row->ppa == "TERAPIS"){
+                                $cluster = 2;
                             }else if($row->ppa == "JTL"){
                                 $cluster = 4;
                             }else{
@@ -334,7 +338,11 @@ class PembagianKlaimController extends Controller
     
                         if($row['sumber'] == "HARGA"){
                             if($row['value'] > 1 ){
-                                $nilai_remunerasi = $row['value'];
+                                if(@$tpendaftaran->KDPOLY == 104){
+                                    $nilai_remunerasi = 20000;
+                                }else{
+                                    $nilai_remunerasi = $row['value'];
+                                }
                             }else{
                                 $nilai_remunerasi = $row['value'] * $data_sumber[$row['sumber']];
                             }
@@ -599,11 +607,12 @@ class PembagianKlaimController extends Controller
                         $OPERATOR[] = $row_operasi->kode_dokteroperator;
                         if($row_operasi->kode_dokteranastesi != ""){
                             $ANESTESI = $row_operasi->kode_dokteranastesi;
+                              $PENATA = "9";
                         }
                         
                     }
     
-                    $PENATA = "9";
+                  
                     $ASISTEN = "10";
                 }else if($row->UNIT == 17){
                     // cari dokter radiologi
@@ -1393,6 +1402,215 @@ class PembagianKlaimController extends Controller
                 ->make(true);
         }
         
+        return abort(404);
+    }
+    public function getByDetailSourcebySource(Request $request, $id)
+    {
+        if ($request->ajax()) {
+            $query = PembagianKlaim::where('remunerasi_source_id', $id)
+                                  ->where('del', false);
+            
+
+            
+            // Apply filters
+            if ($request->has('filter_nama_ppa') && !empty($request->filter_nama_ppa)) {
+                $query->where('nama_ppa', 'like', '%' . $request->filter_nama_ppa . '%');
+            }
+            
+            if ($request->has('filter_sumber') && !empty($request->filter_sumber)) {
+                $query->where('sumber', 'like', '%' . $request->filter_sumber . '%');
+            }
+            
+            if ($request->has('filter_cluster') && !empty($request->filter_cluster)) {
+                $query->where('cluster', $request->filter_cluster);
+            }
+            
+            if ($request->has('filter_ppa') && !empty($request->filter_ppa)) {
+                $query->where('ppa', 'like', '%' . $request->filter_ppa . '%');
+            }
+            
+            if ($request->has('filter_grade') && !empty($request->filter_grade)) {
+                $query->where('grade', 'like', '%' . $request->filter_grade . '%');
+            }
+            
+            if ($request->has('filter_jenis') && !empty($request->filter_jenis)) {
+                $query->where('jenis', 'like', '%' . $request->filter_jenis . '%');
+            }
+                                 
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('action', function($row){
+                    return '
+                        <a href="#" data-url="' . route('pembagian-klaim.show', $row->id) . '" class="btn btn-info btn-sm btn-edit" title="Edit">
+                            <i class="ti ti-pencil"></i>
+                        </a>
+                        <a href="#" data-url="' . route('pembagian-klaim.destroy', $row->id) . '" class="btn btn-danger btn-sm btn-delete" title="Hapus">
+                            <i class="ti ti-trash"></i>
+                        </a>
+                    ';
+                })
+                ->editColumn('tanggal', function($row) {
+                    return $row->tanggal ? $row->tanggal->format('d/m/Y') : '-';
+                })
+                ->addColumn('nilai_remunerasi', function($row) {
+                    $nilai = $row->nilai_remunerasi ?: $row->value ?: 0;
+                    return number_format($nilai, 0, ',', '.');
+                })
+                ->editColumn('cluster', function($row) {
+                    return 'Cluster ' . $row->cluster;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        
+        return abort(404);
+    }
+
+    public function getFilterDataBySource(Request $request, $id)
+    {
+        if ($request->ajax()) {
+            $filters = [
+                'nama_ppa' => [
+                    "AHLIGIZI",
+                    "ANALISLABKLINIK",
+                    "ASISTEN",
+                    "Abdul Kohar,dr. Sp.U",
+                    "Ahmad Husin,Sp.PD,M.Kes",
+                    "Aji Patriajati, dr. Sp.OG",
+                    "Akbar Mafaza, dr. Sp.OT",
+                    "Albert Tri Rustamaji, dr., Sp.PD",
+                    "Alfiyannul Akhsan, dr. Sp.B, Sp.B (K) Onk",
+                    "Aminah,dr,M.Sc,Sp.PK",
+                    "Andhika Aryandhie Dwiputra, dr",
+                    "Apoteker",
+                    "Aqilla Tiara Kartikaningtyas, drg. Sp.KG",
+                    "Ardhian Noor Wicaksono, dr. Sp.THT-KL",
+                    "Ari Jaka Setiawan,dr.,Sp.B",
+                    "Bayu Kurniawan Fitra, dr",
+                    "Bela Bagus Setiawan,dr. SP.PA",
+                    "Bobby Kennedy, dr. Sp. K.F.R, M.Ked.Klin",
+                    "Budi Wahono dr. SpAn",
+                    "Desyana Indira Putri,dr",
+                    "Dewi Novitasari Arifin, dr. Sp. BA",
+                    "Dinar Nastiti,dr",
+                    "Dwi Marhendra K D, dr. SpP",
+                    "Dyah Ariyantini, dr.,Sp.OG",
+                    "Eddy Cahyono, drg Sp.KGA",
+                    "Eddy Mulyono, dr., Sp.PD FINASIM",
+                    "Eka Handika Septistalia Anggraeni dr.",
+                    "Eko Sugihanto, dr. Sp.PD, FINASIM",
+                    "Enny Rohmawati dr. Sp.PK",
+                    "Erna Kristiyani, dr. Sp.KK",
+                    "Fetria Melani, dr. Sp.GK",
+                    "Giri Yurista, dr. B",
+                    "Hari Wahono Satrioaji, dr. Sp. S",
+                    "Heni Handayani,dr. Sp.An",
+                    "Hera Dwi Prihati, dr",
+                    "Heroe Joenianto, dr. SpM",
+                    "Hesti Kartika Sari, dr. Sp.A",
+                    "Hesti Mustiko Rini,dr",
+                    "I Gusti Nyoman Panji Putu Gawa,dr.Sp.An",
+                    "Ifrinda, dr. SpOG",
+                    "Isfandiyar Fahmi, dr., Msi,Med, Sp.A",
+                    "Iwan Prasetyo, dr. SpOG",
+                    "JTL",
+                    "Jeanne Koernia Melati dr.",
+                    "Joko Mardianto dr.",
+                    "Khozin Hasan, dr. SpOT",
+                    "M. Arifin, dr. Sp.B-KBD",
+                    "Musdalifah dr.,Sp.Rad",
+                    "Mustika Mahbubi, dr. Sp.JP, FIHA",
+                    "Nabila Syifa Marta Widanti, dr. Sp.KJ",
+                    "Nefrizal Wicaksono, dr. Sp. An-Ti",
+                    "Nimas Putri Pertiwi, dr",
+                    "Novy Oktaviana, dr. Sp. D.V.E",
+                    "Oktarina Nila Juwita, dr. SpM",
+                    "PENATA",
+                    "PENATABANKDARAH",
+                    "PERAWAT",
+                    "PERAWATHDRAJAL",
+                    "Perawat / Bidan",
+                    "RADIOGRAFER",
+                    "Reni Kurniawati, dr",
+                    "Rofii, dr. SpOT",
+                    "Rokhmad Widiatma, dr.,Sp.Rad",
+                    "STRUKTURAL",
+                    "Setyo Wulandari, dr",
+                    "Shofa Aji Setyoko, dr",
+                    "Siti Aisyah Elfa dr. Sp.JP",
+                    "Siti Fatkhurrohmah, S.Psi",
+                    "Siti Munawaroh dr.",
+                    "Siti Nurhikmah,dr,Sp.THT.KL,M.Kes",
+                    "Sri Ekawati, dr.  Sp.KK",
+                    "Sunaryo,dr. M.Kes, SpS",
+                    "Supramestiningsih dr.",
+                    "Suranti, dr. Sp.A",
+                    "Terapis",
+                    "Widi Antono, dr.,M.Kes, Sp.B",
+                    "Yarmaji, dr.Sp.KJ",
+                    "Yoseph Dwi Kurniawan, dr. Sp.P"
+                ],
+                'sumber' => [
+                    "EMBALACE",
+                    "HARGA",
+                    "TOTALBANKDARAH",
+                    "TOTALHD",
+                    "TOTALLPA",
+                    "TOTALPATKLIN",
+                    "TOTALRADIOLOGI",
+                    "VERIFIKASITOTAL"
+                ],
+                'cluster' => [
+                    1,
+                    2,
+                    3,
+                    4
+                ],
+                'ppa' => [
+                    "AHLIGIZI",
+                    "ANALISLABKLINIK",
+                    "ANESTESI",
+                    "ASISTEN",
+                    "Apoteker",
+                    "DOKTERHDRANAP",
+                    "DOKTERKONSUL",
+                    "DOKTERLPA",
+                    "DOKTERRABER",
+                    "DPJP",
+                    "DPJPRABER",
+                    "Dokter_Bank_Darah",
+                    "Dokter_Umum",
+                    "JTL",
+                    "KONSULEN",
+                    "LABORATORIST",
+                    "PENATA",
+                    "PENATABANKDARAH",
+                    "PERAWAT",
+                    "PERAWATHDRAJAL",
+                    "RADIOGRAFER",
+                    "RADIOLOGIST",
+                    "STRUKTURAL",
+                    "TINDAKANRAJAL"
+                ],
+                'grade' => [
+                    "GRADE1",
+                    "GRADE2",
+                    "GRADE3"
+                ],
+                'jenis' => [
+                    "NONPISAU",
+                    "PISAU",
+                    "Rawat Inap",
+                    "Rawat Jalan"
+                ]
+            ];
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $filters
+            ]);
+        }
+
         return abort(404);
     }
 

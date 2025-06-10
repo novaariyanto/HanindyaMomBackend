@@ -231,6 +231,7 @@ Route::middleware('auth')->group(function () {
     Route::get('detail-source/{id}', [DetailSourceController::class, 'show'])->name('detail-source.show');
     Route::put('detail-source/{id}', [DetailSourceController::class, 'update'])->name('detail-source.update');
     Route::delete('detail-source/{id}', [DetailSourceController::class, 'destroy'])->name('detail-source.destroy');
+    Route::get('detail-source/{id}/bySource', [DetailSourceController::class, 'showpembagian'])->name('detail-source.showpembagian');
     
     // List detail source by remunerasi source
     Route::get('remunerasi-source/{id}/details', [DetailSourceController::class, 'listBySource'])->name('detail-source.listBySource');
@@ -249,6 +250,11 @@ Route::middleware('auth')->group(function () {
     // Route untuk mendapatkan data pembagian klaim berdasarkan detail source
     Route::get('detail-source/{id}/pembagian-klaim', [PembagianKlaimController::class, 'getByDetailSource'])
         ->name('pembagian-klaim.getByDetailSource');
+    Route::get('detail-source/{id}/pembagian-klaim-bysource', [PembagianKlaimController::class, 'getByDetailSourcebySource'])
+    ->name('pembagian-klaim.getByDetailSourcebySource');
+    Route::get('detail-source/{id}/pembagian-klaim-filter-data', [PembagianKlaimController::class, 'getFilterDataBySource'])
+    ->name('pembagian-klaim.getFilterDataBySource');
+        
 
     Route::get('detail-source/get-unsynced-count/{sourceId}', [DetailSourceController::class, 'getUnsyncedCount'])->name('detail-source.get-unsynced-count');
     Route::post('detail-source/sync-batch/{sourceId}', [DetailSourceController::class, 'syncBatch'])->name('detail-source.sync-batch');

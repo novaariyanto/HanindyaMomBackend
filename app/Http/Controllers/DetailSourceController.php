@@ -110,6 +110,29 @@ class DetailSourceController extends Controller
                 ->with('error', 'Data tidak ditemukan');
         }
     }
+    public function showpembagian($id_remunerasi_source)
+    {
+        try {
+          
+
+            $detail = RemunerasiSource::with('batch')->findOrFail($id_remunerasi_source);
+            $result = \DB::table('detail_source')
+            ->where('id_remunerasi_source', $id_remunerasi_source)
+            ->selectRaw('SUM(total_remunerasi) as total,sum(biaya_riil_rs) as biaya_riil_rs,sum(biaya_disetujui) as biaya_disetujui, COUNT(*) as jumlah')
+            ->first();
+       
+        
+    
+           return view('detail-source.show-pembagian', compact('detail', 'result'));
+        } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return ResponseFormatter::error(null, 'Data tidak ditemukan');
+            }
+            print_r($e);
+            // return redirect()->route('remunerasi-source.index')
+            //     ->with('error', 'Data tidak ditemukan');
+        }
+    }
 
     /**
      * Mengupdate detail source.
