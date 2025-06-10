@@ -659,6 +659,7 @@ class DetailSourceController extends Controller
             $TOTALPATKLIN = 0;//v
             $TOTALRADIOLOGI = 0;//v
             $TOTALBDRS = 0;//
+            $TOTALHD = 0;
             $TINDAKANRAJAL_HARGA = 0;//
             $TOTALBANKDARAH = 0;
             $EMBALACE = 0;
@@ -699,6 +700,7 @@ class DetailSourceController extends Controller
             $Apoteker = "";
             $STRUKTURAL = 1;
             $JTL = 1;
+            $PENATABANKDARAH = "";
             
             
             foreach($databilling as $row){
@@ -717,12 +719,13 @@ class DetailSourceController extends Controller
                         $OPERATOR[] = $row_operasi->kode_dokteroperator;
                         if($row_operasi->kode_dokteranastesi != ""){
                             $ANESTESI = $row_operasi->kode_dokteranastesi;
+                            $PENATA = "9";
                         }
                         
                     }
-    
-                    $PENATA = "9";
                     $ASISTEN = "10";
+                   
+                  
                 }
                 if(in_array($row->id_kategori, [14])){
                         
@@ -741,6 +744,7 @@ class DetailSourceController extends Controller
                 if(in_array($row->id_kategori, [15])){
                         
                     $TOTALBANKDARAH += $row->TARIFRS;
+                    $PENATABANKDARAH = 19;
                      
                  }
             
@@ -761,9 +765,9 @@ class DetailSourceController extends Controller
                 }
                 if(in_array($row->id_kategori, [21])){
                     $HD  = $row->KDDOKTER;
-                    $DOKTERHDRANAP = $row->KDDOKTER;
+                    // $DOKTERHDRANAP = $row->KDDOKTER;
                     $TOTALHD += $row->TARIFRS;
-                    $PERAWAT_HD_RANAP = 8;
+                    $PERAWATHDRAJAL = 8;
                 }
                 
                 if(in_array($row->KODETARIF, ['07'])){
@@ -772,11 +776,12 @@ class DetailSourceController extends Controller
                 }
     
             }
-
-            if(in_array($tpendaftaran->KDPOLY,[31,168,169])){
-                $TINDAKANRAJAL = "813";
-                $DPJP = "813";
-            }else if(in_array($tpendaftaran->KDPOLY,[101])){
+            
+            if(in_array(@$tpendaftaran->KDPOLY,[31,168,169])){
+                $TINDAKANRAJAL = $tpendaftaran->KDDOKTER;
+                $DPJP = "813" ;
+                
+            }else if(in_array(@$tpendaftaran->KDPOLY,[101])){
                 $TINDAKANRAJAL = "832";
                 $DPJP = "832";
             }
@@ -826,6 +831,8 @@ class DetailSourceController extends Controller
                                 $cluster = 1;
                             }else if($row->ppa == "STRUKTURAL"){
                                 $cluster = 3;
+                            }else if($row->ppa == "TERAPIS"){
+                                $cluster = 2;
                             }else if($row->ppa == "JTL"){
                                 $cluster = 4;
                             }else{
@@ -845,7 +852,11 @@ class DetailSourceController extends Controller
     
                         if($row['sumber'] == "HARGA"){
                             if($row['value'] > 1 ){
-                                $nilai_remunerasi = $row['value'];
+                                if(@$tpendaftaran->KDPOLY == 104){
+                                    $nilai_remunerasi = 20000;
+                                }else{
+                                    $nilai_remunerasi = $row['value'];
+                                }
                             }else{
                                 $nilai_remunerasi = $row['value'] * $data_sumber[$row['sumber']];
                             }
@@ -902,16 +913,15 @@ class DetailSourceController extends Controller
 
             if( $TOTALBANKDARAH > 0){
                 $dokter_bankdarah = [705,133];
-                $persentase_bankdarah = [0.6,0.4];
+                $persentase_bankdarah = [0.03,0.02];
                 foreach($dokter_bankdarah as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
-                
                     $data = [
                         'groups'=>($data_detail_source->jenis == 'Rawat Jalan')?"RJTL":"RITL",
                         'jenis'=>$data_detail_source->jenis,
                         'grade'=>$grade,
                         'ppa'=>"Dokter_Bank_Darah",
-                        'value'=>$persentase_bankdarah[$key]*0.1,
+                        'value'=>$persentase_bankdarah[$key],
                         'sumber'=>'TOTALBANKDARAH',
                         'flag'=>'',
                         'del'=>0,
@@ -923,14 +933,15 @@ class DetailSourceController extends Controller
                         'tanggal'=>$data_detail_source->tgl_verifikasi,
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$dokter,
-                        'sumber_value'=>$data_sumber['TOTALBANKDARAH'],
-                        'nilai_remunerasi'=>$persentase_bankdarah[$key]*(0.1*$data_sumber['TOTALBANKDARAH']),
+                        'sumber_value'=>($data_sumber['TOTALBANKDARAH']),
+                        'nilai_remunerasi'=>$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
-                    $total_remunerasi += $persentase_bankdarah[$key]*(0.1*$data_sumber['TOTALBANKDARAH']);  
+                    $total_remunerasi += $persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
-            } 
+                
+            }
            
            
 
@@ -1088,6 +1099,7 @@ class DetailSourceController extends Controller
             $kddokter = [];
             $kddokter[] = $DPJP;
             $dokters_umum = [];
+            $PENATABANKDARAH = "";
             
 
             $billing= [];
@@ -1109,11 +1121,12 @@ class DetailSourceController extends Controller
                         $OPERATOR[] = $row_operasi->kode_dokteroperator;
                         if($row_operasi->kode_dokteranastesi != ""){
                             $ANESTESI = $row_operasi->kode_dokteranastesi;
+                              $PENATA = "9";
                         }
                         
                     }
     
-                    $PENATA = "9";
+                  
                     $ASISTEN = "10";
                 }else if($row->UNIT == 17){
                     // cari dokter radiologi
@@ -1160,6 +1173,7 @@ class DetailSourceController extends Controller
                 if(in_array($row->id_kategori, [15])){
                         
                    $TOTALBANKDARAH += $row->TARIFRS;
+                   $PENATABANKDARAH = 19;
                     
                 }
                
@@ -1336,16 +1350,15 @@ class DetailSourceController extends Controller
             
             if( $TOTALBANKDARAH > 0){
                 $dokter_bankdarah = [705,133];
-                $persentase_bankdarah = [0.6,0.4];
+                $persentase_bankdarah = [0.03,0.02];
                 foreach($dokter_bankdarah as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
-                
                     $data = [
                         'groups'=>($data_detail_source->jenis == 'Rawat Jalan')?"RJTL":"RITL",
                         'jenis'=>$data_detail_source->jenis,
                         'grade'=>$grade,
                         'ppa'=>"Dokter_Bank_Darah",
-                        'value'=>$persentase_bankdarah[$key]*0.1,
+                        'value'=>$persentase_bankdarah[$key],
                         'sumber'=>'TOTALBANKDARAH',
                         'flag'=>'',
                         'del'=>0,
@@ -1357,13 +1370,14 @@ class DetailSourceController extends Controller
                         'tanggal'=>$data_detail_source->tgl_verifikasi,
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$dokter,
-                        'sumber_value'=>(0.1*$data_sumber['TOTALBANKDARAH']),
-                        'nilai_remunerasi'=>$persentase_bankdarah[$key]*(0.1*$data_sumber['TOTALBANKDARAH']),
+                        'sumber_value'=>($data_sumber['TOTALBANKDARAH']),
+                        'nilai_remunerasi'=>$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
-                    $total_remunerasi += $persentase_bankdarah[$key]*(0.1*$data_sumber['TOTALBANKDARAH']);  
+                    $total_remunerasi += $persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
+                
             }
             
             if(count($dokters_umum) > 0){
@@ -1456,6 +1470,7 @@ class DetailSourceController extends Controller
             "data"=>$data_detail_source
         ];
     }
+    
     
     function groupAndCount(array $data): array {
         // Hitung jumlah kemunculan
