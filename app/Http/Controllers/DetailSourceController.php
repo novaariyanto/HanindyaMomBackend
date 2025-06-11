@@ -818,7 +818,7 @@ class DetailSourceController extends Controller
                 $jumlah = DB::connection('simrs')
                     ->table('penjualan as a')
                     ->join('detail_penjualan as b', 'a.id', '=', 'b.id_penjualan')
-                    ->where('a.id_pelanggan', '506637278')
+                    ->where('a.id_pelanggan', $idxdaftar)
                     ->orderByDesc('a.id')
                     ->selectRaw('COUNT(b.id) as jumlah')
                     ->first();
@@ -1246,7 +1246,7 @@ class DetailSourceController extends Controller
                 $jumlah = DB::connection('simrs')
                     ->table('penjualan as a')
                     ->join('detail_penjualan as b', 'a.id', '=', 'b.id_penjualan')
-                    ->where('a.id_pelanggan', '506637278')
+                    ->where('a.id_pelanggan', $idxdaftar)
                     ->orderByDesc('a.id')
                     ->selectRaw('COUNT(b.id) as jumlah')
                     ->first();
