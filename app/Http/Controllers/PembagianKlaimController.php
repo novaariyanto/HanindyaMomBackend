@@ -275,7 +275,9 @@ class PembagianKlaimController extends Controller
                 $DPJP = "832";
             }
 
-            if($EMBALACE > 0){
+             if($EMBALACE > 0){
+                
+                if($EMBALACE > 0){
                 
                 $jumlah = DB::connection('simrs')
                     ->table('penjualan as a')
@@ -285,6 +287,11 @@ class PembagianKlaimController extends Controller
                     ->selectRaw('COUNT(b.id) as jumlah')
                     ->first();
                
+               
+                $EMBALACE = $jumlah->jumlah*0.95;
+                
+            }
+             
                
                 $EMBALACE = $jumlah->jumlah*0.95;
                 
