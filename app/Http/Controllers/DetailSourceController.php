@@ -813,8 +813,6 @@ class DetailSourceController extends Controller
 
              if($EMBALACE > 0){
                 
-                if($EMBALACE > 0){
-                
                 $jumlah = DB::connection('simrs')
                     ->table('penjualan as a')
                     ->join('detail_penjualan as b', 'a.id', '=', 'b.id_penjualan')
@@ -823,11 +821,6 @@ class DetailSourceController extends Controller
                     ->selectRaw('COUNT(b.id) as jumlah')
                     ->first();
                
-               
-                $EMBALACE = $jumlah->jumlah*0.95;
-                
-            }
-             
                
                 $EMBALACE = $jumlah->jumlah*0.95;
                 
