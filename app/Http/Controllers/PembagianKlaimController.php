@@ -274,13 +274,25 @@ class PembagianKlaimController extends Controller
                 $DPJP = "832";
             }
 
-            if($EMBALACE > 0){
-                $count_detail_penjualan = 0;
-                $penjualan = Penjualan::with('detailPenjualan')->where('id_pelanggan', $idxdaftar)->get();
-                foreach($penjualan as $row){
-                    $count_detail_penjualan += $row->detailPenjualan->count();
-                }
-                $EMBALACE = $count_detail_penjualan*0.95;
+             if($EMBALACE > 0){
+                
+                if($EMBALACE > 0){
+                
+                $jumlah = DB::connection('simrs')
+                    ->table('penjualan as a')
+                    ->join('detail_penjualan as b', 'a.id', '=', 'b.id_penjualan')
+                    ->where('a.id_pelanggan', '506637278')
+                    ->orderByDesc('a.id')
+                    ->selectRaw('COUNT(b.id) as jumlah')
+                    ->first();
+               
+               
+                $EMBALACE = $jumlah->jumlah*0.95;
+                
+            }
+             
+               
+                $EMBALACE = $jumlah->jumlah*0.95;
                 
             }
             
@@ -693,12 +705,17 @@ class PembagianKlaimController extends Controller
         
 
             if($EMBALACE > 0){
-                $count_detail_penjualan = 0;
-                $penjualan = Penjualan::with('detailPenjualan')->where('id_pelanggan', $idxdaftar)->get();
-                foreach($penjualan as $row){
-                    $count_detail_penjualan += $row->detailPenjualan->count();
-                }
-                $EMBALACE = $count_detail_penjualan*0.95;
+                
+                $jumlah = DB::connection('simrs')
+                    ->table('penjualan as a')
+                    ->join('detail_penjualan as b', 'a.id', '=', 'b.id_penjualan')
+                    ->where('a.id_pelanggan', '506637278')
+                    ->orderByDesc('a.id')
+                    ->selectRaw('COUNT(b.id) as jumlah')
+                    ->first();
+               
+               
+                $EMBALACE = $jumlah->jumlah*0.95;
                 
             }
             
@@ -978,7 +995,6 @@ class PembagianKlaimController extends Controller
             "data"=>$data_detail_source
         ];
     }
-    
     
     
     function groupAndCount(array $data): array {
