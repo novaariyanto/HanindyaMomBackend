@@ -30,6 +30,8 @@ use App\Models\Tradiologi;
 use App\Models\Divisi;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use App\Models\Penjualan;
+use App\Models\DetailPenjualan;
 
 class DetailSourceController extends Controller
 {
