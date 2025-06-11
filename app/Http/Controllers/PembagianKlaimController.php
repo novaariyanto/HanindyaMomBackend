@@ -25,6 +25,8 @@ use App\Models\Grade;
 use Illuminate\Support\Facades\DB;
 use App\Models\Divisi;
 use App\Models\RemunerasiSource;
+use App\Models\Penjualan;
+use App\Models\DetailPenjualan;
 
 class PembagianKlaimController extends Controller
 {
@@ -270,6 +272,16 @@ class PembagianKlaimController extends Controller
             }else if(in_array(@$tpendaftaran->KDPOLY,[101])){
                 $TINDAKANRAJAL = "832";
                 $DPJP = "832";
+            }
+
+            if($EMBALACE > 0){
+                $count_detail_penjualan = 0;
+                $penjualan = Penjualan::with('detailPenjualan')->where('id_pelanggan', $idxdaftar)->get();
+                foreach($penjualan as $row){
+                    $count_detail_penjualan += $row->detailPenjualan->count();
+                }
+                $EMBALACE = $count_detail_penjualan*0.95;
+                
             }
             
             $data_sumber = [
@@ -679,6 +691,16 @@ class PembagianKlaimController extends Controller
                 }
             }
         
+
+            if($EMBALACE > 0){
+                $count_detail_penjualan = 0;
+                $penjualan = Penjualan::with('detailPenjualan')->where('id_pelanggan', $idxdaftar)->get();
+                foreach($penjualan as $row){
+                    $count_detail_penjualan += $row->detailPenjualan->count();
+                }
+                $EMBALACE = $count_detail_penjualan*0.95;
+                
+            }
             
         
             $data_sumber = [

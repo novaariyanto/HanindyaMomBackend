@@ -808,6 +808,16 @@ class DetailSourceController extends Controller
                 $TINDAKANRAJAL = "832";
                 $DPJP = "832";
             }
+
+            if($EMBALACE > 0){
+                $count_detail_penjualan = 0;
+                $penjualan = Penjualan::with('detailPenjualan')->where('id_pelanggan', $idxdaftar)->get();
+                foreach($penjualan as $row){
+                    $count_detail_penjualan += $row->detailPenjualan->count();
+                }
+                $EMBALACE = $count_detail_penjualan*0.95;
+                
+            }
             
             $data_sumber = [
                 "HARGA" => $TINDAKANRAJAL_HARGA,
@@ -1216,6 +1226,16 @@ class DetailSourceController extends Controller
                 }
             }
         
+
+            if($EMBALACE > 0){
+                $count_detail_penjualan = 0;
+                $penjualan = Penjualan::with('detailPenjualan')->where('id_pelanggan', $idxdaftar)->get();
+                foreach($penjualan as $row){
+                    $count_detail_penjualan += $row->detailPenjualan->count();
+                }
+                $EMBALACE = $count_detail_penjualan*0.95;
+                
+            }
             
         
             $data_sumber = [
