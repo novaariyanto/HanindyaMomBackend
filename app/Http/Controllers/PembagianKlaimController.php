@@ -23,6 +23,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\Grade;
 use Illuminate\Support\Facades\DB;
+
 use App\Models\Divisi;
 use App\Models\RemunerasiSource;
 use App\Models\Penjualan;
@@ -274,23 +275,16 @@ class PembagianKlaimController extends Controller
                 $DPJP = "832";
             }
 
-             if($EMBALACE > 0){
-                
-                if($EMBALACE > 0){
+            if($EMBALACE > 0){
                 
                 $jumlah = DB::connection('simrs')
                     ->table('penjualan as a')
                     ->join('detail_penjualan as b', 'a.id', '=', 'b.id_penjualan')
-                    ->where('a.id_pelanggan', '506637278')
+                    ->where('a.id_pelanggan', $idxdaftar)
                     ->orderByDesc('a.id')
                     ->selectRaw('COUNT(b.id) as jumlah')
                     ->first();
                
-               
-                $EMBALACE = $jumlah->jumlah*0.95;
-                
-            }
-             
                
                 $EMBALACE = $jumlah->jumlah*0.95;
                 
@@ -709,7 +703,7 @@ class PembagianKlaimController extends Controller
                 $jumlah = DB::connection('simrs')
                     ->table('penjualan as a')
                     ->join('detail_penjualan as b', 'a.id', '=', 'b.id_penjualan')
-                    ->where('a.id_pelanggan', '506637278')
+                    ->where('a.id_pelanggan', $idxdaftar)
                     ->orderByDesc('a.id')
                     ->selectRaw('COUNT(b.id) as jumlah')
                     ->first();
