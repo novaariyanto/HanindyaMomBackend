@@ -599,7 +599,7 @@ class DetailSourceController extends Controller
             ], 500);
         }
     }
-     function hitung($sourceId,DetailSource $detailSource) {
+    function hitung($sourceId,DetailSource $detailSource) {
       
        
         $failed = 0;

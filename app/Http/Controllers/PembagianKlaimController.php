@@ -63,7 +63,7 @@ class PembagianKlaimController extends Controller
         return view('pembagian-klaim.index');
     }
    
-     function hitung($sourceId,DetailSource $detailSource) {
+    function hitung($sourceId,DetailSource $detailSource) {
       
        
         $failed = 0;
@@ -989,7 +989,6 @@ class PembagianKlaimController extends Controller
             "data"=>$data_detail_source
         ];
     }
-    
     
     
     function groupAndCount(array $data): array {
