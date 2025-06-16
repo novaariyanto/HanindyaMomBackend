@@ -72,9 +72,12 @@ class PembagianKlaimController extends Controller
         $data_detail_source = $detailSource;
         // foreach($detail_source as $row){
             // $data_detail_source = $row;
+        $umum_efek = 0;
         if($data_detail_source->jenis == 'Rawat Jalan'){
             if(strpos($data_detail_source->no_sep,"-")){
+
                     //membaca idxdaftar dan nomr / pasien umum
+                  
                     $idxdaftar = $data_detail_source->idxdaftar;
                     $data_pendaftaran = Tpendaftaran::where('IDXDAFTAR',$idxdaftar)->first();
                     $totalTarifRs = $data_pendaftaran->getTotalTarifRsAttribute();
@@ -92,7 +95,8 @@ class PembagianKlaimController extends Controller
                         if($data_pendaftaran->KDPOLY == 201){
                             $persentase_selisih = 0;
                         }else{
-                            $persentase_selisih = 10;
+                            $persentase_selisih = 0;
+                            $umum_efek = 1;
                         }
                     }
                     
@@ -147,6 +151,7 @@ class PembagianKlaimController extends Controller
             $TOTALLPA = 0;//v
             $TOTALPATKLIN = 0;//v
             $TOTALRADIOLOGI = 0;//v
+            $TOTALRADIOLOGI_NonK = 0;
             $TOTALBDRS = 0;//
             $TOTALHD = 0;
             $TINDAKANRAJAL_HARGA = 0;//
@@ -238,8 +243,13 @@ class PembagianKlaimController extends Controller
                  }
             
                 if($row->UNIT == 17){
+                    if(in_array($row->id_kategori,["17","18","19"])){
+                        $TOTALRADIOLOGI_NonK += $row->TARIFRS;
+                    }else{
+                        $TOTALRADIOLOGI += $row->TARIFRS;
+                    }
                     // cari dokter radiologi
-                     $TOTALRADIOLOGI += $row->TARIFRS;
+                    
                     // $RADIOLOGIST = $row->KDDOKTER;
                     // cari dokterariologi
                     $radiologi = Tradiologi::where('IDXDAFTAR', $idxdaftar)->where('NOMR', $nomr)->first();
@@ -296,6 +306,7 @@ class PembagianKlaimController extends Controller
                 "TOTALPATKLIN" => $TOTALPATKLIN,
                 "TOTALLPA" => $TOTALLPA,
                 "TOTALRADIOLOGI" => $TOTALRADIOLOGI,
+                "TOTALRADIOLOGI_NK" => $TOTALRADIOLOGI_NonK,
                 "TOTALBDRS" => $TOTALBDRS,
                 "VERIFIKASITOTAL" => $VERIFIKASITOTAL,
                 "TOTALBANKDARAH" => $TOTALBANKDARAH
@@ -407,10 +418,10 @@ class PembagianKlaimController extends Controller
                             'nama_ppa'=>$nama_dokter,
                             'kode_dokter'=>@$kode_dokter,
                             'sumber_value'=>$data_sumber[$row['sumber']],
-                            'nilai_remunerasi'=>$nilai_remunerasi,
+                            'nilai_remunerasi'=>($umum_efek == 1)?0.78254*$nilai_remunerasi:$nilai_remunerasi,
                             'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                         ];     
-                        $total_remunerasi += $nilai_remunerasi;          
+                        $total_remunerasi += ($umum_efek == 1)?0.78254*$nilai_remunerasi:$nilai_remunerasi;          
                         $savePembagianKlaim = PembagianKlaim::create($data);
                     }
             } 
@@ -438,7 +449,7 @@ class PembagianKlaimController extends Controller
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$dokter,
                         'sumber_value'=>($data_sumber['TOTALBANKDARAH']),
-                        'nilai_remunerasi'=>$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
+                        'nilai_remunerasi'=>($umum_efek == 1)?0.78254*$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']:$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
                     $total_remunerasi += $persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
@@ -488,6 +499,7 @@ class PembagianKlaimController extends Controller
             // bpjps
             if(strpos($data_detail_source->no_sep,"-")){
                 //membaca idxdaftar dan nomr / pasien umum
+                
                 $idxdaftar = $data_detail_source->idxdaftar;
                 $data_admission = Tadmission::where('id_admission',$idxdaftar)->first();
                 $totalTarifRs = $data_admission->getTotalTarifRsAttribute();
@@ -497,10 +509,20 @@ class PembagianKlaimController extends Controller
     
     
                 $selisih = $totalTarifRs-$totalTarifRs;
-                $persentase_selisih = $selisih/$totalTarifRs;
-                $persentase_selisih = $persentase_selisih*100;
-                
-                $persentase_selisih = round($persentase_selisih, 2);
+            
+
+                 if($selisih > 0){
+                        $persentase_selisih = $selisih/$totalTarifRs;
+                        $persentase_selisih = $persentase_selisih*100;
+                        $persentase_selisih = round($persentase_selisih, 2);
+                    }else{
+                        if($data_admission->dokter_penanggungjawab == "895"){
+                            $persentase_selisih = 0;
+                        }else{
+                            $persentase_selisih = 0;
+                            $umum_efek = 1;
+                        }
+                    }
             
     
                 $grade = Grade::where('persentase', '>=', $persentase_selisih)
@@ -554,6 +576,7 @@ class PembagianKlaimController extends Controller
             $TOTALLPA = 0;//
             $TOTALPATKLIN = 0;//
             $TOTALRADIOLOGI = 0;//
+            $TOTALRADIOLOGI_NonK = 0;
             $TOTALBDRS = 0;//
             $TOTALHD = 0;
             $TOTALBANKDARAH = 0;
@@ -633,8 +656,13 @@ class PembagianKlaimController extends Controller
                   
                     $ASISTEN = "10";
                 }else if($row->UNIT == 17){
+                    if(in_array($row->id_kategori,["17","18","19"])){
+                        $TOTALRADIOLOGI_NonK += $row->TARIFRS;
+                    }else{
+                        $TOTALRADIOLOGI += $row->TARIFRS;
+                    }
                     // cari dokter radiologi
-                     $TOTALRADIOLOGI += $row->TARIFRS;
+                    
                     // $RADIOLOGIST = $row->KDDOKTER;
                     // cari dokterariologi
                     $radiologi = Tradiologi::where('IDXDAFTAR', $idxdaftar)->where('NOMR', $nomr)->first();
@@ -721,6 +749,7 @@ class PembagianKlaimController extends Controller
                 "TOTALPATKLIN" => $TOTALPATKLIN,
                 "TOTALLPA" => $TOTALLPA,
                 "TOTALRADIOLOGI" => $TOTALRADIOLOGI,
+                "TOTALRADIOLOGI_NK" => $TOTALRADIOLOGI_NonK,
                 "TOTALBDRS" => $TOTALBDRS,
                 "VERIFIKASITOTAL" => $VERIFIKASITOTAL,
                 "TOTALHD" => $TOTALHD,
@@ -852,10 +881,10 @@ class PembagianKlaimController extends Controller
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$kode_dokter,
                         'sumber_value'=>$data_sumber[$row['sumber']],
-                        'nilai_remunerasi'=>$nilai_remunerasi,
+                        'nilai_remunerasi'=>($umum_efek)?0.78254*$nilai_remunerasi:$nilai_remunerasi,
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ]; 
-                    $total_remunerasi += $nilai_remunerasi;        
+                    $total_remunerasi += ($umum_efek)?0.78254*$nilai_remunerasi:$nilai_remunerasi;        
                          
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
@@ -890,10 +919,10 @@ class PembagianKlaimController extends Controller
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$dokter,
                         'sumber_value'=>($data_sumber['TOTALBANKDARAH']),
-                        'nilai_remunerasi'=>$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
+                        'nilai_remunerasi'=>($umum_efek==1)?0.78254*($persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']):$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
-                    $total_remunerasi += $persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
+                    $total_remunerasi += ($umum_efek==1)?0.78254*($persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']):$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
                 
@@ -921,10 +950,10 @@ class PembagianKlaimController extends Controller
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$dokter,
                         'sumber_value'=>(1/count($dokters_umum))*$data_sumber['VERIFIKASITOTAL'],
-                        'nilai_remunerasi'=>(1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL'],
+                        'nilai_remunerasi'=>($umum_efek==1)?0.78254*((1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL']):(1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL'],
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
-                    $total_remunerasi += (1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL'];  
+                    $total_remunerasi += ($umum_efek==1)?0.78254*((1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL']):(1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL'];  
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
             }
@@ -989,6 +1018,7 @@ class PembagianKlaimController extends Controller
             "data"=>$data_detail_source
         ];
     }
+    
     
     
     function groupAndCount(array $data): array {
@@ -1468,6 +1498,9 @@ class PembagianKlaimController extends Controller
             if ($request->has('filter_jenis') && !empty($request->filter_jenis)) {
                 $query->where('jenis', 'like', '%' . $request->filter_jenis . '%');
             }
+               if ($request->has('filter_group') && !empty($request->filter_group)) {
+                $query->where('groups', 'like', '%' . $request->filter_group . '%');
+            }
                                  
             return DataTables::of($query)
                 ->addIndexColumn()
@@ -1634,6 +1667,10 @@ class PembagianKlaimController extends Controller
                     "PISAU",
                     "Rawat Inap",
                     "Rawat Jalan"
+                ],
+                'group'=>[
+                    'RITL',
+                    'RJTL'
                 ]
             ];
 

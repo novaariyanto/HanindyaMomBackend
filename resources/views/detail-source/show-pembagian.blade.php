@@ -151,6 +151,12 @@
                                 <option value="">Semua Jenis</option>
                             </select>
                         </div>
+                           <div class="col-md-2">
+                            <label for="filter_groups" class="form-label">Filter Groups</label>
+                            <select class="form-select" id="filter_group">
+                                <option value="">Semua Group</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div class="row mb-3">
@@ -166,12 +172,14 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>Sep</th>
                                     <th>PPA</th>
                                     <th>Sumber</th>
                                     <th>Cluster</th>
                                     <th>Jenis PPA</th>
                                     <th>Grade</th>
                                     <th>Jenis</th>
+                                    <th>Group</th>
                                     <th>Nilai Remunerasi</th>
                                 </tr>
                             </thead>
@@ -231,16 +239,19 @@ $(document).ready(function() {
                 d.filter_ppa = $('#filter_ppa').val();
                 d.filter_grade = $('#filter_grade').val();
                 d.filter_jenis = $('#filter_jenis').val();
+                d.filter_group = $('#filter_group').val();
             }
         },
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+             { data: 'sep', name: 'sep' },
             { data: 'nama_ppa', name: 'nama_ppa' },
             { data: 'sumber', name: 'sumber' },
             { data: 'cluster', name: 'cluster' },
             { data: 'ppa', name: 'ppa' },
             { data: 'grade', name: 'grade' },
             { data: 'jenis', name: 'jenis' },
+            { data: 'groups', name: 'groups' },
             {
                 data: 'nilai_remunerasi',
                 name: 'nilai_remunerasi',
@@ -251,9 +262,6 @@ $(document).ready(function() {
            
         ],
         order: [[1, 'desc']],
-        language: {
-            url: "{{ asset('assets/js/id.json') }}"
-        },
         scrollX: true
     });
 
@@ -280,13 +288,13 @@ $(document).ready(function() {
     });
 
     // Handle filter changes
-    $('#filter_nama_ppa, #filter_sumber, #filter_cluster, #filter_ppa, #filter_grade, #filter_jenis').on('change', function() {
+    $('#filter_nama_ppa, #filter_sumber, #filter_cluster, #filter_ppa, #filter_grade, #filter_jenis,#filter_group').on('change', function() {
         pembagianKlaimTable.draw();
     });
 
     // Handle reset filters
     $('#resetFilters').on('click', function() {
-        $('#filter_nama_ppa, #filter_sumber, #filter_cluster, #filter_ppa, #filter_grade, #filter_jenis').val('');
+        $('#filter_nama_ppa, #filter_sumber, #filter_cluster, #filter_ppa, #filter_grade, #filter_jenis,#filter_group').val('');
         pembagianKlaimTable.draw();
     });
 
