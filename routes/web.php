@@ -43,6 +43,7 @@ use App\Http\Controllers\KategoriIndeksJasaTidakLangsungController;
 use App\Http\Controllers\PegawaiStrukturalController;
 use App\Http\Controllers\SubClusterController;
 use App\Http\Controllers\JtlPegawaiIndeksController;
+use App\Http\Controllers\JtldataController;
 
 Route::get('/faces/{filename}', function ($filename) {
     $path = storage_path('app/public/faces/' . $filename);
@@ -218,14 +219,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('sumber', SumberController::class);
 
-    Route::resource('remunerasi-batch', RemunerasiBatchController::class);
     Route::post('remunerasi-batch/{id}/finalize', [RemunerasiBatchController::class, 'finalize'])->name('remunerasi-batch.finalize');
-
-    Route::resource('detail-source', DetailSourceController::class);
-    Route::get('detail-source/list/{sourceId}', [DetailSourceController::class, 'listBySource'])->name('detail-source.listBySource');
-    Route::get('detail-source/data/{sourceId}', [DetailSourceController::class, 'getBySource'])->name('detail-source.getBySource');
-    Route::post('detail-source/import/{sourceId}', [DetailSourceController::class, 'import'])->name('detail-source.import');
-    Route::get('detail-source/template/download', [DetailSourceController::class, 'downloadTemplate'])->name('detail-source.template');
 
     // Detail Source routes
     Route::get('detail-source', [DetailSourceController::class, 'index'])->name('detail-source.index');
@@ -234,10 +228,28 @@ Route::middleware('auth')->group(function () {
     Route::put('detail-source/{id}', [DetailSourceController::class, 'update'])->name('detail-source.update');
     Route::delete('detail-source/{id}', [DetailSourceController::class, 'destroy'])->name('detail-source.destroy');
     Route::get('detail-source/{id}/bySource', [DetailSourceController::class, 'showpembagian'])->name('detail-source.showpembagian');
+    Route::get('detail-source/list/{sourceId}', [DetailSourceController::class, 'listBySource'])->name('detail-source.listBySource');
+    Route::get('detail-source/data/{sourceId}', [DetailSourceController::class, 'getBySource'])->name('detail-source.getBySource');
+    Route::post('detail-source/import/{sourceId}', [DetailSourceController::class, 'import'])->name('detail-source.import');
+    Route::get('detail-source/template/download', [DetailSourceController::class, 'downloadTemplate'])->name('detail-source.template');
     
     // List detail source by remunerasi source
     Route::get('remunerasi-source/{id}/details', [DetailSourceController::class, 'listBySource'])->name('detail-source.listBySource');
     Route::get('remunerasi-source/{id}/details/data', [DetailSourceController::class, 'getBySource'])->name('detail-source.getBySource');
+    Route::get('remunerasi-source/{id}/pegawai-indeks-source', [DetailSourceController::class, 'listIndeksbySource'])->name('detail-source.listIndeksbySource');
+    
+    // Routes untuk Indeks Pegawai Source
+    Route::get('remunerasi-source/{sourceId}/indeks-pegawai/data', [DetailSourceController::class, 'getIndeksBySource'])->name('indeks-pegawai.data');
+    Route::post('remunerasi-source/{sourceId}/indeks-pegawai', [DetailSourceController::class, 'storeIndeksPegawai'])->name('indeks-pegawai.store');
+    Route::get('indeks-pegawai/{id}/show', [DetailSourceController::class, 'showIndeksPegawai'])->name('indeks-pegawai.show');
+    Route::get('indeks-pegawai/{id}/edit', [DetailSourceController::class, 'showIndeksPegawai'])->name('indeks-pegawai.edit');
+    Route::put('indeks-pegawai/{id}', [DetailSourceController::class, 'updateIndeksPegawai'])->name('indeks-pegawai.update');
+    Route::delete('indeks-pegawai/{id}', [DetailSourceController::class, 'destroyIndeksPegawai'])->name('indeks-pegawai.destroy');
+    
+    // Routes untuk Sinkronisasi Indeks Pegawai Source
+    Route::post('remunerasi-source/{sourceId}/indeks-pegawai/sync', [DetailSourceController::class, 'syncIndeksPegawaiSource'])->name('indeks-pegawai.sync');
+    Route::post('remunerasi-source/{sourceId}/indeks-pegawai/sync-batch', [DetailSourceController::class, 'syncIndeksPegawaiBatch'])->name('indeks-pegawai.sync-batch');
+    Route::get('remunerasi-source/{sourceId}/indeks-pegawai/sync-count', [DetailSourceController::class, 'getIndeksPegawaiSyncCount'])->name('indeks-pegawai.sync-count');
 
     // Routes untuk Pembagian Klaim
     Route::get('pembagian-klaim', [PembagianKlaimController::class, 'index'])->name('pembagian-klaim.index');
@@ -335,7 +347,7 @@ Route::middleware('auth')->group(function () {
     Route::get('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'show'])->name('indeks-pegawai.show');
     Route::get('indeks-pegawai/{id}/detail', [IndeksPegawaiController::class, 'show'])->name('indeks-pegawai.detail');
     Route::put('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'update'])->name('indeks-pegawai.update');
-    Route::delete('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'destroy'])->name('indeks-pegawai.destroy');
+    // Route::delete('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'destroy'])->name('indeks-pegawai.destroy');
     Route::post('indeks-pegawai/{id}/restore', [IndeksPegawaiController::class, 'restore'])->name('indeks-pegawai.restore');
     Route::delete('indeks-pegawai/{id}/force-delete', [IndeksPegawaiController::class, 'forceDelete'])->name('indeks-pegawai.force-delete');
     Route::post('indeks-pegawai/sync', [IndeksPegawaiController::class, 'sync'])->name('indeks-pegawai.sync');
@@ -386,6 +398,13 @@ Route::middleware('auth')->group(function () {
     Route::get('sub-cluster/{id}/edit', [SubClusterController::class, 'edit'])->name('sub-cluster.edit');
     Route::put('sub-cluster/{id}', [SubClusterController::class, 'update'])->name('sub-cluster.update');
     Route::delete('sub-cluster/{id}', [SubClusterController::class, 'destroy'])->name('sub-cluster.destroy');
+
+    // JTL Data Routes
+    Route::get('jtldata', [JtldataController::class, 'index'])->name('jtldata.index');
+    Route::post('jtldata', [JtldataController::class, 'store'])->name('jtldata.store');
+    Route::get('jtldata/{id}', [JtldataController::class, 'show'])->name('jtldata.show');
+    Route::put('jtldata/{id}', [JtldataController::class, 'update'])->name('jtldata.update');
+    Route::delete('jtldata/{id}', [JtldataController::class, 'destroy'])->name('jtldata.destroy');
 });
 
 require __DIR__.'/auth.php';
