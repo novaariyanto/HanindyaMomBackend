@@ -1076,6 +1076,7 @@ class DetailSourceController extends Controller
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
                 
+                
                 $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
                 $selisih = $selisih*-1;
                 if ($data_detail_source->biaya_disetujui != 0) {
@@ -1105,7 +1106,7 @@ class DetailSourceController extends Controller
             $tadmission = Tadmission::where('id_admission', $idxdaftar)->first();
             $databilling = Tbillranap::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
             $databilling_rajal = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
-          
+        
     
             
             $pisau = 0; //
@@ -1679,6 +1680,14 @@ class DetailSourceController extends Controller
                 if($tbpjs){
                     $idxdaftar = $tbpjs->idxdaftar;
                     $nomr = $tbpjs->peserta_noMr;
+                    if($idxdaftar == ""){
+                         $tpendaftaran = Tpendaftaran::where('NOMR', $nomr)->first(); 
+                        
+                        if($tpendaftaran){
+                            $idxdaftar = $tpendaftaran->IDXDAFTAR;
+                            
+                        }
+                    }
                     if($nomr == ""){
                         $response = $tbpjs->responseJSON;
                         $nomr = $this->ambilNoMR($response);
