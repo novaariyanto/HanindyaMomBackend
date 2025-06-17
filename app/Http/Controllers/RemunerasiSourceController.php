@@ -28,6 +28,7 @@ class RemunerasiSourceController extends Controller
                         <a href="' . route('detail-source.listBySource', $row->id) . '" class="btn btn-info btn-sm" title="Lihat Detail Source">
                             <i class="ti ti-list"></i>
                         </a>
+                        
                         <a href="#" data-url="' . route('remunerasi-source.show', $row->id) . '" class="btn btn-warning btn-sm btn-edit" title="Edit">
                             <i class="ti ti-pencil"></i>
                         </a>
@@ -155,6 +156,9 @@ class RemunerasiSourceController extends Controller
                         </a>
                           <a href="' . route('detail-source.showpembagian', ['id' => $row->id]) . '" class="btn btn-secondary btn-sm" title="Lihat Laporan Pembagian Klaim">
                             <i class="ti ti-eye"></i>
+                        </a>
+                        <a href="' . route('detail-source.listIndeksbySource', $row->id) . '" class="btn btn-primary btn-sm" title="Proses JTL">
+                            <i class="ti ti-plus"></i>
                         </a>
                         <a href="#" data-url="' . route('remunerasi-source.show', $row->id) . '" class="btn btn-info btn-sm btn-edit"><i class="ti ti-pencil"></i></a>
                         <a href="#" data-url="' . route('remunerasi-source.destroy', $row->id) . '" class="btn btn-danger btn-sm btn-delete"><i class="ti ti-trash"></i></a>

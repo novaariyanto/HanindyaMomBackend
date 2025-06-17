@@ -32,6 +32,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Models\Penjualan;
 use App\Models\DetailPenjualan;
+use App\Models\JtlPegawaiIndeksSource;
+use App\Models\JtlPegawaiIndeks;
 
 class DetailSourceController extends Controller
 {
@@ -191,6 +193,336 @@ class DetailSourceController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('remunerasi-source.index')
                 ->with('error', 'Source tidak ditemukan');
+        }
+    }
+    public function listIndeksbySource($sourceId) {
+        $remunerasiSource = RemunerasiSource::findOrFail($sourceId);
+        $remunerasiSources = RemunerasiSource::where('status', 'aktif')->get();
+        return view('remunerasi-source.indekspegawaisource', compact('remunerasiSource', 'remunerasiSources', 'sourceId'));
+    }
+
+    /**
+     * Get data indeks pegawai berdasarkan remunerasi source untuk DataTables.
+     */
+    public function getIndeksBySource(Request $request, $sourceId)
+    {
+        if ($request->ajax()) {
+            $data = JtlPegawaiIndeksSource::with(['remunerasiSource', 'pegawai', 'unitKerja'])
+                ->where('remunerasi_source', $sourceId);
+            
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function($row){
+                    return '
+                      
+                        <a href="#" data-url="' . route('indeks-pegawai.destroy', $row->id) . '" class="btn btn-danger btn-sm btn-delete" title="Hapus">
+                            <i class="ti ti-trash"></i>
+                        </a>
+                    ';
+                })
+                ->editColumn('nama_pegawai', function($row) {
+                    return $row->nama_pegawai ?: ($row->pegawai ? $row->pegawai->nama : '-');
+                })
+                ->editColumn('unit_kerja', function($row) {
+                    return $row->unitKerja ? $row->unitKerja->nama : '-';
+                })
+               
+                
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        
+        return abort(404);
+    }
+
+    /**
+     * Menyimpan indeks pegawai source baru.
+     */
+    public function storeIndeksPegawai(Request $request, $sourceId)
+    {
+        $validator = Validator::make($request->all(), [
+            'id_pegawai' => 'required|exists:pegawai,id',
+            'dasar' => 'required|numeric|min:0',
+            'kompetensi' => 'required|numeric|min:0',
+            'resiko' => 'required|numeric|min:0',
+            'emergensi' => 'required|numeric|min:0',
+            'posisi' => 'required|numeric|min:0',
+            'kinerja' => 'required|numeric|min:0',
+            'rekening' => 'nullable|string|max:50',
+            'pajak' => 'nullable|numeric|min:0',
+            'unit_kerja_id' => 'required|exists:unit_kerja,id',
+            'nama_pegawai' => 'required|string|max:255',
+            'nik' => 'required|string|max:20'
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseFormatter::error($validator->errors(), 'Validasi gagal', 422);
+        }
+
+        try {
+            $data = $request->all();
+            $data['remunerasi_source'] = $sourceId;
+            
+            JtlPegawaiIndeksSource::create($data);
+            return ResponseFormatter::success(null, 'Data indeks pegawai berhasil disimpan');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Data gagal disimpan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Menampilkan detail indeks pegawai source.
+     */
+    public function showIndeksPegawai($id)
+    {
+        try {
+            if (request()->ajax()) {
+                $data = JtlPegawaiIndeksSource::with(['remunerasiSource', 'pegawai', 'unitKerja'])->findOrFail($id);
+                return ResponseFormatter::success($data, 'Data berhasil diambil');
+            }
+
+            $indeks = JtlPegawaiIndeksSource::with(['remunerasiSource', 'pegawai', 'unitKerja'])->findOrFail($id);
+            return view('remunerasi-source.show-indeks', compact('indeks'));
+        } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return ResponseFormatter::error(null, 'Data tidak ditemukan');
+            }
+            
+            return redirect()->back()->with('error', 'Data tidak ditemukan');
+        }
+    }
+
+    /**
+     * Mengupdate indeks pegawai source.
+     */
+    public function updateIndeksPegawai(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'id_pegawai' => 'required|exists:pegawai,id',
+            'dasar' => 'required|numeric|min:0',
+            'kompetensi' => 'required|numeric|min:0',
+            'resiko' => 'required|numeric|min:0',
+            'emergensi' => 'required|numeric|min:0',
+            'posisi' => 'required|numeric|min:0',
+            'kinerja' => 'required|numeric|min:0',
+            'rekening' => 'nullable|string|max:50',
+            'pajak' => 'nullable|numeric|min:0',
+            'unit_kerja_id' => 'required|exists:unit_kerja,id',
+            'nama_pegawai' => 'required|string|max:255',
+            'nik' => 'required|string|max:20'
+        ]);
+
+        if ($validator->fails()) {
+            return ResponseFormatter::error($validator->errors(), 'Validasi gagal', 422);
+        }
+
+        try {
+            $indeksPegawai = JtlPegawaiIndeksSource::findOrFail($id);
+            $indeksPegawai->update($request->all());
+            return ResponseFormatter::success(null, 'Data indeks pegawai berhasil diupdate');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Data gagal diupdate: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Menghapus indeks pegawai source.
+     */
+    public function destroyIndeksPegawai($id)
+    {
+        try {
+            $indeksPegawai = JtlPegawaiIndeksSource::findOrFail($id);
+            $indeksPegawai->delete();
+            return ResponseFormatter::success(null, 'aData indeks pegawai berhasil dihapus');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Data gagal dihapus: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Sinkronisasi data indeks pegawai dari tabel JtlPegawaiIndeks ke JtlPegawaiIndeksSource
+     */
+    public function syncIndeksPegawaiSource(Request $request, $sourceId)
+    {
+        try {
+            // Validasi apakah source ID exists
+            $remunerasiSource = RemunerasiSource::findOrFail($sourceId);
+            
+            // Ambil data dari JtlPegawaiIndeks
+            $jtlPegawaiIndeks = JtlPegawaiIndeks::with(['pegawai', 'unitKerja'])->get();
+            
+            $syncedCount = 0;
+            $updatedCount = 0;
+            $skippedCount = 0;
+            $errors = [];
+
+            foreach ($jtlPegawaiIndeks as $indeks) {
+                try {
+                    // Cek apakah data sudah ada berdasarkan id_pegawai dan remunerasi_source
+                    $existingData = JtlPegawaiIndeksSource::where([
+                        'id_pegawai' => $indeks->id_pegawai,
+                        'remunerasi_source' => $sourceId
+                    ])->first();
+
+                    $dataToSync = [
+                        'id_pegawai' => $indeks->id_pegawai,
+                        'remunerasi_source' => $sourceId,
+                        'dasar' => $indeks->dasar,
+                        'kompetensi' => $indeks->kompetensi,
+                        'resiko' => $indeks->resiko,
+                        'emergensi' => $indeks->emergensi,
+                        'posisi' => $indeks->posisi,
+                        'kinerja' => $indeks->kinerja,
+                        'rekening' => $indeks->rekening,
+                        'pajak' => $indeks->pajak,
+                        'unit_kerja_id' => $indeks->unit_kerja_id,
+                        'nama_pegawai' => $indeks->nama_pegawai,
+                        'nik' => $indeks->nik
+                    ];
+
+                    if ($existingData) {
+                        // Update data yang sudah ada
+                        $existingData->update($dataToSync);
+                        $updatedCount++;
+                    } else {
+                        // Buat data baru
+                        JtlPegawaiIndeksSource::create($dataToSync);
+                        $syncedCount++;
+                    }
+
+                } catch (\Exception $e) {
+                    $skippedCount++;
+                    $errors[] = "Error pada pegawai ID {$indeks->id_pegawai}: " . $e->getMessage();
+                }
+            }
+
+            $message = "Sinkronisasi selesai. Ditambahkan: {$syncedCount}, Diupdate: {$updatedCount}";
+            if ($skippedCount > 0) {
+                $message .= ", Dilewati: {$skippedCount}";
+            }
+
+            return ResponseFormatter::success([
+                'synced' => $syncedCount,
+                'updated' => $updatedCount,
+                'skipped' => $skippedCount,
+                'errors' => $errors
+            ], $message);
+
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Sinkronisasi gagal: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Sinkronisasi batch data indeks pegawai dengan progress tracking
+     */
+    public function syncIndeksPegawaiBatch(Request $request, $sourceId)
+    {
+        try {
+            $limit = $request->input('limit', 50); // Default 50 records per batch
+            $offset = $request->input('offset', 0);
+            
+            // Validasi apakah source ID exists
+            $remunerasiSource = RemunerasiSource::findOrFail($sourceId);
+            
+            // Ambil data dari JtlPegawaiIndeks dengan limit dan offset
+            $jtlPegawaiIndeks = JtlPegawaiIndeks::with(['pegawai', 'unitKerja'])
+                ->skip($offset)
+                ->take($limit)
+                ->get();
+            
+            $syncedCount = 0;
+            $updatedCount = 0;
+            $skippedCount = 0;
+            $errors = [];
+
+            foreach ($jtlPegawaiIndeks as $indeks) {
+                try {
+                    // Cek apakah data sudah ada berdasarkan id_pegawai dan remunerasi_source
+                    $existingData = JtlPegawaiIndeksSource::where([
+                        'id_pegawai' => $indeks->id_pegawai,
+                        'remunerasi_source' => $sourceId
+                    ])->first();
+
+                    $dataToSync = [
+                        'id_pegawai' => $indeks->id_pegawai,
+                        'remunerasi_source' => $sourceId,
+                        'dasar' => $indeks->dasar,
+                        'kompetensi' => $indeks->kompetensi,
+                        'resiko' => $indeks->resiko,
+                        'emergensi' => $indeks->emergensi,
+                        'posisi' => $indeks->posisi,
+                        'kinerja' => $indeks->kinerja,
+                        'rekening' => $indeks->rekening,
+                        'pajak' => $indeks->pajak,
+                        'unit_kerja_id' => $indeks->unit_kerja_id,
+                        'nama_pegawai' => $indeks->nama_pegawai,
+                        'nik' => $indeks->nik
+                    ];
+
+                    if ($existingData) {
+                        // Update data yang sudah ada
+                        $existingData->update($dataToSync);
+                        $updatedCount++;
+                    } else {
+                        // Buat data baru
+                        JtlPegawaiIndeksSource::create($dataToSync);
+                        $syncedCount++;
+                    }
+
+                } catch (\Exception $e) {
+                    $skippedCount++;
+                    $errors[] = "Error pada pegawai ID {$indeks->id_pegawai}: " . $e->getMessage();
+                }
+            }
+
+            // Cek apakah masih ada data yang perlu diproses
+            $totalRecords = JtlPegawaiIndeks::count();
+            $processedRecords = $offset + $limit;
+            $hasMore = $processedRecords < $totalRecords;
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'processed' => $syncedCount + $updatedCount + $skippedCount,
+                    'synced' => $syncedCount,
+                    'updated' => $updatedCount,
+                    'skipped' => $skippedCount,
+                    'errors' => $errors,
+                    'hasMore' => $hasMore,
+                    'totalRecords' => $totalRecords,
+                    'processedRecords' => min($processedRecords, $totalRecords)
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Sinkronisasi gagal: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get total count data yang akan disinkronisasi
+     */
+    public function getIndeksPegawaiSyncCount($sourceId)
+    {
+        try {
+            $totalCount = JtlPegawaiIndeks::count();
+            $existingCount = JtlPegawaiIndeksSource::where('remunerasi_source', $sourceId)->count();
+            
+            return response()->json([
+                'success' => true,
+                'total' => $totalCount,
+                'existing' => $existingCount,
+                'new' => max(0, $totalCount - $existingCount)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
