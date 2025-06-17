@@ -9,7 +9,7 @@ class UnitKerja extends Model
     //
     protected $connection = 'eprofile';
     protected $table = 'unit_kerja';
-    protected $fillable = ['nama', 'is_deleted'];
+    protected $fillable = ['nama'];
 
     public function pegawaiMutasi()
     {

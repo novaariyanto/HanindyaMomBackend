@@ -37,6 +37,7 @@
                             <th>No</th>
                             <th>Nama Indeks</th>
                             <th>Nilai</th>
+                            <th>Bobot</th>
                             <th>Kategori</th>
                             <th>Opsi</th>
                         </tr>
@@ -68,6 +69,10 @@
                     <div class="mb-3">
                         <label class="form-label">Nilai</label>
                         <input type="number" step="0.01" class="form-control" name="nilai" required min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Bobot</label>
+                        <input value="1" type="number" step="0.01" class="form-control" name="bobot" required min="0">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Kategori</label>
@@ -106,6 +111,10 @@
                         <input type="number" step="0.01" class="form-control" name="nilai" id="edit_nilai" required min="0">
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Bobot</label>
+                        <input value="1" type="number" step="0.01" class="form-control" name="bobot" id="edit_bobot" required min="0">
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Kategori</label>
                         <select class="form-control" name="kategori_id" id="edit_kategori_id" required>
                             <option value="">Pilih Kategori</option>
@@ -127,7 +136,7 @@
 <script>
 $(document).ready(function() {
     // Load kategori data
-    function loadKategori() {
+    function loadKategori(selectedValue = null, targetSelect = null) {
         $.ajax({
             url: '{{ route('kategori-non-medis.index') }}',
             type: 'GET',
@@ -143,12 +152,26 @@ $(document).ready(function() {
                         }
                     });
                 }
-                $('#kategori_id, #edit_kategori_id').html(options);
+                
+                if (targetSelect) {
+                    // Update specific select element
+                    $(targetSelect).html(options);
+                    if (selectedValue) {
+                        $(targetSelect).val(selectedValue);
+                    }
+                } else {
+                    // Update all select elements
+                    $('#kategori_id, #edit_kategori_id').html(options);
+                }
             },
             error: function(xhr) {
                 console.error('Error loading kategori:', xhr);
                 // Fallback jika gagal load kategori
-                $('#kategori_id, #edit_kategori_id').html('<option value="">Gagal memuat kategori</option>');
+                if (targetSelect) {
+                    $(targetSelect).html('<option value="">Gagal memuat kategori</option>');
+                } else {
+                    $('#kategori_id, #edit_kategori_id').html('<option value="">Gagal memuat kategori</option>');
+                }
             }
         });
     }
@@ -172,6 +195,7 @@ $(document).ready(function() {
             },
             {data: 'nama_indeks', name: 'nama_indeks'},
             {data: 'nilai', name: 'nilai'},
+            {data: 'bobot', name: 'bobot'},
             {data: 'kategori', name: 'kategori'},
             {
                 data: 'action',
@@ -198,8 +222,12 @@ $(document).ready(function() {
                 var data = response.data;
                 $('#editForm').attr('action', url);
                 $('#edit_nama_indeks').val(data.nama_indeks);
+                $('#edit_bobot').val(data.bobot);
                 $('#edit_nilai').val(data.nilai);
-                $('#edit_kategori_id').val(data.kategori_indeks_jasa_langsung_non_medis_id);
+                
+                // Load kategori dengan auto select
+                loadKategori(data.kategori_indeks_jasa_langsung_non_medis_id, '#edit_kategori_id');
+                
                 $('#editModal').modal('show');
             }
         });
@@ -227,9 +255,11 @@ $(document).ready(function() {
         loadKategori();
     });
 
-    // Reload kategori when edit modal is shown
+    // Reload kategori when edit modal is shown (hanya jika belum ada options)
     $('#editModal').on('show.bs.modal', function () {
-        loadKategori();
+        if ($('#edit_kategori_id option').length <= 1) {
+            loadKategori();
+        }
     });
 });
 </script>

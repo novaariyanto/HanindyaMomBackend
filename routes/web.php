@@ -41,6 +41,8 @@ use App\Http\Controllers\KategoriIndeksJasaLangsungNonMedisController;
 use App\Http\Controllers\PegawaiJasaTidakLangsungController;
 use App\Http\Controllers\KategoriIndeksJasaTidakLangsungController;
 use App\Http\Controllers\PegawaiStrukturalController;
+use App\Http\Controllers\SubClusterController;
+use App\Http\Controllers\JtlPegawaiIndeksController;
 
 Route::get('/faces/{filename}', function ($filename) {
     $path = storage_path('app/public/faces/' . $filename);
@@ -302,7 +304,15 @@ Route::middleware('auth')->group(function () {
     Route::put('pegawai/{id}', [PegawaiController::class, 'update'])->name('pegawai.update');
     Route::delete('pegawai/{id}', [PegawaiController::class, 'destroy'])->name('pegawai.destroy');
 
-  
+    // JTL Pegawai Indeks
+    Route::get('jtl-pegawai-indeks/export', [JtlPegawaiIndeksController::class, 'export'])->name('jtl-pegawai-indeks.export');
+    Route::get('jtl-pegawai-indeks', [JtlPegawaiIndeksController::class, 'index'])->name('jtl-pegawai-indeks.index');
+    Route::post('jtl-pegawai-indeks', [JtlPegawaiIndeksController::class, 'store'])->name('jtl-pegawai-indeks.store');
+    Route::get('jtl-pegawai-indeks/{id}', [JtlPegawaiIndeksController::class, 'show'])->name('jtl-pegawai-indeks.show');
+    Route::put('jtl-pegawai-indeks/{id}', [JtlPegawaiIndeksController::class, 'update'])->name('jtl-pegawai-indeks.update');
+    Route::delete('jtl-pegawai-indeks/{id}', [JtlPegawaiIndeksController::class, 'destroy'])->name('jtl-pegawai-indeks.destroy');
+    Route::post('jtl-pegawai-indeks/import', [JtlPegawaiIndeksController::class, 'import'])->name('jtl-pegawai-indeks.import');
+    Route::get('jtl-pegawai-indeks/template/download', [JtlPegawaiIndeksController::class, 'downloadTemplate'])->name('jtl-pegawai-indeks.template');
 
     // Transaksi Remunerasi Pegawai
     Route::get('transaksi-remunerasi-pegawai', [TransaksiRemunerasiPegawaiController::class, 'index'])->name('transaksi-remunerasi-pegawai.index');
@@ -370,6 +380,12 @@ Route::middleware('auth')->group(function () {
     Route::put('pegawai-struktural/{id}', [PegawaiStrukturalController::class, 'update'])->name('pegawai-struktural.update');
     Route::delete('pegawai-struktural/{id}', [PegawaiStrukturalController::class, 'destroy'])->name('pegawai-struktural.destroy');
     
+    // Sub Cluster Routes
+    Route::get('sub-cluster', [SubClusterController::class, 'index'])->name('sub-cluster.index');
+    Route::post('sub-cluster', [SubClusterController::class, 'store'])->name('sub-cluster.store');
+    Route::get('sub-cluster/{id}/edit', [SubClusterController::class, 'edit'])->name('sub-cluster.edit');
+    Route::put('sub-cluster/{id}', [SubClusterController::class, 'update'])->name('sub-cluster.update');
+    Route::delete('sub-cluster/{id}', [SubClusterController::class, 'destroy'])->name('sub-cluster.destroy');
 });
 
 require __DIR__.'/auth.php';

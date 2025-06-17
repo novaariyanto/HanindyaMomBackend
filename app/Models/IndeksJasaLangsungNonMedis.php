@@ -15,11 +15,13 @@ class IndeksJasaLangsungNonMedis extends Model
         'nama_indeks', 
         'nilai', 
         'kategori_id',
-        'status'
+        'status',
+        'bobot'
     ];
     
     protected $casts = [
         'nilai' => 'decimal:2',
+        'bobot' => 'decimal:2',
         'status' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -58,5 +60,11 @@ class IndeksJasaLangsungNonMedis extends Model
     public function getNilaiFormattedAttribute()
     {
         return number_format($this->nilai, 2, ',', '.');
+    }
+
+    // Accessor untuk bobot terformat
+    public function getBobotFormattedAttribute()
+    {
+        return number_format($this->bobot, 2, ',', '.');
     }
 } 

@@ -22,20 +22,7 @@
                     </form>
                 </div>
                 <div class="col-md-8 col-xl-9 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
-                    <div class="me-2">
-                        <select class="form-select" id="filter-batch">
-                            <option value="">Semua Batch</option>
-                            @foreach($remunerasi_batch as $batch)
-                                <option value="{{ $batch->id }}">{{ $batch->nama_batch }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button type="button" class="btn btn-info d-flex align-items-center me-2" onclick="syncBatchData()">
-                        <i class="ti ti-refresh text-white me-1 fs-5"></i> Sync Data
-                    </button>
-                    <button type="button" class="btn btn-secondary d-flex align-items-center me-2" data-bs-toggle="modal" data-bs-target="#importModal">
-                        <i class="ti ti-file-import text-white me-1 fs-5"></i> Import Excel
-                    </button>
+                   
                     <button type="button" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
                         <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Transaksi
                     </button>
@@ -106,15 +93,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Source Remunerasi</label>
-                                <select class="form-select" name="id_remunerasi_source" required>
-                                    <option value="">Pilih Source</option>
-                                    @foreach($remunerasi_source as $source)
-                                        <option value="{{ $source->id }}">{{ $source->nama_source }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                          
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
