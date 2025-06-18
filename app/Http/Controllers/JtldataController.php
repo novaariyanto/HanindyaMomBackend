@@ -47,9 +47,7 @@ class JtldataController extends Controller
         }
 
         $remunerasiSources = RemunerasiSource::where('status', 'aktif')->get();
-        $title = 'Jabatan ';
-        $slug = 'jabatan';
-        return view('pages.jabatan.index', compact('slug', 'title'));
+        return view('jtldata.index', compact('remunerasiSources'));
     }
 
     /**
