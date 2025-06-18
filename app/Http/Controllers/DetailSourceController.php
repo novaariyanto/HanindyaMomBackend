@@ -982,7 +982,7 @@ class DetailSourceController extends Controller
                 $data = $this->getIdxDaftar($sep);
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
-                  
+              
                 $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
                 $selisih = $selisih*-1;
                 if ($data_detail_source->biaya_disetujui != 0) {
@@ -1111,11 +1111,12 @@ class DetailSourceController extends Controller
                  }
             
                 if($row->UNIT == 17){
-                    if(in_array($row->id_kategori,["17","18","19"])){
-                        $TOTALRADIOLOGI_NonK += $row->TARIFRS;
-                    }else{
-                        $TOTALRADIOLOGI += $row->TARIFRS;
-                    }
+                    // if(in_array($row->id_kategori,["17","18","19"])){
+                    //     $TOTALRADIOLOGI_NonK += $row->TARIFRS;
+                    // }else{
+                      
+                    // }
+                      $TOTALRADIOLOGI += $row->TARIFRS;
                     // cari dokter radiologi
                     
                     // $RADIOLOGIST = $row->KDDOKTER;
@@ -1405,8 +1406,18 @@ class DetailSourceController extends Controller
                 // bpjps
                  $sep = $data_detail_source->no_sep;
                 $data = $this->getIdxDaftar($sep);
+              
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
+                if($data['idxdaftar'] == ""){
+                       return [
+                        "failed"=>1,
+                        "success"=>0,
+                        "message"=>$sep." : idxdaftar tidak ditemukan".json_encode($data),
+                        "data"=>$data_detail_source
+                    ];
+                }
+               
                 
                 
                 $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
@@ -1525,11 +1536,12 @@ class DetailSourceController extends Controller
                   
                     $ASISTEN = "10";
                 }else if($row->UNIT == 17){
-                    if(in_array($row->id_kategori,["17","18","19"])){
-                        $TOTALRADIOLOGI_NonK += $row->TARIFRS;
-                    }else{
-                        $TOTALRADIOLOGI += $row->TARIFRS;
-                    }
+                    // if(in_array($row->id_kategori,["17","18","19"])){
+                    //     $TOTALRADIOLOGI_NonK += $row->TARIFRS;
+                    // }else{
+                       
+                    // }
+                     $TOTALRADIOLOGI += $row->TARIFRS;
                     // cari dokter radiologi
                     
                     // $RADIOLOGIST = $row->KDDOKTER;
@@ -1870,7 +1882,7 @@ class DetailSourceController extends Controller
     
             }else{
                 $update = DetailSource::where('id', $detailSource->id)
-            ->update([
+                ->update([
                     'status_pembagian_klaim'=>2
                 ]);
                 $failed += 1;
@@ -1957,7 +1969,8 @@ class DetailSourceController extends Controller
                 $detailSource =  DetailSource::where('id_remunerasi_source', $sourceId)
                 ->where('status_pembagian_klaim', '<>', 1)
                 // ->inRandomOrder()
-                ->limit($limit);
+                ->limit(10);
+                
               
            
                 if($detailSource->count() < 1){
@@ -1968,7 +1981,7 @@ class DetailSourceController extends Controller
                     foreach ($detailSource->get() as $key => $row) {
 
                         $response = $this->hitung($sourceId,$row);
-                      
+                       
                         $failed  += $response['failed'];
                         $success += $response['success'];
                         $message[] = $response['message'];
@@ -2003,54 +2016,73 @@ class DetailSourceController extends Controller
                 $nomr = $tpendaftaran->NOMR;
             }
         }else{
-            $detailSource = DetailSource::where('no_sep', $sep)->where('idxdaftar', '>', 1);
-            if($detailSource->count() > 0){
-                $idxdaftar = $detailSource->orderBy('idxdaftar', 'desc')->first()->idxdaftar;
-                $nomr = $detailSource->orderBy('idxdaftar', 'desc')->first()->nomr;
-            }else{
-                $tbpjs = Sepbpjs::where('noSep', $sep)->first();
-                if($tbpjs){
-                    $idxdaftar = $tbpjs->idxdaftar;
-                    $nomr = $tbpjs->peserta_noMr;
-                    if($idxdaftar == ""){
-                         $tpendaftaran = Tpendaftaran::where('NOMR', $nomr)->first(); 
-                        
+           
+            $tbpjs = Sepbpjs::where('noSep', $sep);
+            if($tbpjs->count()){ 
+                $tbpjs = $tbpjs->first();
+                
+                $idxdaftar = $tbpjs->idxdaftar;
+                $nomr = $tbpjs->peserta_noMr;
+                $nopeserta = $tbpjs->peserta_noKartu;
+                
+                if($idxdaftar == ""){
+                        $tpendaftaran = Tpendaftaran::where('NOMR', $nomr)->orWhere('NO_PESERTA',$nopeserta)->first(); 
+                      
                         if($tpendaftaran){
                             $idxdaftar = $tpendaftaran->IDXDAFTAR;
                             
-                        }
-                    }
-                    if($nomr == ""){
-                        $response = $tbpjs->responseJSON;
-                        $nomr = $this->ambilNoMR($response);
-                    }
-                    if($nomr == ""){
-                        
-                        $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
-                        $data = json_decode($datasep);
-                        if(@$data->success){
-                            $idxdaftar = $data->data->idxdaftar;
-                            $nomr = $data->data->nomr;
                         }else{
-                            $pendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar);
-                            if($pendaftaran->count() > 0){
-                                $pendaftaran = $pendaftaran->first();
-                                $nomr = $pendaftaran->NOMR;
+                          
+                            $tbpjs2 = Tbpjs::where('sep',$sep);            
+                            if($tbpjs2->count()){
+                                $databpjs = $tbpjs2->first();
+                            
+                                $idxdaftar = $databpjs->idxdaftar;
+                                $nomr = $databpjs->noMr;
+                                if($nomr == ""){
+                                        $nomr = $this->ambilNoMR($databpjs->response);
+                                }
                             }
-
                         }
-                        
+                }
+                if($nomr == ""){
+                    $response = $tbpjs->responseJSON;
+                    $nomr = $this->ambilNoMR($response);
+                }
+                if($nomr == ""){
                     
-                    }
-                
-                    
-                
-                }else{
-                
                     $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
                     $data = json_decode($datasep);
-            
+                    if(@$data->success){
+                        $idxdaftar = $data->data->idxdaftar;
+                        $nomr = $data->data->nomr;
+                    }else{
+                        $pendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar);
+                        if($pendaftaran->count() > 0){
+                            $pendaftaran = $pendaftaran->first();
+                            $nomr = $pendaftaran->NOMR;
+                        }
+
+                    }
                     
+                
+                }
+            
+                
+            
+            }else{
+                $tbpjs2 = Tbpjs::where('sep',$sep);
+            
+                if($tbpjs2->count()){
+                    $databpjs = $tbpjs2->first();
+                    $idxdaftar = $databpjs->idxdaftar;
+                    $nomr = $databpjs->noMr;
+                    if($nomr == ""){
+                            $nomr = $this->ambilNoMR($databpjs->response);
+                    }
+                }else{
+                    $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
+                    $data = json_decode($datasep);
                     if($data->success){
                         $idxdaftar = $data->data->idxdaftar;
                         $nomr = $data->data->nomr;
@@ -2060,11 +2092,13 @@ class DetailSourceController extends Controller
                             'nomr' => ""
                         ];
                     }
-                
-                
                 }
-
+                
+            
+            
             }
+
+            
         }
         
         
@@ -2075,6 +2109,7 @@ class DetailSourceController extends Controller
 
         
     }
+    
     function ambilNoMR($json) {
         $data = json_decode($json, true);
     
