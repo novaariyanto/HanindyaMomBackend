@@ -1296,8 +1296,8 @@ class DetailSourceController extends Controller
             } 
 
             if( $TOTALBANKDARAH > 0){
-                $dokter_bankdarah = [705,133];
-                $persentase_bankdarah = [0.03,0.02];
+                $dokter_bankdarah = [705,133,2];
+                $persentase_bankdarah = [0.03,0.012,0.008];
                 foreach($dokter_bankdarah as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
                     $data = [
@@ -1778,8 +1778,8 @@ class DetailSourceController extends Controller
            
             
             if( $TOTALBANKDARAH > 0){
-                $dokter_bankdarah = [705,133];
-                $persentase_bankdarah = [0.03,0.02];
+                $dokter_bankdarah = [705,133,2];
+                $persentase_bankdarah = [0.03,0.012,0.008];
                 foreach($dokter_bankdarah as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
                     $data = [

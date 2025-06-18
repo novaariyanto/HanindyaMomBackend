@@ -114,7 +114,7 @@ class PembagianKlaimController extends Controller
                 $data = $this->getIdxDaftar($sep);
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
-                  
+              
                 $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
                 $selisih = $selisih*-1;
                 if ($data_detail_source->biaya_disetujui != 0) {
@@ -243,11 +243,12 @@ class PembagianKlaimController extends Controller
                  }
             
                 if($row->UNIT == 17){
-                    if(in_array($row->id_kategori,["17","18","19"])){
-                        $TOTALRADIOLOGI_NonK += $row->TARIFRS;
-                    }else{
-                        $TOTALRADIOLOGI += $row->TARIFRS;
-                    }
+                    // if(in_array($row->id_kategori,["17","18","19"])){
+                    //     $TOTALRADIOLOGI_NonK += $row->TARIFRS;
+                    // }else{
+                      
+                    // }
+                      $TOTALRADIOLOGI += $row->TARIFRS;
                     // cari dokter radiologi
                     
                     // $RADIOLOGIST = $row->KDDOKTER;
@@ -427,8 +428,8 @@ class PembagianKlaimController extends Controller
             } 
 
             if( $TOTALBANKDARAH > 0){
-                $dokter_bankdarah = [705,133];
-                $persentase_bankdarah = [0.03,0.02];
+                $dokter_bankdarah = [705,133,2];
+                $persentase_bankdarah = [0.03,0.012,0.008];
                 foreach($dokter_bankdarah as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
                     $data = [
@@ -537,8 +538,19 @@ class PembagianKlaimController extends Controller
                 // bpjps
                  $sep = $data_detail_source->no_sep;
                 $data = $this->getIdxDaftar($sep);
+              
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
+                if($data['idxdaftar'] == ""){
+                       return [
+                        "failed"=>1,
+                        "success"=>0,
+                        "message"=>$sep." : idxdaftar tidak ditemukan".json_encode($data),
+                        "data"=>$data_detail_source
+                    ];
+                }
+               
+                
                 
                 $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
                 $selisih = $selisih*-1;
@@ -569,7 +581,7 @@ class PembagianKlaimController extends Controller
             $tadmission = Tadmission::where('id_admission', $idxdaftar)->first();
             $databilling = Tbillranap::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
             $databilling_rajal = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
-          
+        
     
             
             $pisau = 0; //
@@ -656,11 +668,12 @@ class PembagianKlaimController extends Controller
                   
                     $ASISTEN = "10";
                 }else if($row->UNIT == 17){
-                    if(in_array($row->id_kategori,["17","18","19"])){
-                        $TOTALRADIOLOGI_NonK += $row->TARIFRS;
-                    }else{
-                        $TOTALRADIOLOGI += $row->TARIFRS;
-                    }
+                    // if(in_array($row->id_kategori,["17","18","19"])){
+                    //     $TOTALRADIOLOGI_NonK += $row->TARIFRS;
+                    // }else{
+                       
+                    // }
+                     $TOTALRADIOLOGI += $row->TARIFRS;
                     // cari dokter radiologi
                     
                     // $RADIOLOGIST = $row->KDDOKTER;
@@ -897,8 +910,8 @@ class PembagianKlaimController extends Controller
            
             
             if( $TOTALBANKDARAH > 0){
-                $dokter_bankdarah = [705,133];
-                $persentase_bankdarah = [0.03,0.02];
+                $dokter_bankdarah = [705,133,2];
+                $persentase_bankdarah = [0.03,0.012,0.008];
                 foreach($dokter_bankdarah as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
                     $data = [
@@ -1001,7 +1014,7 @@ class PembagianKlaimController extends Controller
     
             }else{
                 $update = DetailSource::where('id', $detailSource->id)
-            ->update([
+                ->update([
                     'status_pembagian_klaim'=>2
                 ]);
                 $failed += 1;
@@ -1018,7 +1031,6 @@ class PembagianKlaimController extends Controller
             "data"=>$data_detail_source
         ];
     }
-    
     
     
     function groupAndCount(array $data): array {
