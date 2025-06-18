@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Jtldata;
 use App\Models\RemunerasiSource;
+use App\Models\JtlPegawaiIndeksSource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
@@ -14,40 +15,47 @@ class JtldataController extends Controller
     /**
      * Menampilkan daftar data JTL.
      */
-    public function index(Request $request)
+    public function index(Request $request,$id_remunerasi_source)
     {
         if ($request->ajax()) {
-            $data = Jtldata::with('remunerasiSource');
-            return DataTables::of($data)
-                ->addIndexColumn()
-                ->addColumn('remunerasi_source', function($row){
-                    return $row->remunerasiSource ? $row->remunerasiSource->nama_source : '-';
-                })
-                ->addColumn('jumlah_jtl_formatted', function($row){
-                    return number_format($row->jumlah_jtl, 2);
-                })
-                ->addColumn('jumlah_indeks_formatted', function($row){
-                    return number_format($row->jumlah_indeks, 2);
-                })
-                ->addColumn('nilai_indeks_formatted', function($row){
-                    return number_format($row->nilai_indeks, 2);
-                })
-                ->addColumn('action', function($row){
-                    return '
-                        <a href="#" data-url="' . route('jtldata.show', $row->id) . '" class="btn btn-warning btn-sm btn-edit" title="Edit">
-                            <i class="ti ti-pencil"></i>
-                        </a>
-                        <a href="#" data-url="' . route('jtldata.destroy', $row->id) . '" class="btn btn-danger btn-sm btn-delete" title="Hapus">
-                            <i class="ti ti-trash"></i>
-                        </a>
-                    ';
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            try {
+                $data = Jtldata::with('remunerasiSource');
+                
+                return DataTables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('remunerasi_source', function($row){
+                        return $row->remunerasiSource ? $row->remunerasiSource->nama_source : '-';
+                    })
+                    ->addColumn('jumlah_jtl_formatted', function($row){
+                        return number_format($row->jumlah_jtl, 2);
+                    })
+                    ->addColumn('jumlah_indeks_formatted', function($row){
+                        return number_format($row->jumlah_indeks, 2);
+                    })
+                    ->addColumn('nilai_indeks_formatted', function($row){
+                        return number_format($row->nilai_indeks, 2);
+                    })
+                    ->addColumn('action', function($row){
+                        return '
+                           
+                            <a href="#" data-url="' . route('jtldata.destroy', $row->id) . '" class="btn btn-danger btn-sm btn-delete" title="Hapus">
+                                <i class="ti ti-trash"></i>
+                            </a>
+                        ';
+                         // <a href="#" data-url="' . route('jtldata.show', $row->id) . '" class="btn btn-warning btn-sm btn-edit" title="Edit">
+                            //     <i class="ti ti-pencil"></i>
+                            // </a>
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            } catch (\Exception $e) {
+                \Log::error('JTL Data error: ' . $e->getMessage());
+                return response()->json(['error' => $e->getMessage()], 500);
+            }
         }
 
-        $remunerasiSources = RemunerasiSource::where('status', 'aktif')->get();
-        return view('jtldata.index', compact('remunerasiSources'));
+        $remunerasiSources = RemunerasiSource::where('status', 'aktif')->where('batch_id', '!=', null)->where('id', $id_remunerasi_source)->get();
+        return view('jtldata.index', compact('remunerasiSources','id_remunerasi_source'));
     }
 
     /**
@@ -109,6 +117,29 @@ class JtldataController extends Controller
             return ResponseFormatter::success(null, 'Data berhasil diupdate');
         } catch (\Exception $e) {
             return ResponseFormatter::error(null, 'Data gagal diupdate: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Mendapatkan jumlah JTL otomatis berdasarkan remunerasi source
+     */
+    public function getJumlahJtl(Request $request)
+    {
+        try {
+            $remunerasiSourceId = $request->input('remunerasi_source_id');
+            
+            if (!$remunerasiSourceId) {
+                return ResponseFormatter::error(null, 'Remunerasi source ID harus diisi', 422);
+            }
+
+            $jumlahJtl = JtlPegawaiIndeksSource::where('remunerasi_source', $remunerasiSourceId)
+                                              ->sum('jumlah');
+
+            return ResponseFormatter::success([
+                'jumlah_jtl' => $jumlahJtl
+            ], 'Jumlah JTL berhasil diambil');
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Gagal mengambil jumlah JTL: ' . $e->getMessage());
         }
     }
 

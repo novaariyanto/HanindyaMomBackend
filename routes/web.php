@@ -43,6 +43,7 @@ use App\Http\Controllers\KategoriIndeksJasaTidakLangsungController;
 use App\Http\Controllers\PegawaiStrukturalController;
 use App\Http\Controllers\SubClusterController;
 use App\Http\Controllers\JtlPegawaiIndeksController;
+use App\Http\Controllers\JtlPegawaiHasilController;
 use App\Http\Controllers\JtldataController;
 
 Route::get('/faces/{filename}', function ($filename) {
@@ -250,6 +251,11 @@ Route::middleware('auth')->group(function () {
     Route::post('remunerasi-source/{sourceId}/indeks-pegawai/sync', [DetailSourceController::class, 'syncIndeksPegawaiSource'])->name('indeks-pegawai.sync');
     Route::post('remunerasi-source/{sourceId}/indeks-pegawai/sync-batch', [DetailSourceController::class, 'syncIndeksPegawaiBatch'])->name('indeks-pegawai.sync-batch');
     Route::get('remunerasi-source/{sourceId}/indeks-pegawai/sync-count', [DetailSourceController::class, 'getIndeksPegawaiSyncCount'])->name('indeks-pegawai.sync-count');
+    
+    // Routes untuk Perhitungan Remunerasi
+    Route::post('remunerasi-source/{sourceId}/hitung-remunerasi/sync', [DetailSourceController::class, 'syncHitungRemunerasi'])->name('hitung-remunerasi.sync');
+    Route::post('remunerasi-source/{sourceId}/hitung-remunerasi/sync-batch', [DetailSourceController::class, 'syncHitungRemunerasiBatch'])->name('hitung-remunerasi.sync-batch');
+    Route::get('remunerasi-source/{sourceId}/hitung-remunerasi/sync-count', [DetailSourceController::class, 'getHitungRemunerasiCount'])->name('hitung-remunerasi.sync-count');
 
     // Routes untuk Pembagian Klaim
     Route::get('pembagian-klaim', [PembagianKlaimController::class, 'index'])->name('pembagian-klaim.index');
@@ -268,6 +274,10 @@ Route::middleware('auth')->group(function () {
     ->name('pembagian-klaim.getByDetailSourcebySource');
     Route::get('detail-source/{id}/pembagian-klaim-filter-data', [PembagianKlaimController::class, 'getFilterDataBySource'])
     ->name('pembagian-klaim.getFilterDataBySource');
+    Route::get('detail-source/{id}/pembagian-klaim-export', [PembagianKlaimController::class, 'exportBySource'])
+    ->name('pembagian-klaim.exportBySource');
+    Route::get('detail-source/{id}/pembagian-klaim-test', [PembagianKlaimController::class, 'testExport'])
+    ->name('pembagian-klaim.testExport');
         
 
     Route::get('detail-source/get-unsynced-count/{sourceId}', [DetailSourceController::class, 'getUnsyncedCount'])->name('detail-source.get-unsynced-count');
@@ -325,6 +335,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('jtl-pegawai-indeks/{id}', [JtlPegawaiIndeksController::class, 'destroy'])->name('jtl-pegawai-indeks.destroy');
     Route::post('jtl-pegawai-indeks/import', [JtlPegawaiIndeksController::class, 'import'])->name('jtl-pegawai-indeks.import');
     Route::get('jtl-pegawai-indeks/template/download', [JtlPegawaiIndeksController::class, 'downloadTemplate'])->name('jtl-pegawai-indeks.template');
+
+    // JTL Pegawai Hasil
+    Route::get('jtl-pegawai-hasil/export', [JtlPegawaiHasilController::class, 'export'])->name('jtl-pegawai-hasil.export');
+    Route::get('jtl-pegawai-hasil', [JtlPegawaiHasilController::class, 'index'])->name('jtl-pegawai-hasil.index');
+    Route::post('jtl-pegawai-hasil', [JtlPegawaiHasilController::class, 'store'])->name('jtl-pegawai-hasil.store');
+    Route::get('jtl-pegawai-hasil/{id}', [JtlPegawaiHasilController::class, 'show'])->name('jtl-pegawai-hasil.show');
+    Route::put('jtl-pegawai-hasil/{id}', [JtlPegawaiHasilController::class, 'update'])->name('jtl-pegawai-hasil.update');
+    Route::delete('jtl-pegawai-hasil/{id}', [JtlPegawaiHasilController::class, 'destroy'])->name('jtl-pegawai-hasil.destroy');
+    
+    // JTL Pegawai Hasil by Remunerasi Source
+    Route::get('jtl-pegawai-hasil/remunerasi-source/{remunerasiSourceId}', [JtlPegawaiHasilController::class, 'getByRemunerasiSource'])->name('jtl-pegawai-hasil.by-remunerasi-source');
 
     // Transaksi Remunerasi Pegawai
     Route::get('transaksi-remunerasi-pegawai', [TransaksiRemunerasiPegawaiController::class, 'index'])->name('transaksi-remunerasi-pegawai.index');
@@ -400,7 +421,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('sub-cluster/{id}', [SubClusterController::class, 'destroy'])->name('sub-cluster.destroy');
 
     // JTL Data Routes
-    Route::get('jtldata', [JtldataController::class, 'index'])->name('jtldata.index');
+    Route::get('jtldata/{id_remunerasi_source}/get-jumlah-jtl', [JtldataController::class, 'getJumlahJtl'])->name('jtldata.getJumlahJtl');
+    Route::get('jtldata/{id_remunerasi_source}', [JtldataController::class, 'index'])->name('jtldata.index');
     Route::post('jtldata', [JtldataController::class, 'store'])->name('jtldata.store');
     Route::get('jtldata/{id}', [JtldataController::class, 'show'])->name('jtldata.show');
     Route::put('jtldata/{id}', [JtldataController::class, 'update'])->name('jtldata.update');

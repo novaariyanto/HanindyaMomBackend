@@ -28,6 +28,7 @@ use App\Models\Divisi;
 use App\Models\RemunerasiSource;
 use App\Models\Penjualan;
 use App\Models\DetailPenjualan;
+use App\Exports\PembagianKlaimExport;
 
 class PembagianKlaimController extends Controller
 {
@@ -2086,6 +2087,86 @@ class PembagianKlaimController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('remunerasi-source.index')
                 ->with('error', 'Gagal menampilkan laporan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export data pembagian klaim berdasarkan filter
+     */
+    public function exportBySource(Request $request, $id)
+    {
+        try {
+            // Ambil data remunerasi source untuk validasi dan nama file
+            $remunerasiSource = RemunerasiSource::findOrFail($id);
+            
+            // Ambil filter dari request
+            $filters = [
+                'filter_nama_ppa' => $request->get('filter_nama_ppa'),
+                'filter_sumber' => $request->get('filter_sumber'),
+                'filter_cluster' => $request->get('filter_cluster'),
+                'filter_ppa' => $request->get('filter_ppa'),
+                'filter_grade' => $request->get('filter_grade'),
+                'filter_jenis' => $request->get('filter_jenis'),
+                'filter_group' => $request->get('filter_group'),
+            ];
+
+            // Filter untuk menghilangkan filter kosong
+            $filters = array_filter($filters, function($value) {
+                return !empty($value);
+            });
+
+            // Buat nama file dengan filter yang aktif
+            $filterText = '';
+            if (!empty($filters)) {
+                $activeFilters = [];
+                foreach ($filters as $key => $value) {
+                    $label = str_replace('filter_', '', $key);
+                    $activeFilters[] = ucfirst($label) . '-' . $value;
+                }
+                $filterText = '_' . implode('_', $activeFilters);
+            }
+
+            $filename = 'Data_Pembagian_Klaim_' . $remunerasiSource->nama_source . $filterText . '_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            // Create export instance and get spreadsheet
+            $export = new PembagianKlaimExport($id, $filters);
+            $spreadsheet = $export->export();
+
+            // Create writer
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+            // Set headers for download
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            // Save to output
+            $writer->save('php://output');
+            exit;
+
+        } catch (\Exception $e) {
+            return ResponseFormatter::error(null, 'Gagal export data: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Test export data for debugging
+     */
+    public function testExport($id)
+    {
+        try {
+            $export = new PembagianKlaimExport($id, []);
+            $data = $export->getData();
+            
+            return response()->json([
+                'source_id' => $id,
+                'data_count' => $data->count(),
+                'sample_data' => $data->take(3),
+                'total_all' => PembagianKlaim::where('remunerasi_source_id', $id)->count(),
+                'total_not_deleted' => PembagianKlaim::where('remunerasi_source_id', $id)->where('del', false)->count(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
         }
     }
 } 

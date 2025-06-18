@@ -30,6 +30,14 @@
                     <i class="ti ti-info-circle me-1"></i> Cek Data
                 </button>
             </div>
+            <div class="btn-group me-2">
+                <button type="button" class="btn btn-warning" onclick="startHitungRemunerasi()">
+                    <i class="ti ti-calculator me-1"></i> Hitung Remunerasi
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="checkHitungCount()">
+                    <i class="ti ti-info-circle me-1"></i> Cek Perhitungan
+                </button>
+            </div>
             {{-- <a href="javascript:void(0)" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
               <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Indeks Pegawai
             </a> --}}
@@ -369,6 +377,110 @@
     </div>
 </div>
 
+<!-- Modal Progress Perhitungan Remunerasi -->
+<div class="modal fade" id="hitungModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Progress Perhitungan Remunerasi</h5>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <div class="spinner-border text-warning" role="status" id="hitungSpinner">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="progress mb-3">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 0%" id="hitungProgressBar">0%</div>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h5 class="mb-0" id="hitungTotalProcessed">0</h5>
+                        <small class="text-muted">Total Diproses</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="mb-0 text-success" id="hitungTotalSynced">0</h5>
+                        <small class="text-muted">Ditambahkan</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="mb-0 text-info" id="hitungTotalUpdated">0</h5>
+                        <small class="text-muted">Diupdate</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="mb-0 text-warning" id="hitungTotalSkipped">0</h5>
+                        <small class="text-muted">Dilewati</small>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div class="alert alert-info mb-0">
+                        <div id="hitungStatus">Memulai perhitungan remunerasi...</div>
+                    </div>
+                </div>
+                <div class="mt-3" id="hitungErrors" style="display: none;">
+                    <div class="alert alert-warning">
+                        <h6>Error yang terjadi:</h6>
+                        <ul id="hitungErrorList"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btnCancelHitung" onclick="cancelHitung()">Batalkan</button>
+                <button type="button" class="btn btn-primary" id="btnCloseHitung" onclick="closeHitung()" style="display: none;">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Info Data Perhitungan -->
+<div class="modal fade" id="infoHitungModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Informasi Data Perhitungan Remunerasi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h3 class="mb-0 text-primary" id="infoHitungTotalData">0</h3>
+                        <small class="text-muted">Total Data Indeks</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="mb-0 text-success" id="infoHitungExistingData">0</h3>
+                        <small class="text-muted">Sudah Dihitung</small>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="mb-0 text-warning" id="infoHitungNewData">0</h3>
+                        <small class="text-muted">Data Baru</small>
+                    </div>
+                </div>
+                <hr>
+                <div id="jtlDataInfo">
+                    <div class="alert alert-info">
+                        <i class="ti ti-info-circle me-2"></i>
+                        <strong>Nilai Indeks JTL:</strong> <span id="nilaiIndeksJtl">0</span><br>
+                        <small>Data akan dihitung dengan rumus:<br>
+                        <strong>JTL Bruto</strong> = Jumlah × Nilai Indeks<br>
+                        <strong>Potongan Pajak</strong> = (Pajak% × JTL Bruto)<br>
+                        <strong>JTL Net</strong> = JTL Bruto - Potongan Pajak</small>
+                    </div>
+                </div>
+                <div id="jtlDataWarning" style="display: none;">
+                    <div class="alert alert-warning">
+                        <i class="ti ti-alert-triangle me-2"></i>
+                        <strong>Peringatan:</strong><br>
+                        Data JTL tidak tersedia untuk source ini. Pastikan data JTL sudah dibuat terlebih dahulu.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-warning" id="btnStartHitung" onclick="confirmHitung()">Mulai Perhitungan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -647,6 +759,214 @@ function closeSync() {
     $('#syncModal').modal('hide');
     syncInProgress = false;
     syncCancelled = false;
+}
+
+// Variables untuk perhitungan remunerasi
+let hitungInProgress = false;
+let hitungCancelled = false;
+
+// Fungsi untuk cek jumlah data yang akan dihitung remunerasinya
+function checkHitungCount() {
+    $.get('{{ route('hitung-remunerasi.sync-count', $sourceId) }}', function(response) {
+        if (response.success) {
+            $('#infoHitungTotalData').text(response.total);
+            $('#infoHitungExistingData').text(response.existing);
+            $('#infoHitungNewData').text(response.new);
+            
+            if (response.jtl_available) {
+                $('#nilaiIndeksJtl').text(new Intl.NumberFormat('id-ID', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(response.nilai_indeks));
+                $('#jtlDataInfo').show();
+                $('#jtlDataWarning').hide();
+                $('#btnStartHitung').prop('disabled', false);
+            } else {
+                $('#jtlDataInfo').hide();
+                $('#jtlDataWarning').show();
+                $('#btnStartHitung').prop('disabled', true);
+            }
+            
+            $('#infoHitungModal').modal('show');
+        } else {
+            toastr.error('Gagal mengambil informasi data perhitungan');
+        }
+    }).fail(function() {
+        toastr.error('Terjadi kesalahan saat mengambil informasi data perhitungan');
+    });
+}
+
+// Fungsi untuk memulai perhitungan remunerasi
+function startHitungRemunerasi() {
+    Swal.fire({
+        title: 'Konfirmasi Perhitungan Remunerasi',
+        text: 'Apakah Anda yakin ingin memulai perhitungan remunerasi?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#ffc107',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya, Mulai Perhitungan',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            confirmHitung();
+        }
+    });
+}
+
+// Fungsi untuk konfirmasi dan memulai perhitungan remunerasi
+function confirmHitung() {
+    $('#infoHitungModal').modal('hide');
+    $('#hitungModal').modal('show');
+    
+    // Reset progress
+    resetHitungProgress();
+    
+    // Mulai perhitungan batch
+    hitungInProgress = true;
+    hitungCancelled = false;
+    processHitungBatch(0);
+}
+
+// Reset progress perhitungan
+function resetHitungProgress() {
+    $('#hitungProgressBar').css('width', '0%').text('0%');
+    $('#hitungTotalProcessed').text('0');
+    $('#hitungTotalSynced').text('0');
+    $('#hitungTotalUpdated').text('0');
+    $('#hitungTotalSkipped').text('0');
+    $('#hitungStatus').text('Memulai perhitungan remunerasi...');
+    $('#hitungErrors').hide();
+    $('#hitungErrorList').empty();
+    $('#hitungSpinner').show();
+    $('#btnCancelHitung').show();
+    $('#btnCloseHitung').hide();
+}
+
+// Proses perhitungan batch
+function processHitungBatch(offset) {
+    if (hitungCancelled) {
+        return;
+    }
+
+    const limit = 50; // Process 50 records per batch
+    
+    $.ajax({
+        url: '{{ route('hitung-remunerasi.sync-batch', $sourceId) }}',
+        method: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}',
+            limit: limit,
+            offset: offset
+        },
+        success: function(response) {
+            if (response.status === 'success') {
+                const data = response.data;
+                
+                // Update progress
+                const progress = Math.round((data.processedRecords / data.totalRecords) * 100);
+                $('#hitungProgressBar').css('width', progress + '%').text(progress + '%');
+                
+                // Update counters
+                const currentProcessed = parseInt($('#hitungTotalProcessed').text());
+                const currentSynced = parseInt($('#hitungTotalSynced').text());
+                const currentUpdated = parseInt($('#hitungTotalUpdated').text());
+                const currentSkipped = parseInt($('#hitungTotalSkipped').text());
+                
+                $('#hitungTotalProcessed').text(currentProcessed + data.processed);
+                $('#hitungTotalSynced').text(currentSynced + data.synced);
+                $('#hitungTotalUpdated').text(currentUpdated + data.updated);
+                $('#hitungTotalSkipped').text(currentSkipped + data.skipped);
+                
+                // Update status
+                $('#hitungStatus').text(`Memproses perhitungan... ${data.processedRecords} dari ${data.totalRecords} record`);
+                
+                // Handle errors
+                if (data.errors && data.errors.length > 0) {
+                    data.errors.forEach(function(error) {
+                        $('#hitungErrorList').append('<li>' + error + '</li>');
+                    });
+                    $('#hitungErrors').show();
+                }
+                
+                // Continue if there's more data
+                if (data.hasMore && !hitungCancelled) {
+                    setTimeout(function() {
+                        processHitungBatch(offset + limit);
+                    }, 100); // Small delay to prevent overwhelming the server
+                } else {
+                    // Perhitungan selesai
+                    finishHitung();
+                }
+            } else {
+                // Error occurred
+                $('#hitungStatus').text('Terjadi kesalahan: ' + response.message);
+                $('#hitungSpinner').hide();
+                $('#btnCancelHitung').hide();
+                $('#btnCloseHitung').show();
+                hitungInProgress = false;
+                toastr.error('Perhitungan gagal: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            const errorMessage = xhr.responseJSON?.message || 'Terjadi kesalahan tidak terduga';
+            $('#hitungStatus').text('Terjadi kesalahan: ' + errorMessage);
+            $('#hitungSpinner').hide();
+            $('#btnCancelHitung').hide();
+            $('#btnCloseHitung').show();
+            hitungInProgress = false;
+            toastr.error('Perhitungan gagal: ' + errorMessage);
+        }
+    });
+}
+
+// Finish perhitungan
+function finishHitung() {
+    $('#hitungStatus').text('Perhitungan remunerasi selesai!');
+    $('#hitungSpinner').hide();
+    $('#btnCancelHitung').hide();
+    $('#btnCloseHitung').show();
+    hitungInProgress = false;
+    
+    // Show success message
+    const totalSynced = parseInt($('#hitungTotalSynced').text());
+    const totalUpdated = parseInt($('#hitungTotalUpdated').text());
+    toastr.success(`Perhitungan remunerasi selesai! ${totalSynced} data ditambahkan, ${totalUpdated} data diupdate`);
+}
+
+// Cancel perhitungan
+function cancelHitung() {
+    if (hitungInProgress) {
+        Swal.fire({
+            title: 'Batalkan Perhitungan?',
+            text: 'Apakah Anda yakin ingin membatalkan proses perhitungan?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Batalkan',
+            cancelButtonText: 'Lanjutkan'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                hitungCancelled = true;
+                hitungInProgress = false;
+                $('#hitungStatus').text('Perhitungan dibatalkan');
+                $('#hitungSpinner').hide();
+                $('#btnCancelHitung').hide();
+                $('#btnCloseHitung').show();
+                toastr.warning('Perhitungan dibatalkan');
+            }
+        });
+    } else {
+        closeHitung();
+    }
+}
+
+// Close hitung modal
+function closeHitung() {
+    $('#hitungModal').modal('hide');
+    hitungInProgress = false;
+    hitungCancelled = false;
 }
 </script>
 @endpush 

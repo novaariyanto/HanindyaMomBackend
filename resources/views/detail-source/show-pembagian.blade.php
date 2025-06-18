@@ -110,7 +110,11 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Pembagian Klaim</h5>
-                 
+                    <div>
+                        <button type="button" class="btn btn-success btn-sm" id="exportExcel">
+                            <i class="ti ti-file-export"></i> Export Excel
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <!-- Filter Section -->
@@ -296,6 +300,30 @@ $(document).ready(function() {
     $('#resetFilters').on('click', function() {
         $('#filter_nama_ppa, #filter_sumber, #filter_cluster, #filter_ppa, #filter_grade, #filter_jenis,#filter_group').val('');
         pembagianKlaimTable.draw();
+    });
+
+    // Handle Export Excel
+    $('#exportExcel').on('click', function() {
+        // Ambil semua filter yang aktif
+        var filters = {
+            filter_nama_ppa: $('#filter_nama_ppa').val(),
+            filter_sumber: $('#filter_sumber').val(),
+            filter_cluster: $('#filter_cluster').val(),
+            filter_ppa: $('#filter_ppa').val(),
+            filter_grade: $('#filter_grade').val(),
+            filter_jenis: $('#filter_jenis').val(),
+            filter_group: $('#filter_group').val()
+        };
+
+        // Buat query string untuk filter
+        var queryString = $.param(filters);
+        
+        // Buat URL untuk export
+        var exportUrl = "{{ route('pembagian-klaim.exportBySource', $detail->id) }}" + 
+                       (queryString ? '?' + queryString : '');
+        
+        // Redirect ke URL export (akan trigger download)
+        window.location.href = exportUrl;
     });
 
     // Handle Delete Button Click

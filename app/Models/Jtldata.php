@@ -8,6 +8,22 @@ class Jtldata extends Model
 {
     protected $table = 'jtl_data';
   
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'id_remunerasi_source',
+        'jumlah_jtl',
+        'jumlah_indeks', 
+        'nilai_indeks'
+    ];
+
+    protected $casts = [
+        'jumlah_jtl' => 'decimal:2',
+        'jumlah_indeks' => 'decimal:2',
+        'nilai_indeks' => 'decimal:2'
+    ];
+
+    public function remunerasiSource()
+    {
+        return $this->belongsTo(RemunerasiSource::class, 'id_remunerasi_source', 'id');
+    }
 
 }
