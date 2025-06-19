@@ -60,6 +60,7 @@
                             <th width="130" class="text-center">Jumlah JTL</th>
                             <th width="130" class="text-center">Jumlah Indeks</th>
                             <th width="130" class="text-center">Nilai Indeks</th>
+                            <th width="130" class="text-center">di bagi All Pegawai</th>
                             <th width="100" class="text-center">Aksi</th>
                         </tr>
                     </thead>
