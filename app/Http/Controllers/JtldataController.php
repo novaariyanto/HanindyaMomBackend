@@ -29,10 +29,10 @@ class JtldataController extends Controller
                         return $row->remunerasiSource ? $row->remunerasiSource->nama_source : '-';
                     })
                     ->addColumn('jumlah_jtl_formatted', function($row){
-                        return number_format($row->jumlah_jtl, 2);
+                        return "Rp ".number_format($row->jumlah_jtl, 0);
                     })
                     ->addColumn('jumlah_indeks_formatted', function($row){
-                        return number_format($row->jumlah_indeks, 2);
+                        return "Rp ".number_format($row->jumlah_indeks, 2);
                     })
                     ->addColumn('nilai_indeks_formatted', function($row){
                         return number_format($row->nilai_indeks, 2);
