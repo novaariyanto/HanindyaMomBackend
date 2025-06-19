@@ -32,10 +32,10 @@ class JtldataController extends Controller
                         return "Rp ".number_format($row->jumlah_jtl, 0);
                     })
                     ->addColumn('jumlah_indeks_formatted', function($row){
-                        return "Rp ".number_format($row->jumlah_indeks, 2);
+                        return "Rp ".number_format($row->jumlah_indeks, 0);
                     })
                     ->addColumn('nilai_indeks_formatted', function($row){
-                        return number_format($row->nilai_indeks, 2);
+                        return number_format($row->nilai_indeks, 0);
                     })
                     ->addColumn('allpegawai_formatted', function($row){
                         return $row->allpegawai == 1 ? 'Ya' : 'Tidak';
