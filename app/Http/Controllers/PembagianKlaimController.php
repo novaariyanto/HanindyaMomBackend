@@ -1582,6 +1582,7 @@ class PembagianKlaimController extends Controller
                     "Fetria Melani, dr. Sp.GK",
                     "Giri Yurista, dr. B",
                     "Hari Wahono Satrioaji, dr. Sp. S",
+                    "Hana Ranu Herjuna,dr., Sp.BS, M.Ked, Klin",
                     "Heni Handayani,dr. Sp.An",
                     "Hera Dwi Prihati, dr",
                     "Heroe Joenianto, dr. SpM",
