@@ -754,7 +754,7 @@ class DetailSourceController extends Controller
             $existingCount = JtlPegawaiHasil::where('remunerasi_source', $sourceId)->count();
             
             // Cek apakah data JTL tersedia
-            $jtlData = Jtldata::where('id_remunerasi_source', $sourceId)->first();
+            $jtlData = Jtldata::where('id_remunerasi_source', $sourceId)->where('allpegawai', 1)->first();
             
             return response()->json([
                 'success' => true,

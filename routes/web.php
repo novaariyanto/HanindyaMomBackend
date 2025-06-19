@@ -421,6 +421,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('sub-cluster/{id}', [SubClusterController::class, 'destroy'])->name('sub-cluster.destroy');
 
     // JTL Data Routes
+    Route::get('jtldata/{id_remunerasi_source}/export', [JtldataController::class, 'export'])->name('jtldata.export');
     Route::get('jtldata/{id_remunerasi_source}/get-jumlah-jtl', [JtldataController::class, 'getJumlahJtl'])->name('jtldata.getJumlahJtl');
     Route::get('jtldata/{id_remunerasi_source}', [JtldataController::class, 'index'])->name('jtldata.index');
     Route::post('jtldata', [JtldataController::class, 'store'])->name('jtldata.store');

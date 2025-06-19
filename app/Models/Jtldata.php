@@ -10,6 +10,7 @@ class Jtldata extends Model
   
     protected $fillable = [
         'id_remunerasi_source',
+        'nama_pembagian',
         'jumlah_jtl',
         'jumlah_indeks', 
         'nilai_indeks',

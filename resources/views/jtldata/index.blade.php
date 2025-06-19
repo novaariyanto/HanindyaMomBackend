@@ -10,6 +10,20 @@
         ],
         'current' => 'Data JTL'
     ])
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
     
     <div class="widget-content searchable-container list">
         <!-- Search & Add Button Section -->
@@ -22,9 +36,14 @@
                     </form>
                 </div>
                 <div class="col-md-8 col-xl-9 text-end d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
-                    <a href="javascript:void(0)" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
-                        <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Data JTL
-                    </a>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('jtldata.export', $id_remunerasi_source) }}" class="btn btn-success d-flex align-items-center" id="btnExport">
+                            <i class="ti ti-download text-white me-1 fs-5"></i> Export Excel
+                        </a>
+                        <a href="javascript:void(0)" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
+                            <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Data JTL
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -37,6 +56,7 @@
                         <tr>
                             <th width="50">No</th>
                             <th>Remunerasi Source</th>
+                            <th>Nama Pembagian</th>
                             <th width="130" class="text-center">Jumlah JTL</th>
                             <th width="130" class="text-center">Jumlah Indeks</th>
                             <th width="130" class="text-center">Nilai Indeks</th>
@@ -80,39 +100,10 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Jumlah JTL <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" name="jumlah_jtl" id="jumlah_jtl" required step="0.01" min="0" placeholder="0.00" >
-                                    <span class="input-group-text">JTL</span>
-                                </div>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Jumlah Indeks <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" name="jumlah_indeks" id="create_jumlah_indeks" required step="0.01" min="0" placeholder="0.00" readonly>
-                                    <span class="input-group-text">Indeks</span>
-                                </div>
-                                <small class="text-info">Otomatis dihitung dari total jumlah Pegawai Indeks Source</small>
-                                   
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Nilai Indeks <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text">Rp</span>
-                                    <input type="number" class="form-control" name="nilai_indeks" id="create_nilai_indeks" required step="0.01" min="0" placeholder="0.00" readonly>
-                                </div>
-                                <small class="text-info">Otomatis dihitung dari Jumlah JTL ÷ Jumlah Indeks</small>
-                                <div class="invalid-feedback"></div>
+                                <label class="form-label fw-bold">Nama Pembagian <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="nama_pembagian" id="create_nama_pembagian" required>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -125,6 +116,43 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nilai <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="jumlah_jtl" id="jumlah_jtl" required step="0.01" min="0" placeholder="0.00" >
+                                    <span class="input-group-text">dibagi</span>
+                                </div>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                   
+                        <div class="col-md-4" id="create_jumlah_indeks_wrapper">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Jumlah Indeks <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" name="jumlah_indeks" id="create_jumlah_indeks" required step="0.01" min="0" placeholder="0.00" readonly>
+                                    <span class="input-group-text">Indeks</span>
+                                </div>
+                                <small class="text-info">Otomatis dihitung dari total jumlah Pegawai Indeks Source</small>
+                                   
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4" id="create_nilai_indeks_wrapper">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nilai Indeks <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" name="nilai_indeks" id="create_nilai_indeks" required step="0.01" min="0" placeholder="0.00" readonly>
+                                </div>
+                                <small class="text-info">Otomatis dihitung dari Jumlah JTL ÷ Jumlah Indeks</small>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                     
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -172,6 +200,22 @@
                     </div>
                     <div class="row">
                         <div class="col-md-4">
+                            <div class="mb-3">  
+                                <label class="form-label fw-bold">Nama Pembagian <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="nama_pembagian" id="edit_nama_pembagian" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">di bagi All Pegawai <span class="text-danger">*</span></label>
+                                <select class="form-select" name="allpegawai" id="edit_allpegawai" required>
+                                    <option value="1">Ya</option>
+                                    <option value="0">Tidak</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Jumlah JTL <span class="text-danger">*</span></label>
                                 <div class="input-group">
@@ -181,7 +225,7 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4" id="edit_jumlah_indeks_wrapper">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Jumlah Indeks <span class="text-danger">*</span></label>
                                 <div class="input-group">
@@ -191,7 +235,7 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-4" id="edit_nilai_indeks_wrapper">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Nilai Indeks <span class="text-danger">*</span></label>
                                 <div class="input-group">
@@ -201,6 +245,7 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
+                       
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -262,9 +307,16 @@ $(document).ready(function() {
                 searchable: false,
                 className: 'text-center'
             },
+                {
+                    data: 'remunerasi_source',
+                    name: 'remunerasi_source',
+                    render: function(data, type, row) {
+                        return data ? data : '<span class="text-muted">-</span>';
+                    }
+                },
             {
-                data: 'remunerasi_source',
-                name: 'remunerasi_source',
+                data: 'nama_pembagian',
+                name: 'nama_pembagian',
                 render: function(data, type, row) {
                     return data ? data : '<span class="text-muted">-</span>';
                 }
@@ -293,6 +345,15 @@ $(document).ready(function() {
                     return '<span class="badge bg-light-primary text-primary">Rp ' + data + '</span>';
                 }
             },
+            {
+                data: 'allpegawai_formatted',
+                name: 'allpegawai',
+                className: 'text-end',
+                render: function(data, type, row) {
+                    return '<span class="badge bg-light-primary text-primary">' + data + '</span>';
+                }
+            },
+
             {
                 data: 'action',
                 name: 'action',
@@ -358,16 +419,102 @@ $(document).ready(function() {
         calculateNilaiIndeks();
     });
 
+    // Handle Edit Jumlah JTL Change - Auto Calculate Nilai Indeks
+    $('#edit_jumlah_jtl').on('input', function() {
+        calculateEditNilaiIndeks();
+    });
+
+    $('#edit_jumlah_indeks').on('input', function() {
+        calculateEditNilaiIndeks();
+    });
+
+    // Handle All Pegawai Change - Show/Hide Jumlah Indeks and Nilai Indeks
+    $('#create_allpegawai').on('change', function() {
+        var allPegawai = $(this).val();
+        toggleIndeksFields('create', allPegawai);
+    });
+
+    $('#edit_allpegawai').on('change', function() {
+        var allPegawai = $(this).val();
+        toggleIndeksFields('edit', allPegawai);
+    });
+
     // Function to calculate nilai indeks
     function calculateNilaiIndeks() {
-        var jumlahJtl = parseFloat($('#jumlah_jtl').val()) || 0;
-        var jumlahIndeks = parseFloat($('#create_jumlah_indeks').val()) || 0;
+        var allPegawai = $('#create_allpegawai').val();
         
-        if (jumlahIndeks > 0 && jumlahJtl > 0) {
-            var nilaiIndeks = jumlahJtl / jumlahIndeks;
-            $('#create_nilai_indeks').val(nilaiIndeks.toFixed(2));
+        // Only calculate if allpegawai = 1
+        if (allPegawai == '1') {
+            var jumlahJtl = parseFloat($('#jumlah_jtl').val()) || 0;
+            var jumlahIndeks = parseFloat($('#create_jumlah_indeks').val()) || 0;
+            
+            if (jumlahIndeks > 0 && jumlahJtl > 0) {
+                var nilaiIndeks = jumlahJtl / jumlahIndeks;
+                $('#create_nilai_indeks').val(nilaiIndeks.toFixed(2));
+            } else {
+                $('#create_nilai_indeks').val('0.00');
+            }
         } else {
             $('#create_nilai_indeks').val('0.00');
+        }
+    }
+
+    // Function to calculate nilai indeks for edit form
+    function calculateEditNilaiIndeks() {
+        var allPegawai = $('#edit_allpegawai').val();
+        
+        // Only calculate if allpegawai = 1
+        if (allPegawai == '1') {
+            var jumlahJtl = parseFloat($('#edit_jumlah_jtl').val()) || 0;
+            var jumlahIndeks = parseFloat($('#edit_jumlah_indeks').val()) || 0;
+            
+            if (jumlahIndeks > 0 && jumlahJtl > 0) {
+                var nilaiIndeks = jumlahJtl / jumlahIndeks;
+                $('#edit_nilai_indeks').val(nilaiIndeks.toFixed(2));
+            } else {
+                $('#edit_nilai_indeks').val('0.00');
+            }
+        } else {
+            $('#edit_nilai_indeks').val('0.00');
+        }
+    }
+
+    // Function to toggle indeks fields visibility
+    function toggleIndeksFields(prefix, allPegawai) {
+        var jumlahIndeksWrapper = $('#' + prefix + '_jumlah_indeks_wrapper');
+        var nilaiIndeksWrapper = $('#' + prefix + '_nilai_indeks_wrapper');
+        var jumlahIndeksInput = $('#' + prefix + '_jumlah_indeks');
+        var nilaiIndeksInput = $('#' + prefix + '_nilai_indeks');
+        
+        if (allPegawai == '0') {
+            // Hide fields and set values to 0
+            jumlahIndeksWrapper.hide();
+            nilaiIndeksWrapper.hide();
+            jumlahIndeksInput.val('0.00');
+            nilaiIndeksInput.val('0.00');
+            
+            // Remove required attribute
+            jumlahIndeksInput.removeAttr('required');
+            nilaiIndeksInput.removeAttr('required');
+        } else {
+            // Show fields
+            jumlahIndeksWrapper.show();
+            nilaiIndeksWrapper.show();
+            
+            // Add required attribute back
+            jumlahIndeksInput.attr('required', 'required');
+            nilaiIndeksInput.attr('required', 'required');
+            
+            // If this is create form and remunerasi source is selected, recalculate
+            if (prefix === 'create') {
+                var remunerasiSourceId = $('#create_id_remunerasi_source').val();
+                if (remunerasiSourceId) {
+                    $('#create_id_remunerasi_source').trigger('change');
+                }
+            } else if (prefix === 'edit') {
+                // For edit form, recalculate with existing values
+                calculateEditNilaiIndeks();
+            }
         }
     }
 
@@ -391,9 +538,15 @@ $(document).ready(function() {
                 var data = response.data;
                 $('#editForm').attr('action', url);
                 $('#edit_id_remunerasi_source').val(data.id_remunerasi_source);
+                $('#edit_nama_pembagian').val(data.nama_pembagian);
                 $('#edit_jumlah_jtl').val(data.jumlah_jtl);
                 $('#edit_jumlah_indeks').val(data.jumlah_indeks);
                 $('#edit_nilai_indeks').val(data.nilai_indeks);
+                $('#edit_allpegawai').val(data.allpegawai);
+                
+                // Toggle fields based on allpegawai value
+                toggleIndeksFields('edit', data.allpegawai);
+                
                 $('#editModal').modal('show');
             }
         }).fail(function() {
@@ -409,6 +562,13 @@ $(document).ready(function() {
 
  
 
+    // Initialize create modal when shown
+    $('#createModal').on('shown.bs.modal', function() {
+        // Set initial state based on default allpegawai value
+        var allPegawai = $('#create_allpegawai').val();
+        toggleIndeksFields('create', allPegawai);
+    });
+
     // Reset forms when modals are closed
     $('#createModal').on('hidden.bs.modal', function() {
         $('#createForm')[0].reset();
@@ -416,14 +576,75 @@ $(document).ready(function() {
         $('#create_nilai_indeks').val('0.00');
         $('.is-invalid').removeClass('is-invalid');
         $('.invalid-feedback').text('');
+        
+        // Reset visibility to default state
+        $('#create_jumlah_indeks_wrapper').show();
+        $('#create_nilai_indeks_wrapper').show();
+        $('#create_jumlah_indeks').attr('required', 'required');
+        $('#create_nilai_indeks').attr('required', 'required');
     });
 
     $('#editModal').on('hidden.bs.modal', function() {
         $('#editForm')[0].reset();
         $('.is-invalid').removeClass('is-invalid');
         $('.invalid-feedback').text('');
+        
+        // Reset visibility to default state
+        $('#edit_jumlah_indeks_wrapper').show();
+        $('#edit_nilai_indeks_wrapper').show();
+        $('#edit_jumlah_indeks').attr('required', 'required');
+        $('#edit_nilai_indeks').attr('required', 'required');
     });
 
+    // Handle Export Button Click
+    $('#btnExport').on('click', function(e) {
+        e.preventDefault();
+        
+        Swal.fire({
+            title: 'Export Data?',
+            text: 'Apakah Anda yakin ingin mengexport data JTL ke Excel?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#198754',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Export!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Mengexport data...',
+                    text: 'Mohon tunggu sebentar',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Create invisible link and trigger download
+                const link = document.createElement('a');
+                link.href = $(this).attr('href');
+                link.download = '';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Close loading after a short delay
+                setTimeout(() => {
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Data berhasil diexport',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }, 2000);
+            }
+        });
+    });
   
 });
 
