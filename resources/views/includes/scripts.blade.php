@@ -183,7 +183,9 @@
         e.preventDefault(); // Menghentikan default submit form
     
         var formData = $(this).serialize(); // Mengambil data form dalam bentuk serialized
-    
+        // Hapus _token dan _method
+      
+
         $.ajax({
             url: $(this).attr('action'), // Mengambil URL action dari form
             type: 'POST',

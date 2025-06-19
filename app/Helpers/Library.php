@@ -1,4 +1,7 @@
 <?php
+function cleanInput($request) {
+    return $request->except(['_token', '_method']);
+}
    function formatRupiah($angka)
  {
      return 'Rp ' . number_format($angka, 0, ',', '.');

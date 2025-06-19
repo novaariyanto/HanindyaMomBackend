@@ -132,7 +132,7 @@ class DetailSourceController extends Controller
         try {
             $detailSource = DetailSource::findOrFail($id);
             $update = DetailSource::where('id', $detailSource->id)
-                                   ->update($request->all());
+                                   ->update(cleanInput($request->all()));
             return ResponseFormatter::success(null, 'Data berhasil diupdate');
         } catch (\Exception $e) {
             return ResponseFormatter::error(null, 'Data gagal diupdate: ' . $e->getMessage());

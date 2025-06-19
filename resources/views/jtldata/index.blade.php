@@ -115,6 +115,16 @@
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">di bagi All Pegawai <span class="text-danger">*</span></label>
+                                <select class="form-select" name="allpegawai" id="create_allpegawai" required>
+                                    <option value="1">Ya</option>
+                                    <option value="0">Tidak</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -12,13 +12,15 @@ class Jtldata extends Model
         'id_remunerasi_source',
         'jumlah_jtl',
         'jumlah_indeks', 
-        'nilai_indeks'
+        'nilai_indeks',
+        'allpegawai'
     ];
 
     protected $casts = [
         'jumlah_jtl' => 'decimal:2',
         'jumlah_indeks' => 'decimal:2',
-        'nilai_indeks' => 'decimal:2'
+        'nilai_indeks' => 'decimal:2',
+        'allpegawai' => 'integer'
     ];
 
     public function remunerasiSource()

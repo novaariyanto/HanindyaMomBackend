@@ -35,6 +35,9 @@ class JtldataController extends Controller
                     ->addColumn('nilai_indeks_formatted', function($row){
                         return number_format($row->nilai_indeks, 2);
                     })
+                    ->addColumn('allpegawai_formatted', function($row){
+                        return number_format($row->allpegawai, 0);
+                    })
                     ->addColumn('action', function($row){
                         return '
                            
@@ -67,7 +70,8 @@ class JtldataController extends Controller
             'id_remunerasi_source' => 'required|exists:remunerasi_source,id',
             'jumlah_jtl' => 'required|numeric|min:0',
             'jumlah_indeks' => 'required|numeric|min:0',
-            'nilai_indeks' => 'required|numeric|min:0'
+            'nilai_indeks' => 'required|numeric|min:0',
+            'allpegawai' => 'required|integer|min:0'
         ]);
 
         if ($validator->fails()) {
@@ -104,7 +108,8 @@ class JtldataController extends Controller
             'id_remunerasi_source' => 'required|exists:remunerasi_source,id',
             'jumlah_jtl' => 'required|numeric|min:0',
             'jumlah_indeks' => 'required|numeric|min:0',
-            'nilai_indeks' => 'required|numeric|min:0'
+            'nilai_indeks' => 'required|numeric|min:0',
+            'allpegawai' => 'required|integer|min:0'
         ]);
 
         if ($validator->fails()) {

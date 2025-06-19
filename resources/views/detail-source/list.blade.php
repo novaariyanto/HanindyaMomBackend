@@ -225,7 +225,8 @@
 @endsection
 
 @push('scripts')
-<script
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function() {
@@ -313,10 +314,8 @@ $(document).ready(function() {
         });
     });
 
-    // Handle Edit Form Submit
-
-    // Handle Delete Button Click
   
+
     // Reset form when modal is closed
     $('#createModal').on('hidden.bs.modal', function () {
         $('#createForm')[0].reset();

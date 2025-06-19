@@ -424,7 +424,7 @@ Route::middleware('auth')->group(function () {
     Route::get('jtldata/{id_remunerasi_source}/get-jumlah-jtl', [JtldataController::class, 'getJumlahJtl'])->name('jtldata.getJumlahJtl');
     Route::get('jtldata/{id_remunerasi_source}', [JtldataController::class, 'index'])->name('jtldata.index');
     Route::post('jtldata', [JtldataController::class, 'store'])->name('jtldata.store');
-    Route::get('jtldata/{id}', [JtldataController::class, 'show'])->name('jtldata.show');
+    // Route::get('jtldata/{id}', [JtldataController::class, 'show'])->name('jtldata.show');
     Route::put('jtldata/{id}', [JtldataController::class, 'update'])->name('jtldata.update');
     Route::delete('jtldata/{id}', [JtldataController::class, 'destroy'])->name('jtldata.destroy');
 });

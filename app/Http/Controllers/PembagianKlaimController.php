@@ -117,7 +117,7 @@ class PembagianKlaimController extends Controller
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
                 $idxdaftar_in = explode(".", $data['idxdaftar_in']);
-                
+               
               
                 $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
                 $selisih = $selisih*-1;
@@ -609,7 +609,7 @@ class PembagianKlaimController extends Controller
                 // bpjps
                  $sep = $data_detail_source->no_sep;
                 $data = $this->getIdxDaftar($sep);
-              
+               
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
                 if($data['idxdaftar'] == ""){
@@ -1154,12 +1154,12 @@ class PembagianKlaimController extends Controller
             ]);
         }
         $data_detail_source = $detailSource->first();
-        if($data_detail_source->status_pembagian_klaim == 1){
-            return response()->json([
-                'success' => false,
-                'message' => 'Data sudah diproses'
-            ]);
-        }
+        // if($data_detail_source->status_pembagian_klaim == 1){
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Data sudah diproses'
+        //     ]);
+        // }
     
       $hitung = $this->hitung($data_detail_source->id_remunerasi_source, $data_detail_source);
     
@@ -1261,7 +1261,7 @@ class PembagianKlaimController extends Controller
         return null; // atau bisa return string error
     }
     
-      function getIdxDaftar($sep) {
+    function getIdxDaftar($sep) {
         $idxdaftar_in = "0";
         if(strpos($sep,"-") !== false){
             $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $sep)->first();
@@ -1281,11 +1281,11 @@ class PembagianKlaimController extends Controller
                 $tglSep = $tbpjs->tglSep;
 
              
-
+             
                 
                 if($idxdaftar == ""){
-                        $tpendaftaran = Tpendaftaran::where('NOMR', $nomr)->orWhere('NO_PESERTA',$nopeserta)->first(); 
-                      
+                        $tpendaftaran = Tpendaftaran::where('NOMR', $nomr)->Where('NO_PESERTA',$nopeserta)->where('TGLREG',$tglSep)->first(); 
+                        
                         if($tpendaftaran){
                             $idxdaftar = $tpendaftaran->IDXDAFTAR;
                             
