@@ -653,7 +653,7 @@ class DetailSourceController extends Controller
                 try {
                     // Cek apakah data sudah ada berdasarkan id_pegawai dan remunerasi_source
                     $existingData = JtlPegawaiHasil::where([
-                        'id_pegawai' => $indeks->id_pegawai,
+                        'nik' => $indeks->nik,
                         'remunerasi_source' => $sourceId
                     ])->first();
 
@@ -661,6 +661,7 @@ class DetailSourceController extends Controller
                         'id_pegawai' => $indeks->id_pegawai,
                         'remunerasi_source' => $sourceId,
                         'nik' => $indeks->nik,
+                        'unit_kerja' => $indeks->unit_kerja,
                         'unit_kerja_id' => $indeks->unit_kerja_id,
                         'nama_pegawai' => $indeks->nama_pegawai,
                         'dasar' => $indeks->dasar,
