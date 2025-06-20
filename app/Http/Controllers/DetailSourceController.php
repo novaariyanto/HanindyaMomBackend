@@ -379,7 +379,8 @@ class DetailSourceController extends Controller
                         'pajak' => $indeks->pajak,
                         'unit_kerja_id' => $indeks->unit_kerja_id,
                         'nama_pegawai' => $indeks->nama_pegawai,
-                        'nik' => $indeks->nik
+                        'nik' => $indeks->nik,
+                        'unit_kerja' => $indeks->unit_kerja
                     ];
 
                     if ($existingData) {
