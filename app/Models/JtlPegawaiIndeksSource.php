@@ -22,7 +22,8 @@ class JtlPegawaiIndeksSource extends Model
         'pajak',
         'unit_kerja_id',
         'nama_pegawai',
-        'nik'
+        'nik',
+        'unit_kerja'
     ];
 
     protected $casts = [
