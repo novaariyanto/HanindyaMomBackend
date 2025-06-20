@@ -226,7 +226,7 @@ class DetailSourceController extends Controller
                     return $row->nama_pegawai ?: ($row->pegawai ? $row->pegawai->nama : '-');
                 })
                 ->editColumn('unit_kerja', function($row) {
-                    return $row->unitKerja ? $row->unitKerja->nama : '-';
+                    return $row->unit_kerja;
                 })
                
                 
