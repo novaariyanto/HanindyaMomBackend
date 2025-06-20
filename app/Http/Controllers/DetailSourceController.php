@@ -1880,6 +1880,11 @@ class DetailSourceController extends Controller
                     }
                      foreach($data_operasi as $row_operasi){
                         $OPERATOR[] = $row_operasi->kode_dokteroperator;
+                        if($tadmission->dokter_penanggungjawab != $row_operasi->kode_dokteroperator){
+                            $DPJP = "";
+                            $DOKTERRABER = $row_operasi->kode_dokteroperator;
+                            $DPJPRABER = $tadmission->dokter_penanggungjawab;
+                        }
                         if($row_operasi->kode_dokteranastesi != "" && $row_operasi->kode_dokteranastesi != "0"){
                             $ANESTESI = $row_operasi->kode_dokteranastesi;
                               $PENATA = "9";
