@@ -243,7 +243,6 @@ class DetailSourceController extends Controller
     public function storeIndeksPegawai(Request $request, $sourceId)
     {
         $validator = Validator::make($request->all(), [
-            'id_pegawai' => 'required|exists:pegawai,id',
             'dasar' => 'required|numeric|min:0',
             'kompetensi' => 'required|numeric|min:0',
             'resiko' => 'required|numeric|min:0',
@@ -252,9 +251,10 @@ class DetailSourceController extends Controller
             'kinerja' => 'required|numeric|min:0',
             'rekening' => 'nullable|string|max:50',
             'pajak' => 'nullable|numeric|min:0',
-            'unit_kerja_id' => 'required|exists:unit_kerja,id',
+            'unit_kerja' => 'required|string|max:255',
             'nama_pegawai' => 'required|string|max:255',
             'nik' => 'required|string|max:20'
+
         ]);
 
         if ($validator->fails()) {

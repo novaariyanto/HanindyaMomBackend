@@ -100,16 +100,11 @@
                         </div>
                     </div>
                     <div class="row">
+                       
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">ID Pegawai</label>
-                                <input type="number" class="form-control" name="id_pegawai" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Unit Kerja ID</label>
-                                <input type="number" class="form-control" name="unit_kerja_id" required>
+                                <label class="form-label">Unit Kerja</label>
+                                <input type="text" class="form-control" name="unit_kerja" required>
                             </div>
                         </div>
                     </div>
@@ -206,12 +201,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">ID Pegawai</label>
-                                <input type="number" class="form-control" name="id_pegawai" id="edit_id_pegawai" required>
-                            </div>
-                        </div>
+                        
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Unit Kerja ID</label>
@@ -536,8 +526,7 @@ $(document).ready(function() {
                 $('#editForm').attr('action', url);
                 $('#edit_nik').val(data.nik);
                 $('#edit_nama_pegawai').val(data.nama_pegawai);
-                $('#edit_id_pegawai').val(data.id_pegawai);
-                $('#edit_unit_kerja_id').val(data.unit_kerja_id);
+                $('#edit_unit_kerja').val(data.unit_kerja);
                 $('#edit_dasar').val(data.dasar);
                 $('#edit_kompetensi').val(data.kompetensi);
                 $('#edit_resiko').val(data.resiko);

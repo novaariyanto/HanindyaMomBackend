@@ -9,7 +9,6 @@ class JtlPegawaiIndeksSource extends Model
     protected $table = 'jtl_pegawai_indeks_source';
   
     protected $fillable = [
-        'id_pegawai',
         'remunerasi_source',
         'dasar',
         'kompetensi',
