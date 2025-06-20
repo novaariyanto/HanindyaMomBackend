@@ -502,7 +502,7 @@ $(document).ready(function() {
             },
             {data: 'nik', name: 'nik'},
             {data: 'nama_pegawai', name: 'nama_pegawai'},
-            {data: 'unit_kerja_id', name: 'unit_kerja_id'},
+            {data: 'unit_kerja', name: 'unit_kerja'},
             {data: 'dasar', name: 'dasar'},
             {data: 'kompetensi', name: 'kompetensi'},
             {data: 'resiko', name: 'resiko'},
