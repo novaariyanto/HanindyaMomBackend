@@ -1248,7 +1248,6 @@ class DetailSourceController extends Controller
             if($idxdaftar_in == "0"){
                 $databilling = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
             }else{
-               
                 $databilling = Tbillrajal::whereIn('IDXDAFTAR', $idxdaftar_in)
                                         ->where('NOMR', $nomr)
                                         ->get();
@@ -1256,7 +1255,7 @@ class DetailSourceController extends Controller
         
            
             
-           
+
             $pisau = 0; //v
             $TOTALLPA = 0;//v
             $TOTALPATKLIN = 0;//v
@@ -1305,6 +1304,7 @@ class DetailSourceController extends Controller
             $STRUKTURAL = 1;
             $JTL = 1;
             $PENATABANKDARAH = "";
+            $kddokter = [];
             
             
             foreach($databilling as $row){
@@ -1315,13 +1315,21 @@ class DetailSourceController extends Controller
                     $TINDAKANRAJAL = $row->KDDOKTER;
                    
                 }
+                if($row->id_kategori == 1){
+                    $kddokter[] = $row->KDDOKTER;
+                }
                
                 if($row->UNIT == 15){
                     $pisau += 1;
-                    $data_operasi = Moperasi::where(['IDXDAFTAR' => $idxdaftar, 'nomr' => $nomr])->where('status', '!=', 'batal')->get();
+                    if($idxdaftar_in == "0"){
+                        $data_operasi = Moperasi::where(['IDXDAFTAR' => $idxdaftar, 'nomr' => $nomr])->where('status', '!=', 'batal')->get();
+                    }else{
+                        $data_operasi = Moperasi::whereIn('IDXDAFTAR', $idxdaftar_in)->where('NOMR', $nomr)->where('status', '!=', 'batal')->get();
+                    }
+                   
                     foreach($data_operasi as $row_operasi){
-                        $OPERATOR[] = $row_operasi->kode_dokteroperator;
-                        if($row_operasi->kode_dokteranastesi != ""){
+                        $DPJP = $row_operasi->kode_dokteroperator;
+                        if($row_operasi->kode_dokteranastesi != "" && $row_operasi->kode_dokteranastesi != "0"){
                             $ANESTESI = $row_operasi->kode_dokteranastesi;
                             $PENATA = "9";
                         }
@@ -1433,6 +1441,11 @@ class DetailSourceController extends Controller
             ->where('groups', ($data_detail_source->jenis == 'Rawat Jalan')?"RJTL":"RITL")
             ->where('jenis', ($pisau)?"PISAU":"NONPISAU")
             ->get();
+         
+            if($pisau && sizeof($kddokter) > 0){
+                $KONSULEN = $kddokter;
+            }
+         
             
             $pembagian = [];
             $divisi = Divisi::pluck('nama', 'id');
@@ -1440,6 +1453,8 @@ class DetailSourceController extends Controller
     
             $proporsi_fairness_radiologi = [];
             $proporsi_fairness_laboratorist = [];
+            $proporsi_fairness_dpjp = [];
+            $proporsi_fairness_konsulen = [];
 
             foreach($proporsi_fairness as $row){
                 
@@ -1498,6 +1513,10 @@ class DetailSourceController extends Controller
                         if($row['ppa'] == "Dokter_Umum_IGD"){
                             $proporsi_fairness_umum_igd = $row;
                         }
+                        if($row['ppa'] == "KONSULEN"){
+                         
+                            $proporsi_fairness_konsulen = $row;
+                        }
     
                         
                             
@@ -1510,7 +1529,8 @@ class DetailSourceController extends Controller
                     }
     
                     
-                    if($nilai_remunerasi > 0){    
+                    if($nilai_remunerasi > 0){   
+                        if($row['ppa'] != "KONSULEN" && $row['ppa'] != "Dokter_Umum_IGD"){
                         $data = [
                             'groups'=>$row['groups'],
                             'jenis'=>$row['jenis'],
@@ -1534,40 +1554,53 @@ class DetailSourceController extends Controller
                         ];     
                         $total_remunerasi += ($umum_efek == 1)?1*$nilai_remunerasi:$nilai_remunerasi;          
                         $savePembagianKlaim = PembagianKlaim::create($data);
-                    }
+                        }
+                    }   
             } 
-
-            if(sizeof($kddokter) > 0){
-                
-                foreach($kddokter as $key => $dokter){
-                    $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
-                    $data = [
-                        'groups'=>($data_detail_source->jenis == 'Rawat Jalan')?"RJTL":"RITL",
-                        'jenis'=>$data_detail_source->jenis,
-                        'grade'=>$grade,
-                        'ppa'=>"DPJP",
-                        'value'=>$proporsi_fairness_dpjp->value,
-                        'sumber'=>'HARGA',
-                        'flag'=>'',
-                        'del'=>0,
-                        'sep'=>$data_detail_source->no_sep,
-                        'id_detail_source'=>$data_detail_source->id,
-                        'cluster'=>1,
-                        'idxdaftar'=>$idxdaftar,
-                        'nomr'=>$nomr,
-                        'tanggal'=>$data_detail_source->tgl_verifikasi,
-                        'nama_ppa'=>$nama_dokter,
-                        'kode_dokter'=>@$dokter,
-                        'sumber_value'=>$proporsi_fairness_dpjp->value,
-                        'nilai_remunerasi'=>$proporsi_fairness_dpjp->value,
-                        'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
-                    ];   
-                    $nilai_remunerasi = $proporsi_fairness_dpjp->value; 
-                    $total_remunerasi +=($umum_efek == 1)?1*$nilai_remunerasi:$nilai_remunerasi;    
-                    $savePembagianKlaim = PembagianKlaim::create($data);
+          
+          
+            if (!empty($kddokter) && is_array($kddokter)) {
+                foreach ($kddokter as $dokter) {
+                    if ($dokter != $DPJP) {
+                        $dokterData = Dokter::where('KDDOKTER', $dokter)->first();
+                        if (!$dokterData) continue;
+            
+                        $nama_dokter = $dokterData->NAMADOKTER;
+                        $nilai_remunerasi = isset($proporsi_fairness_konsulen->value) ? $proporsi_fairness_konsulen->value : 0;
+            
+                        $data = [
+                            'groups'      => ($data_detail_source->jenis == 'Rawat Jalan') ? "RJTL" : "RITL",
+                            'jenis'       => $data_detail_source->jenis,
+                            'grade'       => $grade,
+                            'ppa'         => "DPJP",
+                            'value'       => $nilai_remunerasi,
+                            'sumber'      => 'HARGA',
+                            'flag'        => '',
+                            'del'         => 0,
+                            'sep'         => $data_detail_source->no_sep,
+                            'id_detail_source' => $data_detail_source->id,
+                            'cluster'     => 1,
+                            'idxdaftar'   => $idxdaftar,
+                            'nomr'        => $nomr,
+                            'tanggal'     => $data_detail_source->tgl_verifikasi,
+                            'nama_ppa'    => $nama_dokter,
+                            'kode_dokter' => $dokter,
+                            'sumber_value' => $nilai_remunerasi,
+                            'nilai_remunerasi' => $nilai_remunerasi,
+                            'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
+                        ];
+             
+                        $total_remunerasi += ($umum_efek == 1) ? 1 * $nilai_remunerasi : $nilai_remunerasi;
+                        $savePembagianKlaim = PembagianKlaim::create($data);
+                    }
                 }
-                
             }
+            
+           
+              
+           
+
+          
            
 
             if( $TOTALBANKDARAH > 0){
@@ -1575,7 +1608,7 @@ class DetailSourceController extends Controller
                 $persentase_bankdarah = [0.03,0.012,0.008];
                 foreach($dokter_bankdarah as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
-                    $data = [
+                    $datasave = [
                         'groups'=>($data_detail_source->jenis == 'Rawat Jalan')?"RJTL":"RITL",
                         'jenis'=>$data_detail_source->jenis,
                         'grade'=>$grade,
@@ -1597,7 +1630,7 @@ class DetailSourceController extends Controller
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
                     $total_remunerasi += $persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
-                    $savePembagianKlaim = PembagianKlaim::create($data);
+                    $savePembagianKlaim = PembagianKlaim::create($datasave);
                 }
                 
             }
@@ -1847,7 +1880,7 @@ class DetailSourceController extends Controller
                     }
                      foreach($data_operasi as $row_operasi){
                         $OPERATOR[] = $row_operasi->kode_dokteroperator;
-                        if($row_operasi->kode_dokteranastesi != ""){
+                        if($row_operasi->kode_dokteranastesi != "" && $row_operasi->kode_dokteranastesi != "0"){
                             $ANESTESI = $row_operasi->kode_dokteranastesi;
                               $PENATA = "9";
                         }
@@ -2223,7 +2256,6 @@ class DetailSourceController extends Controller
             "data"=>$data_detail_source
         ];
     }
-   
     
     
     function groupAndCount(array $data): array {

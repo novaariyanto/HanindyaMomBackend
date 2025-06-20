@@ -255,17 +255,13 @@
         </div>
       </header>
       <!--  Header End -->
-
-
+      
 
       <div class="body-wrapper">
         
+        
           @yield('content')
-      <script>
-  function handleColorTheme(e) {
-    document.documentElement.setAttribute("data-color-theme", e);
-  }
-</script>
+  
       {{-- <button class="btn btn-primary p-3 rounded-circle d-flex align-items-center justify-content-center customizer-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
         <i class="icon ti ti-settings fs-7"></i>
       </button> --}}
@@ -538,6 +534,11 @@
     </div>
   </div>
 </div>
+<script>
+  function handleColorTheme(e) {
+    document.documentElement.setAttribute("data-color-theme", e);
+  }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
 <script src="{{asset('js/vendor.min.js')}}"></script>
   <!-- Import Js Files -->
