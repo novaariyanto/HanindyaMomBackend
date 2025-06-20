@@ -9,7 +9,6 @@ class JtlPegawaiIndeks extends Model
     protected $table = 'jtl_pegawai_indeks';
     
     protected $fillable = [
-        'id_pegawai',
         'dasar',
         'kompetensi',
         'resiko',
@@ -20,6 +19,7 @@ class JtlPegawaiIndeks extends Model
         'rekening',
         'pajak',
         'unit_kerja_id',
+        'unit_kerja',
         'nama_pegawai',
         'nik'
     ];

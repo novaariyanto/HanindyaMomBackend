@@ -79,7 +79,6 @@ class IndeksPegawaiController extends Controller
     {
         $validator = validator($request->all(), [
             'nama' => 'required|string|max:255',
-            'nip' => 'required|string|max:30',
             'nik' => 'required|string|max:20|unique:indeks_pegawai',
             'unit' => 'nullable|string|max:255',
             'unit_kerja_id' => 'nullable|exists:eprofile.unit_kerja,id',
