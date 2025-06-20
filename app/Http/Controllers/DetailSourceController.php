@@ -236,7 +236,7 @@ class DetailSourceController extends Controller
     public function getIndeksBySource(Request $request, $sourceId)
     {
         if ($request->ajax()) {
-            $data = JtlPegawaiIndeksSource::with(['remunerasiSource', 'pegawai', 'unitKerja'])
+            $data = JtlPegawaiIndeksSource::with(['remunerasiSource', 'pegawai'])
                 ->where('remunerasi_source', $sourceId);
             
             return DataTables::of($data)
@@ -270,7 +270,7 @@ class DetailSourceController extends Controller
     public function storeIndeksPegawai(Request $request, $sourceId)
     {
         $validator = Validator::make($request->all(), [
-            'id_pegawai' => 'required|exists:pegawai,id',
+            'id_pegawai' => 'required',
             'dasar' => 'required|numeric|min:0',
             'kompetensi' => 'required|numeric|min:0',
             'resiko' => 'required|numeric|min:0',
@@ -279,7 +279,7 @@ class DetailSourceController extends Controller
             'kinerja' => 'required|numeric|min:0',
             'rekening' => 'nullable|string|max:50',
             'pajak' => 'nullable|numeric|min:0',
-            'unit_kerja_id' => 'required|exists:unit_kerja,id',
+            'unit_kerja_id' => 'required',
             'nama_pegawai' => 'required|string|max:255',
             'nik' => 'required|string|max:20'
         ]);

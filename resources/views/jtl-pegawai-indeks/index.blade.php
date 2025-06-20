@@ -86,19 +86,23 @@
                 @csrf
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Pegawai</label>
-                        <select class="form-select" name="id_pegawai" required>
-                            <option value="">Pilih Pegawai</option>
-                            @php
-                                $pegawai = $pegawai->sortBy('nama');
-                            @endphp
-                            @foreach($pegawai as $p)
-                                <option value="{{ $p->id }}">{{ $p->nama }} - {{ $p->nik }}</option>
-                            @endforeach
-                        </select>
+                        <label class="form-label">NIK</label>
+                        <input type="text" class="form-control" name="nik" required>
                     </div>
                     
                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Nama Pegawai</label>
+                                <input type="text" class="form-control" name="nama_pegawai" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Unit Kerja</label>
+                                <input type="text" class="form-control" name="unit_kerja" required>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Dasar</label>
@@ -179,16 +183,23 @@
                 @method('PUT')
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Pegawai</label>
-                        <select class="form-select" name="id_pegawai" id="edit_id_pegawai" required>
-                            <option value="">Pilih Pegawai</option>
-                            @foreach($pegawai as $p)
-                                <option value="{{ $p->id }}">{{ $p->nip }} - {{ $p->nama }}</option>
-                            @endforeach
-                        </select>
+                        <label class="form-label">NIK</label>
+                        <input type="text" class="form-control" name="nik" id="edit_nik" required>
                     </div>
                     
                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Nama Pegawai</label>
+                                <input type="text" class="form-control" name="nama_pegawai" id="edit_nama_pegawai" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Unit Kerja</label>
+                                <input type="text" class="form-control" name="unit_kerja" id="edit_unit_kerja" required>
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Dasar</label>
@@ -404,62 +415,6 @@ $(document).ready(function() {
         datatable.ajax.reload();
     });
 
-    // Handle Create Form Submit
-    $('#createForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        var formData = new FormData(this);
-        
-        $.ajax({
-            url: $(this).attr('action'),
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                if (response.meta.status === 'success') {
-                    $('#createModal').modal('hide');
-                    datatable.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: response.meta.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                }
-            },
-            error: function(xhr) {
-                var errorMessage = 'Terjadi kesalahan';
-                if (xhr.responseJSON && xhr.responseJSON.meta && xhr.responseJSON.meta.message) {
-                    errorMessage = xhr.responseJSON.meta.message;
-                }
-                
-                if (xhr.responseJSON && xhr.responseJSON.data) {
-                    var errors = xhr.responseJSON.data;
-                    var errorDetails = '';
-                    
-                    $.each(errors, function(key, value) {
-                        if (Array.isArray(value)) {
-                            errorDetails += value.join(', ') + '\n';
-                        } else {
-                            errorDetails += value + '\n';
-                        }
-                    });
-                    
-                    if (errorDetails) {
-                        errorMessage += '\n\nDetail:\n' + errorDetails;
-                    }
-                }
-                
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal Menyimpan!',
-                    text: errorMessage
-                });
-            }
-        });
-    });
 
     // Handle Edit Button Click
     $(document).on('click', '.btn-edit', function() {
@@ -469,7 +424,6 @@ $(document).ready(function() {
             var data = data.data;
             var updateUrl = url.replace('/show/', '/update/').replace('jtl-pegawai-indeks.show', 'jtl-pegawai-indeks.update');
             $('#editForm').attr('action', updateUrl);
-            $('#edit_id_pegawai').val(data.id_pegawai);
             $('#edit_dasar').val(data.dasar);
             $('#edit_kompetensi').val(data.kompetensi);
             $('#edit_resiko').val(data.resiko);
@@ -478,116 +432,14 @@ $(document).ready(function() {
             $('#edit_kinerja').val(data.kinerja);
             $('#edit_rekening').val(data.rekening);
             $('#edit_pajak').val(data.pajak);
+            $('#edit_unit_kerja').val(data.unit_kerja);
+            $('#edit_nama_pegawai').val(data.nama_pegawai);
+            $('#edit_nik').val(data.nik);
             $('#editModal').modal('show');
         });
         });
 
     // Handle Edit Form Submit
-    $('#editForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        var formData = new FormData(this);
-        
-        $.ajax({
-            url: $(this).attr('action'),
-            method: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                if (response.meta.status === 'success') {
-                    $('#editModal').modal('hide');
-                    datatable.ajax.reload();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: response.meta.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                }
-            },
-            error: function(xhr) {
-                var errorMessage = 'Terjadi kesalahan';
-                if (xhr.responseJSON && xhr.responseJSON.meta && xhr.responseJSON.meta.message) {
-                    errorMessage = xhr.responseJSON.meta.message;
-                }
-                
-                if (xhr.responseJSON && xhr.responseJSON.data) {
-                    var errors = xhr.responseJSON.data;
-                    var errorDetails = '';
-                    
-                    $.each(errors, function(key, value) {
-                        if (Array.isArray(value)) {
-                            errorDetails += value.join(', ') + '\n';
-                        } else {
-                            errorDetails += value + '\n';
-                        }
-                    });
-                    
-                    if (errorDetails) {
-                        errorMessage += '\n\nDetail:\n' + errorDetails;
-                    }
-                }
-                
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal Mengupdate!',
-                    text: errorMessage
-                });
-            }
-        });
-    });
-
-    // Handle Delete Button Click
-    $(document).on('click', '.btn-delete', function() {
-        var url = $(this).data('url');
-        
-        Swal.fire({
-            title: 'Konfirmasi Hapus',
-            text: 'Apakah Anda yakin ingin menghapus data ini?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: url,
-                    method: 'DELETE',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success: function(response) {
-                        if (response.meta.status === 'success') {
-                            datatable.ajax.reload();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: response.meta.message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        var errorMessage = 'Terjadi kesalahan saat menghapus data';
-                        if (xhr.responseJSON && xhr.responseJSON.meta && xhr.responseJSON.meta.message) {
-                            errorMessage = xhr.responseJSON.meta.message;
-                        }
-                        
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal Menghapus!',
-                            text: errorMessage
-                        });
-                    }
-                });
-            }
-        });
-    });
  
 
     // Reset form when modal is closed

@@ -42,7 +42,7 @@ class JtlPegawaiIndeksController extends Controller
                     return $row->nik;
                 })
                 ->addColumn('unit_kerja', function($row) {
-                    return $row->unitKerja ? $row->unitKerja->nama : '-';
+                    return $row->unit_kerja;
                 })
                 ->editColumn('dasar', function($row) {
                     return number_format($row->dasar, 2);
@@ -92,7 +92,6 @@ class JtlPegawaiIndeksController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id_pegawai' => 'required',
             'dasar' => 'required|numeric|min:0|max:99999999.99',
             'kompetensi' => 'required|numeric|min:0|max:99999999.99',
             'resiko' => 'required|numeric|min:0|max:99999999.99',
@@ -100,11 +99,11 @@ class JtlPegawaiIndeksController extends Controller
             'posisi' => 'required|numeric|min:0|max:99999999.99',
             'kinerja' => 'required|numeric|min:0|max:99999999.99',
             'rekening' => 'nullable|string|max:50',
-            'pajak' => 'nullable|numeric|min:0|max:99999999.99'
+            'pajak' => 'nullable|numeric|min:0|max:99999999.99',
+            'unit_kerja' => 'nullable|string|max:200',
+            'nama_pegawai' => 'nullable|string|max:200',
+            'nik' => 'nullable|string|max:200'
         ], [
-            'id_pegawai.required' => 'Pegawai harus dipilih',
-            'id_pegawai.exists' => 'Pegawai tidak ditemukan',
-            'id_pegawai.unique' => 'Indeks untuk pegawai ini sudah ada',
             'dasar.required' => 'Nilai dasar harus diisi',
             'dasar.numeric' => 'Nilai dasar harus berupa angka',
             'dasar.min' => 'Nilai dasar tidak boleh negatif',
@@ -126,7 +125,13 @@ class JtlPegawaiIndeksController extends Controller
             'rekening.string' => 'Rekening harus berupa teks',
             'rekening.max' => 'Rekening maksimal 50 karakter',
             'pajak.numeric' => 'Pajak harus berupa angka',
-            'pajak.min' => 'Pajak tidak boleh negatif'
+            'pajak.min' => 'Pajak tidak boleh negatif',
+            'unit_kerja.string' => 'Unit kerja harus berupa teks',
+            'unit_kerja.max' => 'Unit kerja maksimal 200 karakter',
+            'nama_pegawai.string' => 'Nama pegawai harus berupa teks',
+            'nama_pegawai.max' => 'Nama pegawai maksimal 200 karakter',
+            'nik.string' => 'NIK harus berupa teks',
+            'nik.max' => 'NIK maksimal 200 karakter'
         ]);
 
         if ($validator->fails()) {
@@ -134,10 +139,38 @@ class JtlPegawaiIndeksController extends Controller
         }
 
         try {
-            $jtlPegawaiIndeks = JtlPegawaiIndeks::create($request->all());
+
+            $nama = $this->hapusGelar($request->nik);
+            $nama = $this->ambilDuaKataPertama($nama);
+            $nama = str_replace("'", "", $nama);
+            $pegawai = Pegawai::where('nik', $request->nik)
+                ->orWhere('nama', 'like','%'.$request->nama_pegawai.'%')
+                ->first();
+
+            if ($pegawai) {
+                    // Update id_pegawai to use pegawai ID
+                    $request->id_pegawai = $pegawai->id;
+                    $request->nama_pegawai = $pegawai->nama;
+                    $request->nik = $pegawai->nik;
+                    $request->unit_kerja_id = @$pegawai->mutasiAktif->unit_kerja_id;
+            }
+       
+            // Check if data already exists based on NIK
+            $existingIndeks = JtlPegawaiIndeks::where('nik', $request->nik)->first();
+            
+            if ($existingIndeks) {
+                // Update existing data
+                $existingIndeks->update($request->all());
+                $jtlPegawaiIndeks = $existingIndeks;
+                $message = 'Data indeks pegawai berhasil diperbarui';
+            } else {
+                // Create new data
+                $jtlPegawaiIndeks = JtlPegawaiIndeks::create($request->all());
+                $message = 'Data indeks pegawai berhasil ditambahkan';
+            }
             return ResponseFormatter::success($jtlPegawaiIndeks, 'Data indeks pegawai berhasil ditambahkan');
         } catch (\Exception $e) {
-            return ResponseFormatter::error(null, 'Terjadi kesalahan saat menyimpan data', 500);
+            return ResponseFormatter::error(null, 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage(), 500);
         }
     }
 
@@ -166,7 +199,7 @@ class JtlPegawaiIndeksController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'id_pegawai' => 'required',
+            
             'dasar' => 'required|numeric|min:0|max:99999999.99',
             'kompetensi' => 'required|numeric|min:0|max:99999999.99',
             'resiko' => 'required|numeric|min:0|max:99999999.99',
@@ -174,7 +207,10 @@ class JtlPegawaiIndeksController extends Controller
             'posisi' => 'required|numeric|min:0|max:99999999.99',
             'kinerja' => 'required|numeric|min:0|max:99999999.99',
             'rekening' => 'nullable|string|max:50',
-            'pajak' => 'nullable|numeric|min:0|max:99999999.99'
+            'pajak' => 'nullable|numeric|min:0|max:99999999.99',
+            'unit_kerja' => 'nullable|string|max:200',
+            'nama_pegawai' => 'nullable|string|max:200',
+            'nik' => 'nullable|string|max:200'
         ], [
             'id_pegawai.required' => 'Pegawai harus dipilih',
             'id_pegawai.exists' => 'Pegawai tidak ditemukan',
@@ -200,7 +236,13 @@ class JtlPegawaiIndeksController extends Controller
             'rekening.string' => 'Rekening harus berupa teks',
             'rekening.max' => 'Rekening maksimal 50 karakter',
             'pajak.numeric' => 'Pajak harus berupa angka',
-            'pajak.min' => 'Pajak tidak boleh negatif'
+            'pajak.min' => 'Pajak tidak boleh negatif',
+            'unit_kerja.string' => 'Unit kerja harus berupa teks',
+            'unit_kerja.max' => 'Unit kerja maksimal 200 karakter',
+            'nama_pegawai.string' => 'Nama pegawai harus berupa teks',
+            'nama_pegawai.max' => 'Nama pegawai maksimal 200 karakter',
+            'nik.string' => 'NIK harus berupa teks',
+            'nik.max' => 'NIK maksimal 200 karakter'
         ]);
 
         if ($validator->fails()) {
@@ -328,7 +370,10 @@ class JtlPegawaiIndeksController extends Controller
                     'posisi' => floatval($row[5] ?? 0),
                     'kinerja' => floatval($row[6] ?? 0),
                     'rekening' => trim($row[7] ?? ''),
-                    'pajak' => floatval($row[8] ?? 0)
+                    'pajak' => floatval($row[8] ?? 0),
+                    'nama_pegawai' => trim($row[9] ?? ''),
+                    'unit_kerja' => trim($row[10] ?? '')
+              
                 ];
 
                 // Validate each row
@@ -341,7 +386,9 @@ class JtlPegawaiIndeksController extends Controller
                     'posisi' => 'required|numeric|min:0|max:99999999.99',
                     'kinerja' => 'required|numeric|min:0|max:99999999.99',
                     'rekening' => 'nullable|string|max:50',
-                    'pajak' => 'nullable|numeric|min:0|max:99999999.99'
+                    'pajak' => 'nullable|numeric|min:0|max:99999999.99',
+                    'unit_kerja' => 'nullable|string|max:200',
+                    'nama_pegawai' => 'nullable|string|max:200'
                 ]);
 
                 if ($rowValidator->fails()) {
@@ -351,30 +398,25 @@ class JtlPegawaiIndeksController extends Controller
                 }
 
                 // Check if pegawai exists
-                $nama = $this->hapusGelar($rowData['id_pegawai']);
-                $nama = $this->ambilDuaKataPertama($nama);
-                $nama = str_replace("'", "", $nama);
-                $pegawai = Pegawai::where('nik', $nama)
-                    ->orWhere('nama', 'like','%'.$nama.'%')
+                $nik = $rowData['id_pegawai'];
+                $rowData['nik'] = $nik;
+                
+                $pegawai = Pegawai::where('nik', $nik)
                     ->first();
 
-                if (!$pegawai) {
-                    $failed++;
-                    $errors[] = "Baris " . ($index + 2) . ": Pegawai dengan NIK {$nama} tidak ditemukan";
-                    continue;
+                if ($pegawai) {
+                        // Update id_pegawai to use pegawai ID
+                        $rowData['id_pegawai'] = $pegawai->id;
+                        $rowData['nama_pegawai'] = $pegawai->nama;
+                        $rowData['nik'] = $pegawai->nik;
+                        $rowData['unit_kerja_id'] = @$pegawai->mutasiAktif->unit_kerja_id;
                 }
 
-                // Update id_pegawai to use pegawai ID
-                $rowData['id_pegawai'] = $pegawai->id;
-                $rowData['nama_pegawai'] = $pegawai->nama;
-                $rowData['nik'] = $pegawai->nik;
-                
-                $rowData['unit_kerja_id'] = @$pegawai->mutasiAktif->unit_kerja_id;
-             
-                
+              
+               
 
                 // Check if data already exists
-                $existing = JtlPegawaiIndeks::where('id_pegawai', $pegawai->id)->first();
+                $existing = JtlPegawaiIndeks::where('nik', $nik)->first();
                 
                 try {
                     if ($existing) {
@@ -433,7 +475,9 @@ class JtlPegawaiIndeksController extends Controller
                 'F1' => 'Posisi',
                 'G1' => 'Kinerja',
                 'H1' => 'Rekening',
-                'I1' => 'Pajak'
+                'I1' => 'Pajak',
+                'J1' => 'Nama Pegawai',
+                'K1' => 'Unit Kerja'
             ];
 
             foreach ($headers as $cell => $value) {
@@ -450,7 +494,9 @@ class JtlPegawaiIndeksController extends Controller
                 'F2' => '700.00',
                 'G2' => '600.00',
                 'H2' => '622123xxx',
-                'I2' => '5'
+                'I2' => '5',
+                'J2' => 'John Doe',
+                'K2' => 'Unit Kerja'
             ];
 
             foreach ($exampleData as $cell => $value) {
@@ -458,18 +504,18 @@ class JtlPegawaiIndeksController extends Controller
             }
 
             // Set style header
-            $sheet->getStyle('A1:G1')->getFont()->setBold(true);
-            $sheet->getStyle('A1:G1')->getFill()
+            $sheet->getStyle('A1:K1')->getFont()->setBold(true);
+            $sheet->getStyle('A1:K1')->getFill()
                 ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
                 ->getStartColor()->setRGB('E2E2E2');
             
             // Set lebar kolom otomatis
-            foreach(range('A','G') as $column) {
+            foreach(range('A','K') as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
 
             // Set format angka untuk kolom nilai
-            $sheet->getStyle('B2:G2')->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('B2:K2')->getNumberFormat()->setFormatCode('#,##0.00');
 
             // Tambahkan instruksi
             $sheet->setCellValue('A4', 'PETUNJUK:');

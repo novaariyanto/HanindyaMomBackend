@@ -364,7 +364,7 @@ Route::middleware('auth')->group(function () {
 
     // Indeks Pegawai
     Route::get('indeks-pegawai', [IndeksPegawaiController::class, 'index'])->name('indeks-pegawai.index');
-    Route::post('indeks-pegawai', [IndeksPegawaiController::class, 'store'])->name('indeks-pegawai.store');
+    // Route::post('indeks-pegawai', [IndeksPegawaiController::class, 'store'])->name('indeks-pegawai.store');
     Route::get('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'show'])->name('indeks-pegawai.show');
     Route::get('indeks-pegawai/{id}/detail', [IndeksPegawaiController::class, 'show'])->name('indeks-pegawai.detail');
     Route::put('indeks-pegawai/{id}', [IndeksPegawaiController::class, 'update'])->name('indeks-pegawai.update');

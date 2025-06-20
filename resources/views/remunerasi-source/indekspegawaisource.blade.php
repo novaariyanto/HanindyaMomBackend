@@ -38,9 +38,9 @@
                     <i class="ti ti-info-circle me-1"></i> Cek Perhitungan
                 </button>
             </div>
-            {{-- <a href="javascript:void(0)" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
+            <a href="javascript:void(0)" class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
               <i class="ti ti-plus text-white me-1 fs-5"></i> Tambah Indeks Pegawai
-            </a> --}}
+            </a>
           </div>
         </div>
       </div>
@@ -502,7 +502,7 @@ $(document).ready(function() {
             },
             {data: 'nik', name: 'nik'},
             {data: 'nama_pegawai', name: 'nama_pegawai'},
-            {data: 'unit_kerja', name: 'unitKerja.nama'},
+            {data: 'unit_kerja_id', name: 'unit_kerja_id'},
             {data: 'dasar', name: 'dasar'},
             {data: 'kompetensi', name: 'kompetensi'},
             {data: 'resiko', name: 'resiko'},
