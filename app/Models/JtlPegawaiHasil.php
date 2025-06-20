@@ -14,6 +14,7 @@ class JtlPegawaiHasil extends Model
         'nik',
         'nama_pegawai',
         'unit_kerja_id',
+        'unit_kerja',
         'dasar',
         'kompetensi',
         'resiko',
@@ -47,7 +48,7 @@ class JtlPegawaiHasil extends Model
     // Relasi ke tabel RemunerasiSource
     public function remunerasiSource()
     {
-        return $this->belongsTo(RemunerasiSource::class, 'remunerasi_source', 'id');
+        return $this->hasOne(RemunerasiSource::class, 'id', 'remunerasi_source');
     }
 
     // Relasi ke tabel Pegawai

@@ -23,8 +23,8 @@ class JtlPegawaiIndeksController extends Controller
         if ($request->ajax()) {
             $data = JtlPegawaiIndeks::with(['unitKerja']);
             // Filter berdasarkan unit kerja
-            if ($request->has('unit_kerja_id') && $request->unit_kerja_id != '') {
-                $data->where('unit_kerja_id', $request->unit_kerja_id);
+            if ($request->has('unit_kerja') && $request->unit_kerja != '') {
+                $data->where('unit_kerja', $request->unit_kerja);
             }
             
             // Filter berdasarkan pencarian global
@@ -81,7 +81,10 @@ class JtlPegawaiIndeksController extends Controller
         }
 
         $pegawai = Pegawai::all();
-        $unitKerja = UnitKerja::orderBy('nama')->get();
+        $unitKerja = JtlPegawaiIndeks::select('unit_kerja')
+            ->distinct()
+            ->orderBy('unit_kerja')
+            ->pluck('unit_kerja');
         
         return view('jtl-pegawai-indeks.index', compact('pegawai', 'unitKerja'));
     }

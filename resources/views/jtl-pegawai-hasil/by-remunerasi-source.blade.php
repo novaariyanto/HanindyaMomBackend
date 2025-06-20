@@ -25,7 +25,7 @@
             <select class="form-select" id="filter-unit-kerja">
               <option value="">Semua Unit Kerja</option>
               @foreach($unitKerja as $unit)
-                <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                <option value="{{ $unit }}">{{ $unit }}</option>
               @endforeach
             </select>
           </div>
@@ -123,7 +123,7 @@
                                 <select class="form-select" name="unit_kerja_id" id="create_unit_kerja_id" required>
                                     <option value="">Pilih Unit Kerja</option>
                                     @foreach($unitKerja as $unit)
-                                        <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                                        <option value="{{ $unit }}">{{ $unit }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -268,7 +268,7 @@
                                 <select class="form-select" name="unit_kerja_id" id="edit_unit_kerja_id" required>
                                     <option value="">Pilih Unit Kerja</option>
                                     @foreach($unitKerja as $unit)
-                                        <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                                        <option value="{{ $unit }}">{{ $unit }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -371,7 +371,7 @@ $(document).ready(function() {
         ajax: {
             url: '{{ route('jtl-pegawai-hasil.by-remunerasi-source', $remunerasiSourceId) }}',
             data: function (d) {
-                d.unit_kerja_id = $('#filter-unit-kerja').val();
+                d.unit_kerja = $('#filter-unit-kerja').val();
                 d.search = $('#input-search').val();
             }
         },

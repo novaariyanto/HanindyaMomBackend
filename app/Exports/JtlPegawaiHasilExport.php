@@ -87,15 +87,15 @@ class JtlPegawaiHasilExport
         $sheet->getStyle('A1:R1')->applyFromArray($headerStyle);
 
         // Get data based on filters
-        $query = JtlPegawaiHasil::with(['pegawai', 'unitKerja', 'remunerasiSource']);
+        $query = JtlPegawaiHasil::with(['pegawai', 'remunerasiSource']);
 
         // Apply filters
         if (!empty($this->filters['remunerasi_source_id'])) {
             $query->where('remunerasi_source', $this->filters['remunerasi_source_id']);
         }
 
-        if (!empty($this->filters['unit_kerja_id'])) {
-            $query->where('unit_kerja_id', $this->filters['unit_kerja_id']);
+        if (!empty($this->filters['unit_kerja'])) {
+            $query->where('unit_kerja', $this->filters['unit_kerja']);
         }
 
         if (!empty($this->filters['search'])) {
@@ -112,10 +112,10 @@ class JtlPegawaiHasilExport
         $no = 1;
         foreach ($data as $item) {
             $sheet->setCellValue('A' . $row, $no);
-            $sheet->setCellValue('B' . $row, $item->nik);
+            $sheet->setCellValue('B' . $row, "'".$item->nik);
             $sheet->setCellValue('C' . $row, $item->nama_pegawai);
-            $sheet->setCellValue('D' . $row, $item->unitKerja ? $item->unitKerja->nama : '-');
-            $sheet->setCellValue('E' . $row, $item->remunerasiSource ? $item->remunerasiSource->nama : '-');
+            $sheet->setCellValue('D' . $row, $item->unit_kerja);
+            $sheet->setCellValue('E' . $row, $item->remunerasiSource ? $item->remunerasiSource->nama_source : '-');
             $sheet->setCellValue('F' . $row, $item->dasar);
             $sheet->setCellValue('G' . $row, $item->kompetensi);
             $sheet->setCellValue('H' . $row, $item->resiko);

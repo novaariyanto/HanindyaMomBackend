@@ -580,7 +580,8 @@ class DetailSourceController extends Controller
                         'jumlah' => $indeks->jumlah,
                         'nilai_indeks' => $jtlData->nilai_indeks,
                         'pajak' => $indeks->pajak ?: 0,
-                        'rekening' => $indeks->rekening
+                        'rekening' => $indeks->rekening,
+                        'unit_kerja' => $indeks->unit_kerja
                     ];
 
                     if ($existingData) {

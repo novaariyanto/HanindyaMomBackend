@@ -24,7 +24,7 @@
             <select class="form-select" id="filter-unit-kerja">
               <option value="">Semua Unit Kerja</option>
               @foreach($unitKerja as $unit)
-                <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                <option value="{{ $unit }}">{{ $unit }}</option>
               @endforeach
             </select>
           </div>
@@ -332,7 +332,7 @@ $(document).ready(function() {
         ajax: {
             url: '{{ route('jtl-pegawai-indeks.index') }}',
             data: function (d) {
-                d.unit_kerja_id = $('#filter-unit-kerja').val();
+                d.unit_kerja = $('#filter-unit-kerja').val();
                 d.search = $('#input-search').val();
             }
         },
@@ -567,7 +567,7 @@ $(document).ready(function() {
         var params = [];
         
         if (unitKerjaId) {
-            params.push('unit_kerja_id=' + encodeURIComponent(unitKerjaId));
+            params.push('unit_kerja=' + encodeURIComponent(unitKerjaId));
         }
         
         if (search) {

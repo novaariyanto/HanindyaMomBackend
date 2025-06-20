@@ -32,7 +32,7 @@
             <select class="form-select" id="filter-unit-kerja">
               <option value="">Semua Unit Kerja</option>
               @foreach($unitKerja as $unit)
-                <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                <option value="{{ $unit }}">{{ $unit }}</option>
               @endforeach
             </select>
           </div>
@@ -141,7 +141,7 @@
                                 <select class="form-select" name="unit_kerja_id" id="create_unit_kerja_id" required>
                                     <option value="">Pilih Unit Kerja</option>
                                     @foreach($unitKerja as $unit)
-                                        <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                                        <option value="{{ $unit }}">{{ $unit }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -290,7 +290,7 @@
                                 <select class="form-select" name="unit_kerja_id" id="edit_unit_kerja_id" required>
                                     <option value="">Pilih Unit Kerja</option>
                                     @foreach($unitKerja as $unit)
-                                        <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                                        <option value="{{ $unit }}">{{ $unit }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -516,13 +516,13 @@ $(document).ready(function() {
         var selectedOption = $(this).find(':selected');
         var nik = selectedOption.data('nik');
         var nama = selectedOption.data('nama');
-        var unitKerjaId = selectedOption.data('unit');
+        var unitKerja = selectedOption.data('unit');
         
         var modalType = $(this).attr('id').includes('create') ? 'create' : 'edit';
         
         $('#' + modalType + '_nik').val(nik || '');
         $('#' + modalType + '_nama_pegawai').val(nama || '');
-        $('#' + modalType + '_unit_kerja_id').val(unitKerjaId || '');
+        $('#' + modalType + '_unit_kerja_id').val(unitKerja || '');
     });
 
     // Calculate jumlah automatically
@@ -745,7 +745,7 @@ $(document).ready(function() {
     // Handle Export Button Click
     $('#btn-export').on('click', function() {
         var remunerasiSourceId = $('#filter-remunerasi-source').val();
-        var unitKerjaId = $('#filter-unit-kerja').val();
+        var unitKerja = $('#filter-unit-kerja').val();
         var search = $('#input-search').val();
         
         // Build URL with current filters
@@ -756,8 +756,8 @@ $(document).ready(function() {
             params.push('remunerasi_source_id=' + encodeURIComponent(remunerasiSourceId));
         }
         
-        if (unitKerjaId) {
-            params.push('unit_kerja_id=' + encodeURIComponent(unitKerjaId));
+        if (unitKerja) {
+            params.push('unit_kerja=' + encodeURIComponent(unitKerja));
         }
         
         if (search) {

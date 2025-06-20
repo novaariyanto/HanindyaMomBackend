@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\JtlPegawaiHasil;
 use App\Models\RemunerasiSource;
 use App\Models\Pegawai;
-use App\Models\UnitKerja;
+use App\Models\JtlPegawaiIndeks;
 use App\Exports\JtlPegawaiHasilExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,12 +17,12 @@ class JtlPegawaiHasilController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = JtlPegawaiHasil::with(['pegawai', 'unitKerja', 'remunerasiSource'])
+            $query = JtlPegawaiHasil::with(['remunerasiSource'])
                 ->when($request->remunerasi_source_id, function($q) use ($request) {
                     return $q->where('remunerasi_source', $request->remunerasi_source_id);
                 })
-                ->when($request->unit_kerja_id, function($q) use ($request) {
-                    return $q->where('unit_kerja_id', $request->unit_kerja_id);
+                ->when($request->unit_kerja, function($q) use ($request) {
+                    return $q->where('unit_kerja', $request->unit_kerja);
                 })
                 ->when($request->search, function($q) use ($request) {
                     return $q->where(function($query) use ($request) {
@@ -37,7 +37,7 @@ class JtlPegawaiHasilController extends Controller
                     return $row->nama_pegawai;
                 })
                 ->addColumn('unit_kerja', function($row) {
-                    return $row->unitKerja ? $row->unitKerja->nama : '-';
+                    return $row->unit_kerja;
                 })
                 ->addColumn('remunerasi_source_name', function($row) {
                     return $row->remunerasiSource ? $row->remunerasiSource->nama : '-';
@@ -97,7 +97,10 @@ class JtlPegawaiHasilController extends Controller
         }
 
         $remunerasiSources = RemunerasiSource::orderBy('id', 'desc')->get();
-        $unitKerja = UnitKerja::orderBy('id', 'desc')->get();
+        $unitKerja = JtlPegawaiIndeks::select('unit_kerja')
+            ->distinct()
+            ->orderBy('unit_kerja')
+            ->pluck('unit_kerja');
         $pegawai = Pegawai::orderBy('id', 'desc')->get();
 
         return view('jtl-pegawai-hasil.index', compact('remunerasiSources', 'unitKerja', 'pegawai'));
@@ -245,8 +248,8 @@ class JtlPegawaiHasilController extends Controller
         if ($request->ajax()) {
             $query = JtlPegawaiHasil::with(['pegawai', 'unitKerja', 'remunerasiSource'])
                 ->where('remunerasi_source', $remunerasiSourceId)
-                ->when($request->unit_kerja_id, function($q) use ($request) {
-                    return $q->where('unit_kerja_id', $request->unit_kerja_id);
+                ->when($request->unit_kerja, function($q) use ($request) {
+                    return $q->where('unit_kerja', $request->unit_kerja);
                 })
                 ->when($request->search, function($q) use ($request) {
                     return $q->where(function($query) use ($request) {
@@ -318,7 +321,11 @@ class JtlPegawaiHasilController extends Controller
         }
 
         $remunerasiSource = RemunerasiSource::findOrFail($remunerasiSourceId);
-        $unitKerja = UnitKerja::orderBy('nama')->get();
+        $unitKerja = JtlPegawaiIndeks::select('unit_kerja')
+            ->distinct()
+            ->orderBy('unit_kerja')
+            ->pluck('unit_kerja');
+          
         $pegawai = Pegawai::orderBy('nama')->get();
 
         return view('jtl-pegawai-hasil.by-remunerasi-source', compact('remunerasiSource', 'unitKerja', 'pegawai', 'remunerasiSourceId'));
