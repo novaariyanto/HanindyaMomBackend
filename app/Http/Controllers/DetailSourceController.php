@@ -1225,9 +1225,10 @@ class DetailSourceController extends Controller
             }else{
                 // bpjps
                 $sep = $data_detail_source->no_sep;
-                $data = $this->getIdxDaftar($sep);
+                $data = $this->getIdxDaftar($sep,$data_detail_source->biaya_disetujui);
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
+                
                 $idxdaftar_in = explode(".", $data['idxdaftar_in']);
                
               
@@ -1258,7 +1259,16 @@ class DetailSourceController extends Controller
             }
         
     
-            $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar)->first();
+            $dtpendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar);
+            if($dtpendaftaran->count() > 0){
+               $tpendaftaran = $dtpendaftaran->first();
+               if($tpendaftaran->KDDOKTER == ""){
+                 $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar_in[0])->first();
+               }
+            }else{
+                  $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar_in[0])->first(); 
+            }
+            
             if($idxdaftar_in == "0"){
                 $databilling = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
             }else{
@@ -1283,7 +1293,7 @@ class DetailSourceController extends Controller
             $EMBALACE = 0;
             $Dokter_Umum_IGD = 0;
             
-            $DPJP = @$tpendaftaran->KDDOKTER;
+            $DPJP = $tpendaftaran->KDDOKTER;
             // ------------	
             $DOKTERKONSUL = "";
             $KONSULEN = "";
@@ -1579,6 +1589,7 @@ class DetailSourceController extends Controller
             } 
 
             if(sizeof($kddokter) > 0){
+                
                 foreach($kddokter as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
                     $data = [
@@ -1719,11 +1730,14 @@ class DetailSourceController extends Controller
     
             }else{
                 // bpjps
-                 $sep = $data_detail_source->no_sep;
-                $data = $this->getIdxDaftar($sep);
-               
+                $sep = $data_detail_source->no_sep;
+                $data = $this->getIdxDaftar($sep,$data_detail_source->biaya_disetujui);
+                
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
+                $idxdaftar_in = explode('.',$data['idxdaftar_in']);
+             
+
                 if($data['idxdaftar'] == ""){
                        return [
                         "failed"=>1,
@@ -1760,11 +1774,50 @@ class DetailSourceController extends Controller
     
                 $VERIFIKASITOTAL = $data_detail_source->biaya_disetujui;
             }
+
+
+         
           
-            $tadmission = Tadmission::where('id_admission', $idxdaftar)->first();
-            $databilling = Tbillranap::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
-            $databilling_rajal = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
-        
+
+            if($idxdaftar_in != "0"){
+                  // cek
+               $tadmission = null;
+
+                // Coba ambil berdasarkan $idxdaftar utama
+                $tadmission = Tadmission::where('id_admission', $idxdaftar)->first();
+          
+                // Jika tidak ada data, atau dokter_penanggungjawab kosong/null
+                if (!$tadmission || empty($tadmission->dokter_penanggungjawab)) {
+                    // Ubah idxdaftar_in jadi array jika bukan
+                    $idxdaftarArray = is_array($idxdaftar_in) ? $idxdaftar_in : explode('.', $idxdaftar_in);
+
+                    // Coba ambil dari alternatif index
+                    foreach ($idxdaftarArray as $idx) {
+                        $tadmissionAlt = Tadmission::where('id_admission', $idx)->first();
+                        if ($tadmissionAlt && !empty($tadmissionAlt->dokter_penanggungjawab)) {
+                             
+                            $tadmission = $tadmissionAlt;
+                            break;
+                        }
+                    }
+                }
+              
+                
+
+                $databilling = Tbillranap::whereIn('IDXDAFTAR', $idxdaftar_in)
+                                    ->where('NOMR' , $nomr)->get();
+                $databilling_rajal = Tbillrajal::whereIn('IDXDAFTAR', $idxdaftar_in)
+                                    ->where('NOMR' ,$nomr)->get();
+
+            }else{
+                $tadmission = Tadmission::where('id_admission', $idxdaftar)->first();
+                $databilling = Tbillranap::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
+                $databilling_rajal = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
+         
+            }
+
+           
+            
     
             
             $pisau = 0; //
@@ -1839,8 +1892,12 @@ class DetailSourceController extends Controller
                
                 if($row->UNIT == 15){
                     $pisau += 1;
-                    $data_operasi = Moperasi::where(['IDXDAFTAR' => $idxdaftar, 'nomr' => $nomr])->where('status', '!=', 'batal')->get();
-                    foreach($data_operasi as $row_operasi){
+                    if($idxdaftar_in != "0"){
+                         $data_operasi = Moperasi::whereIn('IDXDAFTAR',$idxdaftar_in)->where('nomr' , $nomr)->where('status', '!=', 'batal')->get();
+                    }else{
+                         $data_operasi = Moperasi::where(['IDXDAFTAR' => $idxdaftar, 'nomr' => $nomr])->where('status', '!=', 'batal')->get();
+                    }
+                     foreach($data_operasi as $row_operasi){
                         $OPERATOR[] = $row_operasi->kode_dokteroperator;
                       
                         if($row_operasi->kode_dokteranastesi != ""){
@@ -1968,6 +2025,28 @@ class DetailSourceController extends Controller
             
             
             $pembagian = [];
+            
+            if(count($kddokter) > 0 && $kddokter[0] != ""){
+                $dpjpraber = $this->groupAndCount($kddokter);
+                if(count($dpjpraber['filtered']) > 1){
+                    $DPJPRABER  =$tadmission->dokter_penanggungjawab;
+                    $notdpjp = current(array_filter($dpjpraber['most_frequent']['value'], fn($val) => $val !== $DPJP));
+                    $DOKTERRABER = $notdpjp;
+                    $DPJP = "";
+               }else{
+                    
+                    $notdpjp = current(array_filter($dpjpraber['most_frequent']['value'], fn($val) => $val !== $DPJP));
+                    if(!$notdpjp == ""){
+                        $DOKTERKONSUL = $tadmission->dokter_penanggungjawab;
+                        $KONSULEN = $notdpjp;
+                        $DPJP = "";
+                    }
+
+                   
+               }
+              
+            }
+            
             
            
         
@@ -2201,6 +2280,7 @@ class DetailSourceController extends Controller
             "data"=>$data_detail_source
         ];
     }
+   
     
     
     function groupAndCount(array $data): array {
@@ -2272,7 +2352,6 @@ class DetailSourceController extends Controller
                 ->where('status_pembagian_klaim', '<>', 1)
                 // ->inRandomOrder()
                 ->limit(10);
-                
               
            
                 if($detailSource->count() < 1){
@@ -2310,146 +2389,115 @@ class DetailSourceController extends Controller
 
       
     }
-    function getIdxDaftar($sep) {
+    function getIdxDaftar($sep,$tarif=196100) {
         $idxdaftar_in = "0";
-        if(strpos($sep,"-") !== false){
+        $idxdaftar = "";
+        $nomr = "";
+        $nopeserta = "";
+        $tglSep = "";
+
+        if (strpos($sep, "-") !== false) {
+            // Cari di Tpendaftaran jika SEP mengandung tanda "-"
             $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $sep)->first();
-            if($tpendaftaran){
+            if ($tpendaftaran) {
                 $idxdaftar = $tpendaftaran->IDXDAFTAR;
                 $nomr = $tpendaftaran->NOMR;
             }
-        }else{
-           
-            $tbpjs = Sepbpjs::where('noSep', $sep);
-            if($tbpjs->count()){ 
-                $tbpjs = $tbpjs->first();
-                
-                $idxdaftar = $tbpjs->idxdaftar;
-                $nomr = $tbpjs->peserta_noMr;
-                $nopeserta = $tbpjs->peserta_noKartu;
-                $tglSep = $tbpjs->tglSep;
+        } else {
+            // Cek di Tbpjs
+            $dtbpjs2 = Tbpjs::where('sep', $sep);
+            if ($dtbpjs2->count() > 0) {
+                $tbpjs2 = $dtbpjs2->first();
+                $idxdaftar = $tbpjs2->idxdaftar;
+                $nomr = $tbpjs2->noMr;
+                $dSep = json_decode($tbpjs2->response);
+                $tglSep = @$dSep->response->sep->tglSep;
 
-             
-             
-                
-                if($idxdaftar == ""){
-                        $tpendaftaran = Tpendaftaran::where('NOMR', $nomr)->Where('NO_PESERTA',$nopeserta)->where('TGLREG',$tglSep)->first(); 
-                        
-                        if($tpendaftaran){
-                            $idxdaftar = $tpendaftaran->IDXDAFTAR;
-                            
-                        }else{
-                          
-                            $tbpjs2 = Tbpjs::where('sep',$sep);            
-                            if($tbpjs2->count()){
-                                $databpjs = $tbpjs2->first();
-                            
-                                $idxdaftar = $databpjs->idxdaftar;
-                                $nomr = $databpjs->noMr;
-                                if($nomr == ""){
-                                        $nomr = $this->ambilNoMR($databpjs->response);
-                                }
-                            }
-                        }
-                }else{
-                    $cekk = Tpendaftaran::where('IDXDAFTAR',$idxdaftar)->where('NOMR',$nomr);
-                    if($cekk->count() < 1){
-                        $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
-                        $data = json_decode($datasep);
-                        if(@$data->success){
-                            $idxdaftar = $data->data->idxdaftar;
-                            $nomr = $data->data->nomr;
-                        }else{
-                            $pendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar);
-                            if($pendaftaran->count() > 0){
-                                $pendaftaran = $pendaftaran->first();
-                                $nomr = $pendaftaran->NOMR;
-                            }
+                if (!$nomr) {
+                    $nomr = $this->ambilNoMR($tbpjs2->response);
+                }
 
-                        }
+                if (!$idxdaftar && $nomr && $tglSep) {
+                    $nopeserta = @$dSep->response->sep->peserta->noKartu;
+                    $tpendaftaran = Tpendaftaran::where('NOMR', $nomr)
+                        ->where('NO_PESERTA', $nopeserta)
+                        ->where('TGLREG', $tglSep)
+                        ->first();
+                    if ($tpendaftaran) {
+                        $idxdaftar = $tpendaftaran->IDXDAFTAR;
                     }
                 }
-                if($nomr == ""){
-                    $response = $tbpjs->responseJSON;
-                    $nomr = $this->ambilNoMR($response);
+
+            } else {
+                // Cek di Sepbpjs
+                $tbpjs = Sepbpjs::where('noSep', $sep)->first();
+                if ($tbpjs) {
+                    $idxdaftar = $tbpjs->idxdaftar;
+                    $nomr = $tbpjs->peserta_noMr;
+                    $nopeserta = $tbpjs->peserta_noKartu;
+                    $tglSep = $tbpjs->tglSep;
+
+                    if (!$idxdaftar && $nomr && $tglSep) {
+                        $tpendaftaran = Tpendaftaran::where('NOMR', $nomr)
+                            ->where('NO_PESERTA', $nopeserta)
+                            ->where('TGLREG', $tglSep)
+                            ->first();
+
+                        if ($tpendaftaran) {
+                            $idxdaftar = $tpendaftaran->IDXDAFTAR;
+                        }
+                    }
+
+                    if (!$nomr && $tbpjs->responseJSON) {
+                        $nomr = $this->ambilNoMR($tbpjs->responseJSON);
+                    }
                 }
-                if($nomr == ""){
-                    
-                    $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
+
+                // Jika tetap tidak ditemukan, ambil dari API eksternal
+                if (!$idxdaftar || !$nomr) {
+                    $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=" . $sep);
                     $data = json_decode($datasep);
-                    if(@$data->success){
+                    if (@$data->success) {
                         $idxdaftar = $data->data->idxdaftar;
                         $nomr = $data->data->nomr;
-                    }else{
-                        $pendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar);
-                        if($pendaftaran->count() > 0){
-                            $pendaftaran = $pendaftaran->first();
+                    } elseif ($idxdaftar) {
+                        $pendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar)->first();
+                        if ($pendaftaran) {
                             $nomr = $pendaftaran->NOMR;
                         }
-
-                    }
-                    
-                
-                }
-                
-                $tgl = date("Y-m-d",strtotime($tglSep));
-                $cekrujukinternal = Tpendaftaran::where('TGLREG',$tgl)->where('NOMR',$nomr);
-                $idxdaftar_in = $idxdaftar;
-                if($cekrujukinternal->count() > 0){ 
-                    $i = 0;
-                    $data3 = $cekrujukinternal->get();
-                    foreach($data3 as $dt3 => $v){
-                        if($i < sizeof($data3)){
-                            $idxdaftar_in .= ".";
-                        }
-                        $idxdaftar_in .= $v->IDXDAFTAR;
-                        $i++;
-                    }
-                }
-            
-                
-            
-            }else{
-                $tbpjs2 = Tbpjs::where('sep',$sep);
-            
-                if($tbpjs2->count()){
-                    $databpjs = $tbpjs2->first();
-                    $idxdaftar = $databpjs->idxdaftar;
-                    $nomr = $databpjs->noMr;
-                    if($nomr == ""){
-                            $nomr = $this->ambilNoMR($databpjs->response);
-                    }
-                }else{
-                    $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=".$sep);
-                    $data = json_decode($datasep);
-                    if($data->success){
-                        $idxdaftar = $data->data->idxdaftar;
-                        $nomr = $data->data->nomr;
-                    }else{
+                    } else {
                         return [
-                            'idxdaftar' => "",
-                            'nomr' => ""
+                            'idxdaftar' => '',
+                            'nomr' => '',
+                            'idxdaftar_in' => '0'
                         ];
                     }
                 }
-                
-            
-            
             }
 
-            
+            // Proses idxdaftar_in (multi-daftar dalam 1 hari)
+            if($tarif > 200000){
+                if ($tglSep && $nomr) {
+                    $tgl = date("Y-m-d", strtotime($tglSep));
+                    $pendaftarans = Tpendaftaran::where('TGLREG', $tgl)
+                        ->where('NOMR', $nomr)
+                        ->pluck('IDXDAFTAR')
+                        ->toArray();
+
+                    if (!empty($pendaftarans)) {
+                        $idxdaftar_in = implode('.', $pendaftarans);
+                    }
+                }
+            }
         }
-                       
-        
-        
+
         return [
             'idxdaftar' => $idxdaftar,
             'nomr' => $nomr,
-            'idxdaftar_in'=>$idxdaftar_in
+            'idxdaftar_in' => $idxdaftar_in
         ];
-
-        
     }
+
     
     function ambilNoMR($json) {
         $data = json_decode($json, true);
