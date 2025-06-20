@@ -428,8 +428,7 @@ class DetailSourceController extends Controller
             $remunerasiSource = RemunerasiSource::findOrFail($sourceId);
             
             // Ambil data dari JtlPegawaiIndeks dengan limit dan offset
-            $jtlPegawaiIndeks = JtlPegawaiIndeks::with(['pegawai', 'unitKerja'])
-                ->skip($offset)
+            $jtlPegawaiIndeks = JtlPegawaiIndeks::skip($offset)
                 ->take($limit)
                 ->get();
             
@@ -442,7 +441,7 @@ class DetailSourceController extends Controller
                 try {
                     // Cek apakah data sudah ada berdasarkan id_pegawai dan remunerasi_source
                     $existingData = JtlPegawaiIndeksSource::where([
-                        'id_pegawai' => $indeks->id_pegawai,
+                        'nik' => $indeks->nik,
                         'remunerasi_source' => $sourceId
                     ])->first();
 
@@ -458,6 +457,7 @@ class DetailSourceController extends Controller
                         'rekening' => $indeks->rekening,
                         'pajak' => $indeks->pajak,
                         'unit_kerja_id' => $indeks->unit_kerja_id,
+                        'unit_kerja' => $indeks->unit_kerja,
                         'nama_pegawai' => $indeks->nama_pegawai,
                         'nik' => $indeks->nik
                     ];
