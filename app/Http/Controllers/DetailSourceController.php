@@ -1889,7 +1889,6 @@ class DetailSourceController extends Controller
                             $ANESTESI = $row_operasi->kode_dokteranastesi;
                               $PENATA = "9";
                         }
-                        
                     }
     
                   
