@@ -79,7 +79,7 @@ class PembagianKlaimController extends Controller
             if(strpos($data_detail_source->no_sep,"-")){
 
                     //membaca idxdaftar dan nomr / pasien umum
-                  
+                    $idxdaftar_in = 0;
                     $idxdaftar = $data_detail_source->idxdaftar;
                     $data_pendaftaran = Tpendaftaran::where('IDXDAFTAR',$idxdaftar)->first();
                     $totalTarifRs = $data_pendaftaran->getTotalTarifRsAttribute();
@@ -116,8 +116,11 @@ class PembagianKlaimController extends Controller
                 $data = $this->getIdxDaftar($sep,$data_detail_source->biaya_disetujui);
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
-                
-                $idxdaftar_in = explode(".", $data['idxdaftar_in']);
+                if($data['idxdaftar_in'] != 0){
+                    $idxdaftar_in = explode(".", $data['idxdaftar_in']);
+                }else{
+                    $idxdaftar_in = 0;
+                }
                
               
                 $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
@@ -157,13 +160,18 @@ class PembagianKlaimController extends Controller
                   $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar_in[0])->first(); 
             }
             
-            if($idxdaftar_in == "0"){
+            // print_r($idxdaftar_in);
+            if($data['idxdaftar_in'] == 0){
+                // echo "1";
                 $databilling = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
             }else{
                 $databilling = Tbillrajal::whereIn('IDXDAFTAR', $idxdaftar_in)
                                         ->where('NOMR', $nomr)
                                         ->get();
-            }
+                // echo "2";
+                                    }
+            // echo json_encode($databilling);
+            // exit;
         
            
             
@@ -233,7 +241,7 @@ class PembagianKlaimController extends Controller
                
                 if($row->UNIT == 15){
                     $pisau += 1;
-                    if($idxdaftar_in == "0"){
+                    if($data['idxdaftar_in'] == 0){
                         $data_operasi = Moperasi::where(['IDXDAFTAR' => $idxdaftar, 'nomr' => $nomr])->where('status', '!=', 'batal')->get();
                     }else{
                         $data_operasi = Moperasi::whereIn('IDXDAFTAR', $idxdaftar_in)->where('NOMR', $nomr)->where('status', '!=', 'batal')->get();
@@ -461,10 +469,10 @@ class PembagianKlaimController extends Controller
                             'nama_ppa'=>$nama_dokter,
                             'kode_dokter'=>@$kode_dokter,
                             'sumber_value'=>$data_sumber[$row['sumber']],
-                            'nilai_remunerasi'=>($umum_efek == 1)?1*$nilai_remunerasi:$nilai_remunerasi,
+                            'nilai_remunerasi'=>($umum_efek == 1)?0.786*$nilai_remunerasi:$nilai_remunerasi,
                             'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                         ];     
-                        $total_remunerasi += ($umum_efek == 1)?1*$nilai_remunerasi:$nilai_remunerasi;          
+                        $total_remunerasi += ($umum_efek == 1)?0.786*$nilai_remunerasi:$nilai_remunerasi;          
                         $savePembagianKlaim = PembagianKlaim::create($data);
                         }
                     }   
@@ -516,7 +524,7 @@ class PembagianKlaimController extends Controller
            
 
             if( $TOTALBANKDARAH > 0){
-                $dokter_bankdarah = [705,133,2];
+                $dokter_bankdarah = [705,133,29];
                 $persentase_bankdarah = [0.03,0.012,0.008];
                 foreach($dokter_bankdarah as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
@@ -586,9 +594,11 @@ class PembagianKlaimController extends Controller
             }      
         }else if($data_detail_source->jenis == 'Rawat Inap'){
             // bpjps
+          
+           
             if(strpos($data_detail_source->no_sep,"-")){
                 //membaca idxdaftar dan nomr / pasien umum
-                
+                $idxdaftar_in = 0;
                 $idxdaftar = $data_detail_source->idxdaftar;
                 $data_admission = Tadmission::where('id_admission',$idxdaftar)->first();
                 $totalTarifRs = $data_admission->getTotalTarifRsAttribute();
@@ -626,10 +636,14 @@ class PembagianKlaimController extends Controller
                 // bpjps
                 $sep = $data_detail_source->no_sep;
                 $data = $this->getIdxDaftar($sep,$data_detail_source->biaya_disetujui);
-                
+               
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
-                $idxdaftar_in = explode('.',$data['idxdaftar_in']);
+                if($data['idxdaftar_in'] != 0){
+                    $idxdaftar_in = explode('.',@$data['idxdaftar_in']);
+                }else{
+                    $idxdaftar_in = 0;
+                }
              
 
                 if($data['idxdaftar'] == ""){
@@ -801,7 +815,6 @@ class PembagianKlaimController extends Controller
                             $ANESTESI = $row_operasi->kode_dokteranastesi;
                               $PENATA = "9";
                         }
-                        
                     }
     
                   
@@ -1036,10 +1049,10 @@ class PembagianKlaimController extends Controller
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$kode_dokter,
                         'sumber_value'=>$data_sumber[$row['sumber']],
-                        'nilai_remunerasi'=>($umum_efek)?1*$nilai_remunerasi:$nilai_remunerasi,
+                        'nilai_remunerasi'=>($umum_efek)?0.786*$nilai_remunerasi:$nilai_remunerasi,
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ]; 
-                    $total_remunerasi += ($umum_efek)?1*$nilai_remunerasi:$nilai_remunerasi;        
+                    $total_remunerasi += ($umum_efek)?0.786*$nilai_remunerasi:$nilai_remunerasi;        
                          
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
@@ -1052,7 +1065,7 @@ class PembagianKlaimController extends Controller
            
             
             if( $TOTALBANKDARAH > 0){
-                $dokter_bankdarah = [705,133,2];
+                $dokter_bankdarah = [705,133,29];
                 $persentase_bankdarah = [0.03,0.012,0.008];
                 foreach($dokter_bankdarah as $key => $dokter){
                     $nama_dokter = Dokter::where('KDDOKTER', $dokter)->first()->NAMADOKTER;
