@@ -72,7 +72,7 @@ class DetailSourceController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'no_sep' => 'required|string|max:30|unique:detail_source,no_sep',
+            'no_sep' => 'required|string|max:30',
             'tgl_verifikasi' => 'required|date',
             'jenis' => 'required|string|max:50',
             'status' => 'required|integer',
@@ -1204,8 +1204,11 @@ class DetailSourceController extends Controller
                 $data = $this->getIdxDaftar($sep,$data_detail_source->biaya_disetujui);
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
-                
-                $idxdaftar_in = explode(".", $data['idxdaftar_in']);
+                if($data['idxdaftar_in'] != 0){
+                    $idxdaftar_in = explode(".", $data['idxdaftar_in']);
+                }else{
+                    $idxdaftar_in = 0;
+                }
                
               
                 $selisih = $data_detail_source->biaya_disetujui-$data_detail_source->biaya_riil_rs;
@@ -1245,13 +1248,18 @@ class DetailSourceController extends Controller
                   $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar_in[0])->first(); 
             }
             
-            if($idxdaftar_in == "0"){
+            // print_r($idxdaftar_in);
+            if($data['idxdaftar_in'] == 0){
+                // echo "1";
                 $databilling = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
             }else{
                 $databilling = Tbillrajal::whereIn('IDXDAFTAR', $idxdaftar_in)
                                         ->where('NOMR', $nomr)
                                         ->get();
-            }
+                // echo "2";
+                                    }
+            // echo json_encode($databilling);
+            // exit;
         
            
             
@@ -1321,7 +1329,7 @@ class DetailSourceController extends Controller
                
                 if($row->UNIT == 15){
                     $pisau += 1;
-                    if($idxdaftar_in == "0"){
+                    if($data['idxdaftar_in'] == 0){
                         $data_operasi = Moperasi::where(['IDXDAFTAR' => $idxdaftar, 'nomr' => $nomr])->where('status', '!=', 'batal')->get();
                     }else{
                         $data_operasi = Moperasi::whereIn('IDXDAFTAR', $idxdaftar_in)->where('NOMR', $nomr)->where('status', '!=', 'batal')->get();
@@ -1719,7 +1727,11 @@ class DetailSourceController extends Controller
                
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
-                $idxdaftar_in = explode('.',@$data['idxdaftar_in']);
+                if($data['idxdaftar_in'] != 0){
+                    $idxdaftar_in = explode('.',@$data['idxdaftar_in']);
+                }else{
+                    $idxdaftar_in = 0;
+                }
              
 
                 if($data['idxdaftar'] == ""){
