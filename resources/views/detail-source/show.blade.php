@@ -126,6 +126,8 @@
                                     <th>Jenis PPA</th>
                                     <th>Grade</th>
                                     <th>Jenis</th>
+                                    <th>value</th>
+                                    <th>Sumber</th>
                                     <th>Nilai Remunerasi</th>
                                     <th>Opsi</th>
                                 </tr>
@@ -186,6 +188,18 @@ $(document).ready(function() {
             { data: 'ppa', name: 'ppa' },
             { data: 'grade', name: 'grade' },
             { data: 'jenis', name: 'jenis' },
+            {data:'value',name:'value'},
+            {data:'sumber_value',name:'sumber_value',
+                 render: function(data) {
+                    if (isNaN(data) || data === null) return 'Rp 0';
+
+                    let number = parseFloat(data);
+                    return 'Rp ' + number.toLocaleString('id-ID', {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                    });
+                }
+            },
             {
                 data: 'nilai_remunerasi',
                 name: 'nilai_remunerasi',

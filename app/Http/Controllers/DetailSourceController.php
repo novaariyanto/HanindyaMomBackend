@@ -1549,10 +1549,10 @@ class DetailSourceController extends Controller
                             'nama_ppa'=>$nama_dokter,
                             'kode_dokter'=>@$kode_dokter,
                             'sumber_value'=>$data_sumber[$row['sumber']],
-                            'nilai_remunerasi'=>($umum_efek == 1)?0.786*$nilai_remunerasi:$nilai_remunerasi,
+                            'nilai_remunerasi'=>($umum_efek == 1)?1*$nilai_remunerasi:$nilai_remunerasi,
                             'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                         ];     
-                        $total_remunerasi += ($umum_efek == 1)?0.786*$nilai_remunerasi:$nilai_remunerasi;          
+                        $total_remunerasi += ($umum_efek == 1)?1*$nilai_remunerasi:$nilai_remunerasi;          
                         $savePembagianKlaim = PembagianKlaim::create($data);
                         }
                     }   
@@ -1586,7 +1586,7 @@ class DetailSourceController extends Controller
                             'nama_ppa'    => $nama_dokter,
                             'kode_dokter' => $dokter,
                             'sumber_value' => $nilai_remunerasi,
-                            'nilai_remunerasi' => $nilai_remunerasi,
+                            'nilai_remunerasi' => ($umum_efek == 1) ? 1 * $nilai_remunerasi : $nilai_remunerasi,
                             'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                         ];
              
@@ -1629,7 +1629,7 @@ class DetailSourceController extends Controller
                         'nilai_remunerasi'=>($umum_efek == 1)?1*$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']:$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
-                    $total_remunerasi += $persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
+                    $total_remunerasi += ($umum_efek == 1)?1*$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']:$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
                     $savePembagianKlaim = PembagianKlaim::create($datasave);
                 }
                 
@@ -2125,10 +2125,10 @@ class DetailSourceController extends Controller
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$kode_dokter,
                         'sumber_value'=>$data_sumber[$row['sumber']],
-                        'nilai_remunerasi'=>($umum_efek)?0.786*$nilai_remunerasi:$nilai_remunerasi,
+                        'nilai_remunerasi'=>($umum_efek)?1*$nilai_remunerasi:$nilai_remunerasi,
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ]; 
-                    $total_remunerasi += ($umum_efek)?0.786*$nilai_remunerasi:$nilai_remunerasi;        
+                    $total_remunerasi += ($umum_efek)?1*$nilai_remunerasi:$nilai_remunerasi;        
                          
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
