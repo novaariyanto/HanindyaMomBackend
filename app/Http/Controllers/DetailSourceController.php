@@ -1249,7 +1249,7 @@ class DetailSourceController extends Controller
             }
             
             // print_r($idxdaftar_in);
-            if($data['idxdaftar_in'] == 0){
+            if($idxdaftar_in == 0){
                 // echo "1";
                 $databilling = Tbillrajal::where(['IDXDAFTAR' => $idxdaftar, 'NOMR' => $nomr])->get();
             }else{
