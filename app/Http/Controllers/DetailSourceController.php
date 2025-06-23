@@ -1204,6 +1204,7 @@ class DetailSourceController extends Controller
                 $data = $this->getIdxDaftar($sep,$data_detail_source->biaya_disetujui);
                 $idxdaftar = $data['idxdaftar'];
                 $nomr = $data['nomr'];
+               
                 if($data['idxdaftar_in'] != 0){
                     $idxdaftar_in = explode(".", $data['idxdaftar_in']);
                 }else{
@@ -1237,7 +1238,7 @@ class DetailSourceController extends Controller
                  $VERIFIKASITOTAL = $data_detail_source->biaya_disetujui;
             }
         
-    
+            
             $dtpendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar);
             if($dtpendaftaran->count() > 0){
                $tpendaftaran = $dtpendaftaran->first();
@@ -1245,6 +1246,7 @@ class DetailSourceController extends Controller
                  $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar_in[0])->first();
                }
             }else{
+                
                   $tpendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar_in[0])->first(); 
             }
             
@@ -1557,10 +1559,10 @@ class DetailSourceController extends Controller
                             'nama_ppa'=>$nama_dokter,
                             'kode_dokter'=>@$kode_dokter,
                             'sumber_value'=>$data_sumber[$row['sumber']],
-                            'nilai_remunerasi'=>($umum_efek == 1)?0.8*$nilai_remunerasi:$nilai_remunerasi,
+                            'nilai_remunerasi'=>($umum_efek == 1)?1*$nilai_remunerasi:$nilai_remunerasi,
                             'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                         ];     
-                        $total_remunerasi += ($umum_efek == 1)?0.8*$nilai_remunerasi:$nilai_remunerasi;          
+                        $total_remunerasi += ($umum_efek == 1)?1*$nilai_remunerasi:$nilai_remunerasi;          
                         $savePembagianKlaim = PembagianKlaim::create($data);
                         }
                     }   
@@ -1594,11 +1596,11 @@ class DetailSourceController extends Controller
                             'nama_ppa'    => $nama_dokter,
                             'kode_dokter' => $dokter,
                             'sumber_value' => $nilai_remunerasi,
-                            'nilai_remunerasi' => ($umum_efek == 1) ? 0.8 * $nilai_remunerasi : $nilai_remunerasi,
+                            'nilai_remunerasi' => ($umum_efek == 1) ? 1 * $nilai_remunerasi : $nilai_remunerasi,
                             'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                         ];
              
-                        $total_remunerasi += ($umum_efek == 1) ? 0.8 * $nilai_remunerasi : $nilai_remunerasi;
+                        $total_remunerasi += ($umum_efek == 1) ? 1 * $nilai_remunerasi : $nilai_remunerasi;
                         $savePembagianKlaim = PembagianKlaim::create($data);
                     }
                 }
@@ -1634,10 +1636,10 @@ class DetailSourceController extends Controller
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$dokter,
                         'sumber_value'=>($data_sumber['TOTALBANKDARAH']),
-                        'nilai_remunerasi'=>($umum_efek == 1)?0.8*$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']:$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
+                        'nilai_remunerasi'=>($umum_efek == 1)?1*$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']:$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
-                    $total_remunerasi += ($umum_efek == 1)?0.8*$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']:$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
+                    $total_remunerasi += ($umum_efek == 1)?1*$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']:$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
                     $savePembagianKlaim = PembagianKlaim::create($datasave);
                 }
                 
@@ -2137,10 +2139,10 @@ class DetailSourceController extends Controller
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$kode_dokter,
                         'sumber_value'=>$data_sumber[$row['sumber']],
-                        'nilai_remunerasi'=>($umum_efek)?0.8*$nilai_remunerasi:$nilai_remunerasi,
+                        'nilai_remunerasi'=>($umum_efek)?1*$nilai_remunerasi:$nilai_remunerasi,
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ]; 
-                    $total_remunerasi += ($umum_efek)?0.8*$nilai_remunerasi:$nilai_remunerasi;        
+                    $total_remunerasi += ($umum_efek)?1*$nilai_remunerasi:$nilai_remunerasi;        
                          
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
@@ -2175,10 +2177,10 @@ class DetailSourceController extends Controller
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$dokter,
                         'sumber_value'=>($data_sumber['TOTALBANKDARAH']),
-                        'nilai_remunerasi'=>($umum_efek==1)?0.8*($persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']):$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
+                        'nilai_remunerasi'=>($umum_efek==1)?1*($persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']):$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'],
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
-                    $total_remunerasi += ($umum_efek==1)?0.8*($persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']):$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
+                    $total_remunerasi += ($umum_efek==1)?1*($persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH']):$persentase_bankdarah[$key]*$data_sumber['TOTALBANKDARAH'];  
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
                 
@@ -2206,10 +2208,10 @@ class DetailSourceController extends Controller
                         'nama_ppa'=>$nama_dokter,
                         'kode_dokter'=>@$dokter,
                         'sumber_value'=>(1/count($dokters_umum))*$data_sumber['VERIFIKASITOTAL'],
-                        'nilai_remunerasi'=>($umum_efek==1)?0.8*((1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL']):(1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL'],
+                        'nilai_remunerasi'=>($umum_efek==1)?1*((1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL']):(1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL'],
                         'remunerasi_source_id' => $data_detail_source->id_remunerasi_source
                     ];   
-                    $total_remunerasi += ($umum_efek==1)?0.8*((1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL']):(1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL'];  
+                    $total_remunerasi += ($umum_efek==1)?1*((1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL']):(1/count($dokters_umum))*$proporsi_fairness_umum_igd['value']*$data_sumber['VERIFIKASITOTAL'];  
                     $savePembagianKlaim = PembagianKlaim::create($data);
                 }
             }
@@ -2420,6 +2422,30 @@ class DetailSourceController extends Controller
                         $idxdaftar = $tpendaftaran->IDXDAFTAR;
                     }
                 }
+                if($idxdaftar){
+                      $dtpendaftaran = Tpendaftaran::where('NOMR', $nomr)
+                      ->where('IDXDAFTAR',$idxdaftar);
+                    if($dtpendaftaran->count() < 1){
+                        $datasep = $this->getApi("http://192.168.10.5/bpjs_2/cari_pasien/cari_idx2.php?q=" . $sep);
+                        $data = json_decode($datasep);
+                        if (@$data->success) {
+                            $idxdaftar = $data->data->idxdaftar;
+                            $nomr = $data->data->nomr;
+                        } elseif ($idxdaftar) {
+                            $pendaftaran = Tpendaftaran::where('IDXDAFTAR', $idxdaftar)->first();
+                            if ($pendaftaran) {
+                                $nomr = $pendaftaran->NOMR;
+                            }
+                        } else {
+                            return [
+                                'idxdaftar' => '',
+                                'nomr' => '',
+                                'idxdaftar_in' => '0'
+                            ];
+                        }
+                    }
+                }
+
 
             } else {
                 // Cek di Sepbpjs
