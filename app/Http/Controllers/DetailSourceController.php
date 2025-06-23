@@ -1329,7 +1329,7 @@ class DetailSourceController extends Controller
                
                 if($row->UNIT == 15){
                     $pisau += 1;
-                    if($data['idxdaftar_in'] == 0){
+                    if($idxdaftar_in == 0){
                         $data_operasi = Moperasi::where(['IDXDAFTAR' => $idxdaftar, 'nomr' => $nomr])->where('status', '!=', 'batal')->get();
                     }else{
                         $data_operasi = Moperasi::whereIn('IDXDAFTAR', $idxdaftar_in)->where('NOMR', $nomr)->where('status', '!=', 'batal')->get();
