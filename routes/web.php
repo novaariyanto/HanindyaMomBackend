@@ -164,4 +164,37 @@ Route::middleware('auth')->group(function () {
 
     });
 
+// Public docs (no auth)
+Route::get('/docs', function () {
+    return view('docs.swagger');
+});
+
+Route::get('/docs/openapi.yaml', function () {
+    return response()->file(resource_path('docs/openapi.yaml'));
+});
+
+// =====================
+// Admin Panel
+// =====================
+use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\UsersController as AdminUsers;
+use App\Http\Controllers\Admin\BabiesController as AdminBabies;
+use App\Http\Controllers\Admin\FeedingLogsController as AdminFeeding;
+use App\Http\Controllers\Admin\DiaperLogsController as AdminDiapers;
+use App\Http\Controllers\Admin\SleepLogsController as AdminSleep;
+use App\Http\Controllers\Admin\GrowthLogsController as AdminGrowth;
+use App\Http\Controllers\Admin\VaccineSchedulesController as AdminVaccines;
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboard::class, 'index'])->name('dashboard');
+
+    Route::resource('users', AdminUsers::class)->except(['show']);
+    Route::resource('babies', AdminBabies::class);
+    Route::resource('feeding', AdminFeeding::class)->parameters(['feeding' => 'log']);
+    Route::resource('diapers', AdminDiapers::class)->parameters(['diapers' => 'log']);
+    Route::resource('sleep', AdminSleep::class)->parameters(['sleep' => 'log']);
+    Route::resource('growth', AdminGrowth::class)->parameters(['growth' => 'log']);
+    Route::resource('vaccines', AdminVaccines::class)->parameters(['vaccines' => 'log']);
+});
+
 require __DIR__.'/auth.php';

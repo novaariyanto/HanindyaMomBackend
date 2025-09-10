@@ -1,0 +1,535 @@
+openapi: 3.0.3
+info:
+  title: HanindyaMom API v1
+  version: 1.0.0
+  description: API untuk aplikasi mobile HanindyaMom (prefix /api/v1)
+servers:
+  - url: /api/v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Sanctum
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          nullable: true
+    Baby:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        birth_date: { type: string, format: date }
+        photo: { type: string, nullable: true }
+        birth_weight: { type: number, format: float, nullable: true }
+        birth_height: { type: number, format: float, nullable: true }
+        created_at: { type: string, format: date-time, nullable: true }
+        updated_at: { type: string, format: date-time, nullable: true }
+    FeedingLog:
+      type: object
+      properties:
+        id: { type: string }
+        baby_id: { type: string }
+        type: { type: string, enum: [asi_left, asi_right, formula, pump] }
+        start_time: { type: string, format: date-time }
+        duration_minutes: { type: integer }
+        notes: { type: string, nullable: true }
+    DiaperLog:
+      type: object
+      properties:
+        id: { type: string }
+        baby_id: { type: string }
+        type: { type: string, enum: [pipis, pup, campuran] }
+        color: { type: string, nullable: true }
+        texture: { type: string, nullable: true }
+        time: { type: string, format: date-time }
+        notes: { type: string, nullable: true }
+    SleepLog:
+      type: object
+      properties:
+        id: { type: string }
+        baby_id: { type: string }
+        start_time: { type: string, format: date-time }
+        end_time: { type: string, format: date-time }
+        duration_minutes: { type: integer }
+        notes: { type: string, nullable: true }
+    GrowthLog:
+      type: object
+      properties:
+        id: { type: string }
+        baby_id: { type: string }
+        date: { type: string, format: date }
+        weight: { type: number, format: float }
+        height: { type: number, format: float }
+        head_circumference: { type: number, format: float, nullable: true }
+    VaccineSchedule:
+      type: object
+      properties:
+        id: { type: string }
+        baby_id: { type: string }
+        vaccine_name: { type: string }
+        schedule_date: { type: string, format: date }
+        status: { type: string, enum: [scheduled, done] }
+        notes: { type: string, nullable: true }
+    Settings:
+      type: object
+      properties:
+        id: { type: string }
+        timezone: { type: string }
+        unit: { type: string, enum: [ml, oz] }
+        notifications: { type: boolean }
+security:
+  - bearerAuth: []
+paths:
+  /auth/register:
+    post:
+      summary: Registrasi user baru
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, username, password]
+              properties:
+                name: { type: string }
+                username: { type: string }
+                email: { type: string, format: email, nullable: true }
+                password: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+  /auth/login:
+    post:
+      summary: Login user (email/username + password)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiResponse' }
+  /auth/logout:
+    post:
+      summary: Logout user
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/ApiResponse' } } } }
+
+  /babies:
+    get:
+      summary: Daftar bayi milik user
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Tambah bayi
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, birth_date]
+              properties:
+                name: { type: string }
+                birth_date: { type: string, format: date }
+                photo: { type: string, nullable: true }
+                birth_weight: { type: number, format: float, nullable: true }
+                birth_height: { type: number, format: float, nullable: true }
+      responses:
+        '200': { description: OK }
+  /babies/{id}:
+    get:
+      summary: Detail bayi
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update bayi
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Baby'
+      responses:
+        '200': { description: OK }
+    delete:
+      summary: Hapus bayi
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /feeding:
+    get:
+      summary: Daftar feeding logs
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: baby_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Tambah feeding log
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FeedingLog' }
+      responses:
+        '200': { description: OK }
+  /feeding/{id}:
+    get:
+      summary: Detail feeding log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update feeding log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FeedingLog' }
+      responses:
+        '200': { description: OK }
+    delete:
+      summary: Hapus feeding log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /diapers:
+    get:
+      summary: Daftar diaper logs
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: baby_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Tambah diaper log
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DiaperLog' }
+      responses:
+        '200': { description: OK }
+  /diapers/{id}:
+    get:
+      summary: Detail diaper log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update diaper log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DiaperLog' }
+      responses:
+        '200': { description: OK }
+    delete:
+      summary: Hapus diaper log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /sleep:
+    get:
+      summary: Daftar sleep logs
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: baby_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Tambah sleep log
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SleepLog' }
+      responses:
+        '200': { description: OK }
+  /sleep/{id}:
+    get:
+      summary: Detail sleep log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update sleep log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SleepLog' }
+      responses:
+        '200': { description: OK }
+    delete:
+      summary: Hapus sleep log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /growth:
+    get:
+      summary: Daftar growth logs
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: baby_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Tambah growth log
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GrowthLog' }
+      responses:
+        '200': { description: OK }
+  /growth/{id}:
+    get:
+      summary: Detail growth log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update growth log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GrowthLog' }
+      responses:
+        '200': { description: OK }
+    delete:
+      summary: Hapus growth log
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /vaccines:
+    get:
+      summary: Daftar vaccine schedules
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: baby_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Tambah vaccine schedule
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VaccineSchedule' }
+      responses:
+        '200': { description: OK }
+  /vaccines/{id}:
+    get:
+      summary: Detail vaccine schedule
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update vaccine schedule
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VaccineSchedule' }
+      responses:
+        '200': { description: OK }
+    delete:
+      summary: Hapus vaccine schedule
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /settings:
+    get:
+      summary: Ambil settings user
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update settings user
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Settings' }
+      responses:
+        '200': { description: OK }
+
+  /timeline:
+    get:
+      summary: Timeline gabungan aktivitas
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: baby_id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+
+  /dashboard:
+    get:
+      summary: Ringkasan dashboard
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: baby_id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: range
+          required: false
+          schema: { type: string, enum: [daily, weekly] }
+      responses:
+        '200': { description: OK }
+
+

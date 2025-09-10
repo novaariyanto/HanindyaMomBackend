@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Menu;
+use App\Http\Middleware\AdminMiddleware;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Support\ServiceProvider;
@@ -28,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Carbon::setLocale('id');
+
+        // Alias middleware admin (fallback if Kernel not configured)
+        app('router')->aliasMiddleware('admin', AdminMiddleware::class);
 
         // Gunakan View Composer untuk mengirim data menu ke semua view
         View::composer('*', function ($view) {
