@@ -15,7 +15,7 @@ class StoreFeedingRequest extends FormRequest
     {
         return [
             'baby_id' => ['required','string','size:36'],
-            'type' => ['required','in:asi_left,asi_right,formula,pump'],
+            'type' => ['required','string'],
             'start_time' => ['required','date'],
             'duration_minutes' => ['required','integer','min:1'],
             'notes' => ['nullable','string'],
