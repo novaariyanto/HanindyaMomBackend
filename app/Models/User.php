@@ -81,5 +81,14 @@ class User extends Authenticatable
         return $this->belongsToMany(Divisi::class, 'user_divisi', 'user_id', 'divisi_id');
     }
     
+    public function babies()
+    {
+        return $this->hasMany(BabyProfile::class, 'user_uuid', 'uuid');
+    }
+    
+    public function settingsApp()
+    {
+        return $this->hasOne(SettingsApp::class, 'user_uuid', 'uuid');
+    }
 
 }

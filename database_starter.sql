@@ -434,3 +434,99 @@ CREATE TABLE `users`  (
 INSERT INTO `users` VALUES (1, '9e9df8ba-de16-4b99-b0dc-7676ff0220c5', 'Admin', 'admin', '', '2025-02-18 01:52:46', '$2y$12$DncXVy8bmctiX5.3662FpOVX80btc2JhVtC/am7L148h3ntZbq4Ci', 'V1z8O8k95Co5hVjPY3kAnll0gUJBbHfgchmJZ5pR5SD1BSbhPelNohqvyBga', '2025-02-18 01:52:46', '2025-02-18 01:52:46', '');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+CREATE TABLE baby_profiles (
+    id CHAR(36) PRIMARY KEY,
+    user_uuid CHAR(36) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    birth_date DATE NOT NULL,
+    photo VARCHAR(255) NULL,
+    birth_weight DECIMAL(5,2) NULL,
+    birth_height DECIMAL(5,2) NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- Table: feeding_logs
+-- =========================
+CREATE TABLE feeding_logs (
+    id CHAR(36) PRIMARY KEY,
+    baby_id CHAR(36) NOT NULL,
+    type ENUM('asi_left','asi_right','formula','pump') NOT NULL,
+    start_time DATETIME NOT NULL,
+    duration_minutes INT NOT NULL,
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- Table: diaper_logs
+-- =========================
+CREATE TABLE diaper_logs (
+    id CHAR(36) PRIMARY KEY,
+    baby_id CHAR(36) NOT NULL,
+    type ENUM('pipis','pup','campuran') NOT NULL,
+    color VARCHAR(50) NULL,
+    texture VARCHAR(50) NULL,
+    time DATETIME NOT NULL,
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- Table: sleep_logs
+-- =========================
+CREATE TABLE sleep_logs (
+    id CHAR(36) PRIMARY KEY,
+    baby_id CHAR(36) NOT NULL,
+    start_time DATETIME NOT NULL,
+    end_time DATETIME NOT NULL,
+    duration_minutes INT NOT NULL,
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- Table: growth_logs
+-- =========================
+CREATE TABLE growth_logs (
+    id CHAR(36) PRIMARY KEY,
+    baby_id CHAR(36) NOT NULL,
+    date DATE NOT NULL,
+    weight DECIMAL(5,2) NOT NULL,
+    height DECIMAL(5,2) NOT NULL,
+    head_circumference DECIMAL(5,2) NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- Table: vaccine_schedules
+-- =========================
+CREATE TABLE vaccine_schedules (
+    id CHAR(36) PRIMARY KEY,
+    baby_id CHAR(36) NOT NULL,
+    vaccine_name VARCHAR(150) NOT NULL,
+    schedule_date DATE NOT NULL,
+    status ENUM('scheduled','done') DEFAULT 'scheduled',
+    notes TEXT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- Table: settings
+-- =========================
+CREATE TABLE settings_apps ( 
+    id CHAR(36) PRIMARY KEY,
+    user_uuid CHAR(36) NOT NULL,
+    timezone VARCHAR(100) NOT NULL,
+    unit ENUM('ml','oz') DEFAULT 'ml',
+    notifications BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
