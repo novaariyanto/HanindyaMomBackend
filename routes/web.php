@@ -56,10 +56,12 @@ Route::get('/wa',function(){
 
 
 Route::post('/send-otp', [DashboardController::class, 'sendOtp'])->name('send.otp');
-
-Route::get('/dashboard', function () {
-    return view('dashboard.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/', [AdminDashboard::class, 'index'])
+        ->middleware(['auth', 'verified'])
+        ->name('dashboard');
+Route::get('/dashboard', [AdminDashboard::class, 'index'])
+        ->middleware(['auth', 'verified'])
+        ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
 
@@ -176,8 +178,6 @@ Route::middleware('auth')->group(function () {
 
     
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminDashboard::class, 'index'])->name('dashboard');
-
     Route::resource('users', AdminUsers::class)
         ->except(['show'])
         ->names([
@@ -259,6 +259,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
             'update'  => 'vaccines.update',
             'destroy' => 'vaccines.destroy',
         ]);
+    
 });
 
     });

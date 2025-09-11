@@ -10,6 +10,8 @@ use App\Models\FeedingLog;
 use App\Models\GrowthLog;
 use App\Models\SleepLog;
 use App\Models\VaccineSchedule;
+use App\Models\NutritionEntry;
+use App\Models\Milestone;
 use Illuminate\Http\Request;
 
 class TimelineController extends Controller
@@ -21,45 +23,68 @@ class TimelineController extends Controller
 
         $feeding = FeedingLog::where('baby_id', $request->baby_id)->get()->map(function ($i) {
             return [
+                'id' => $i->id,
                 'type' => 'feeding',
                 'time' => optional($i->start_time)->toIso8601String(),
-                'notes' => $i->notes,
+                'notes' => "type: " . $i->type,
             ];
         });
         $diapers = DiaperLog::where('baby_id', $request->baby_id)->get()->map(function ($i) {
             return [
+                'id' => $i->id,
                 'type' => 'diaper',
                 'time' => optional($i->time)->toIso8601String(),
-                'notes' => $i->notes,
+                'notes' => "type: " . $i->type,
             ];
         });
         $sleep = SleepLog::where('baby_id', $request->baby_id)->get()->map(function ($i) {
             return [
+                'id' => $i->id,
                 'type' => 'sleep',
                 'time' => optional($i->start_time)->toIso8601String(),
-                'notes' => $i->notes,
+                'notes' => "duration: " . $i->duration_minutes . " minutes",
             ];
         });
         $growth = GrowthLog::where('baby_id', $request->baby_id)->get()->map(function ($i) {
             return [
+                'id' => $i->id,
                 'type' => 'growth',
                 'time' => optional($i->date)->toDateString(),
-                'notes' => null,
+                'notes' => "weight: " . $i->weight . " kg, height: " . $i->height . " cm",
+            ];
+        });
+        $nutrition = NutritionEntry::where('baby_id', $request->baby_id)->get()->map(function ($i) {
+            return [
+                'id' => $i->id,
+                'type' => 'nutrition',
+                'time' => optional($i->time)->toDateString(),
+                'notes' => "title: " . $i->title,
+            ];
+        });
+        $milestones = Milestone::where('baby_id', $request->baby_id)->get()->map(function ($i) {
+            return [
+                'id' => $i->id,
+                'type' => 'milestone',
+                'time' => optional($i->achieved_at)->toDateString(),
+                'notes' => $i->description."",
             ];
         });
         $vaccines = VaccineSchedule::where('baby_id', $request->baby_id)->get()->map(function ($i) {
             return [
+                'id' => $i->id,
                 'type' => 'vaccine',
                 'time' => optional($i->schedule_date)->toDateString(),
-                'notes' => $i->notes,
+                'notes' => "vaccine: " . $i->vaccine_name,
             ];
         });
-
+      
         $timeline = $feeding
             ->concat($diapers)
             ->concat($sleep)
             ->concat($growth)
             ->concat($vaccines)
+            ->concat($milestones)
+            ->concat($nutrition)
             ->sortByDesc('time')
             ->values()
             ->all();

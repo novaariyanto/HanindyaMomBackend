@@ -44,6 +44,7 @@ class UserController extends Controller
 
             return view('pages.user.create',compact('roles'));
         }
+        return abort(404);
     }
 
     public function store(Request $request)
@@ -123,9 +124,8 @@ class UserController extends Controller
         return ResponseFormatter::success($user, 'Berhasil Mengubah User');
     }
 
-    public function show($id)
+    public function show(User $user)
     {
-        $user = User::findOrFail($id);
         return view('pages.user.show', compact('user'));
     }
 

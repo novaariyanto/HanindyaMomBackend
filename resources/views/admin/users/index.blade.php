@@ -14,7 +14,7 @@
 		<div class="card-body p-0">
 			<div class="table-responsive">
 				<table class="table table-bordered table-hover mb-0" id="users-table" style="width:100%">
-					<thead class="table-light"><tr><th>Nama</th><th>Username</th><th>Email</th><th style="width:160px">Aksi</th></tr></thead>
+					<thead class="table-light"><tr><th>Foto</th><th>Nama</th><th>Username</th><th>Email</th><th style="width:160px">Aksi</th></tr></thead>
 					<tbody></tbody>
 				</table>
 			</div>
@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
             type: 'GET'
         },
         columns: [
+            { data: 'photo', name: 'photo', orderable: false, searchable: false },
             { data: 'name', name: 'name' },
             { data: 'username', name: 'username' },
             { data: 'email', name: 'email', defaultContent: '-' },

@@ -1,4 +1,4 @@
-<form method="POST" action="{{ route('admin.users.store') }}">
+<form method="POST" action="{{ route('admin.users.store') }}" enctype="multipart/form-data">
 	@csrf
 	<div class="row g-3">
 		<div class="col-md-6">
@@ -16,6 +16,10 @@
 		<div class="col-md-6">
 			<label class="form-label">Password</label>
 			<input type="password" name="password" class="form-control" required>
+		</div>
+		<div class="col-md-6">
+			<label class="form-label">Foto (opsional)</label>
+			<input type="file" name="photo_file" accept="image/*" class="form-control">
 		</div>
 		<div class="col-12">
 			<div class="form-check">

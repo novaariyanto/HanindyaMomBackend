@@ -424,9 +424,11 @@ CREATE TABLE `users`  (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `photo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `users_username_unique`(`username`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 50 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+
 
 -- ----------------------------
 -- Records of users
@@ -529,4 +531,26 @@ CREATE TABLE settings_apps (
     notifications BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE milestones (
+    id CHAR(36) PRIMARY KEY,           -- UUID unik
+    baby_id CHAR(36) NOT NULL,         -- ID bayi (relasi ke tabel babies)
+    month INT NOT NULL,                -- usia target dalam bulan
+    title VARCHAR(255) NOT NULL,       -- judul milestone
+    description TEXT NOT NULL,         -- deskripsi milestone
+    achieved BOOLEAN DEFAULT FALSE,    -- status sudah tercapai atau belum
+    achieved_at DATETIME NULL,         -- kapan milestone tercapai (opsional)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE TABLE nutrition_entries (
+    id CHAR(36) PRIMARY KEY,         -- UUID / string ID unik
+    baby_id CHAR(36) NOT NULL,       -- ID bayi (relasi ke tabel bayi)
+    time DATETIME NOT NULL,
+    title VARCHAR(255) NOT NULL,     -- nama menu
+    photo_path VARCHAR(255) NULL,    -- path foto
+    notes TEXT NULL,                 -- catatan tambahan
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

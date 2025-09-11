@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FaceController;
 use App\Http\Controllers\Api\JadwalAbsensiController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\Api\PegawaiStrukturalApiController;
 use App\Http\Controllers\Api\PegawaiJasaTidakLangsungApiController;
@@ -21,6 +22,8 @@ use App\Http\Controllers\Api\V1\DiaperController as V1DiaperController;
 use App\Http\Controllers\Api\V1\SleepController as V1SleepController;
 use App\Http\Controllers\Api\V1\GrowthController as V1GrowthController;
 use App\Http\Controllers\Api\V1\VaccineController as V1VaccineController;
+use App\Http\Controllers\Api\V1\MilestoneController as V1MilestoneController;
+use App\Http\Controllers\Api\V1\NutritionController as V1NutritionController;
 use App\Http\Controllers\Api\V1\SettingsController as V1SettingsController;
 use App\Http\Controllers\Api\V1\TimelineController as V1TimelineController;
 use App\Http\Controllers\Api\V1\DashboardController as V1DashboardController;
@@ -33,6 +36,8 @@ Route::post('verify-otp', [AuthController::class, 'verifyOTP']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
+   
+
     Route::get('/profile', [ProfileController::class, 'profile']);
     Route::get('/history', [JadwalAbsensiController::class, 'historyAbsen']);
 
@@ -93,6 +98,10 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/auth/logout', [V1AuthController::class, 'logout']);
 
+         // User Profile (Frontend expects /me)
+        Route::get('/me', [MeController::class, 'show']);
+        Route::put('/me', [MeController::class, 'update']);
+
         // Babies
         Route::get('/babies', [V1BabyController::class, 'index']);
         Route::post('/babies', [V1BabyController::class, 'store']);
@@ -134,6 +143,20 @@ Route::prefix('v1')->group(function () {
         Route::get('/vaccines/{id}', [V1VaccineController::class, 'show']);
         Route::put('/vaccines/{id}', [V1VaccineController::class, 'update']);
         Route::delete('/vaccines/{id}', [V1VaccineController::class, 'destroy']);
+
+        // Milestones
+        Route::get('/milestones', [V1MilestoneController::class, 'index']);
+        Route::post('/milestones', [V1MilestoneController::class, 'store']);
+        Route::get('/milestones/{id}', [V1MilestoneController::class, 'show']);
+        Route::put('/milestones/{id}', [V1MilestoneController::class, 'update']);
+        Route::delete('/milestones/{id}', [V1MilestoneController::class, 'destroy']);
+
+        // Nutrition
+        Route::get('/nutrition', [V1NutritionController::class, 'index']);
+        Route::post('/nutrition', [V1NutritionController::class, 'store']);
+        Route::get('/nutrition/{id}', [V1NutritionController::class, 'show']);
+        Route::put('/nutrition/{id}', [V1NutritionController::class, 'update']);
+        Route::delete('/nutrition/{id}', [V1NutritionController::class, 'destroy']);
 
         // Settings
         Route::get('/settings', [V1SettingsController::class, 'show']);

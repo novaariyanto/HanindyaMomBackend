@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Helpers\ResponseFormatter;
 use App\Models\User;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -18,12 +19,16 @@ class UsersController extends Controller
             $query = User::query();
 
             return DataTables::eloquent($query)
+                ->addColumn('photo', function (User $user) {
+                    $src = $user->photo ? asset($user->photo) : asset('imgs/user-default.png');
+                    return '<img src="' . e($src) . '" alt="photo" class="rounded-circle" width="36" height="36" />';
+                })
                 ->addColumn('action', function (User $user) {
                     return '
-                        <a href="#" data-url="' . route('admin.users.edit', $user->id) . '" class="btn btn-warning btn-sm btnn-create"><i class="ti ti-pencil"></i></a>
-                        <button class="btn btn-danger btn-sm btnn-delete" data-url="' . route('admin.users.destroy', $user->id) . '"><i class="ti ti-trash"></i></button>';
+                        <a href="#" data-url="' . route('admin.users.edit', $user->uuid) . '" class="btn btn-warning btn-sm btnn-create"><i class="ti ti-pencil"></i></a>
+                        <button class="btn btn-danger btn-sm btnn-delete" data-url="' . route('admin.users.destroy', $user->uuid) . '"><i class="ti ti-trash"></i></button>';
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action','photo'])
                 ->toJson();
         }
 
@@ -48,6 +53,7 @@ class UsersController extends Controller
             'email' => ['nullable','email','max:255'],
             'password' => ['required','string','min:6'],
             'role' => ['nullable','in:admin'],
+            'photo_file' => ['nullable','image','max:2048'],
         ]);
 
         if ($validator->fails()) {
@@ -63,6 +69,19 @@ class UsersController extends Controller
         ]);
         if (($data['role'] ?? null) === 'admin') {
             $user->syncRoles(['admin']);
+        }
+
+        if ($request->hasFile('photo_file')) {
+            $file = $request->file('photo_file');
+            $filename = 'user_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $dest = public_path('uploads/users');
+            if (!is_dir($dest)) {
+                @mkdir($dest, 0775, true);
+            }
+            $file->move($dest, $filename);
+            $path = 'uploads/users/' . $filename;
+            $user->photo = $path;
+            $user->save();
         }
 
         return ResponseFormatter::success($user, 'Berhasil Menyimpan Data');
@@ -84,6 +103,7 @@ class UsersController extends Controller
             'email' => ['nullable','email','max:255'],
             'password' => ['nullable','string','min:6'],
             'role' => ['nullable','in:admin'],
+            'photo_file' => ['nullable','image','max:2048'],
         ]);
 
         if ($validator->fails()) {
@@ -101,6 +121,19 @@ class UsersController extends Controller
             return ResponseFormatter::error(null, 'Gagal Mengubah Data', 500);
         }
         $user->syncRoles(($data['role'] ?? null) === 'admin' ? ['admin'] : []);
+
+        if ($request->hasFile('photo_file')) {
+            $file = $request->file('photo_file');
+            $filename = 'user_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $dest = public_path('uploads/users');
+            if (!is_dir($dest)) {
+                @mkdir($dest, 0775, true);
+            }
+            $file->move($dest, $filename);
+            $path = 'uploads/users/' . $filename;
+            $user->photo = $path;
+            $user->save();
+        }
 
         return ResponseFormatter::success($user, 'Berhasil Mengubah Data');
     }
