@@ -49,7 +49,7 @@ class TimelineController extends Controller
             return [
                 'id' => $i->id,
                 'type' => 'growth',
-                'time' => optional($i->date)->toDateString(),
+                'time' => optional($i->date)->toIso8601String(),
                 'notes' => "weight: " . $i->weight . " kg, height: " . $i->height . " cm",
             ];
         });
@@ -57,15 +57,15 @@ class TimelineController extends Controller
             return [
                 'id' => $i->id,
                 'type' => 'nutrition',
-                'time' => optional($i->time)->toDateString(),
-                'notes' => "title: " . $i->title,
+                'time' => optional($i->time)->toIso8601String(),
+                'notes' => "title: " . $i->title ." , notes: " . $i->notes,
             ];
         });
         $milestones = Milestone::where('baby_id', $request->baby_id)->get()->map(function ($i) {
             return [
                 'id' => $i->id,
                 'type' => 'milestone',
-                'time' => optional($i->achieved_at)->toDateString(),
+                'time' => optional($i->achieved_at)->toIso8601String(),
                 'notes' => $i->description."",
             ];
         });
@@ -73,8 +73,8 @@ class TimelineController extends Controller
             return [
                 'id' => $i->id,
                 'type' => 'vaccine',
-                'time' => optional($i->schedule_date)->toDateString(),
-                'notes' => "vaccine: " . $i->vaccine_name,
+                'time' => optional($i->schedule_date)->toIso8601String(),
+                'notes' => "" . $i->vaccine_name,
             ];
         });
       
