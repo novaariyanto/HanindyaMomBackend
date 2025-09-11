@@ -33,10 +33,6 @@
 						</div>
 					</div>
 				</div>
-				<div class="mt-3">
-					<button type="submit" class="btn btn-primary">Simpan</button>
-					<a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">Batal</a>
-				</div>
 			</form>
 		</div>
 	</div>

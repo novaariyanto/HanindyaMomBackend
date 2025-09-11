@@ -3,32 +3,58 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\ResponseFormatter;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 class UsersController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderByDesc('created_at')->paginate(20);
-        return view('admin.users.index', compact('users'));
+        if ($request->ajax()) {
+            $query = User::query();
+
+            return DataTables::eloquent($query)
+                ->addColumn('action', function (User $user) {
+                    return '
+                        <a href="#" data-url="' . route('admin.users.edit', $user->id) . '" class="btn btn-warning btn-sm btnn-create"><i class="ti ti-pencil"></i></a>
+                        <button class="btn btn-danger btn-sm btnn-delete" data-url="' . route('admin.users.destroy', $user->id) . '"><i class="ti ti-trash"></i></button>';
+                })
+                ->rawColumns(['action'])
+                ->toJson();
+        }
+
+        $title = 'Users';
+        $slug = 'users';
+        return view('admin.users.index', compact('slug', 'title'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('admin.users.create');
+        if ($request->ajax()) {
+            return view('admin.users.create');
+        }
+        return abort(404);
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => ['required','string','max:255'],
             'username' => ['required','string','max:255','unique:users,username'],
             'email' => ['nullable','email','max:255'],
             'password' => ['required','string','min:6'],
             'role' => ['nullable','in:admin'],
         ]);
+
+        if ($validator->fails()) {
+            return ResponseFormatter::error($validator->errors(), 'Gagal Menyimpan Data: ' . $validator->errors()->first(), 422);
+        }
+
+        $data = $validator->validated();
         $user = User::create([
             'name' => $data['name'],
             'username' => $data['username'],
@@ -38,17 +64,21 @@ class UsersController extends Controller
         if (($data['role'] ?? null) === 'admin') {
             $user->syncRoles(['admin']);
         }
-        return redirect()->route('admin.users.index')->with('success','User dibuat');
+
+        return ResponseFormatter::success($user, 'Berhasil Menyimpan Data');
     }
 
-    public function edit(User $user)
+    public function edit(User $user, Request $request)
     {
-        return view('admin.users.edit', compact('user'));
+        if ($request->ajax()) {
+            return view('admin.users.edit', compact('user'));
+        }
+        return abort(404);
     }
 
     public function update(Request $request, User $user)
     {
-        $data = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => ['required','string','max:255'],
             'username' => ['required','string','max:255','unique:users,username,'.$user->id],
             'email' => ['nullable','email','max:255'],
@@ -56,22 +86,32 @@ class UsersController extends Controller
             'role' => ['nullable','in:admin'],
         ]);
 
+        if ($validator->fails()) {
+            return ResponseFormatter::error($validator->errors(), 'Gagal Mengubah Data', 422);
+        }
+
+        $data = $validator->validated();
         $user->name = $data['name'];
         $user->username = $data['username'];
         $user->email = $data['email'] ?? null;
         if (!empty($data['password'])) {
             $user->password = Hash::make($data['password']);
         }
-        $user->save();
+        if (!$user->save()) {
+            return ResponseFormatter::error(null, 'Gagal Mengubah Data', 500);
+        }
         $user->syncRoles(($data['role'] ?? null) === 'admin' ? ['admin'] : []);
 
-        return redirect()->route('admin.users.index')->with('success','User diperbarui');
+        return ResponseFormatter::success($user, 'Berhasil Mengubah Data');
     }
 
     public function destroy(User $user)
     {
-        $user->delete();
-        return redirect()->route('admin.users.index')->with('success','User dihapus');
+        if (!$user->delete()) {
+            return ResponseFormatter::error([], 'Data gagal dihapus', 500);
+        }
+
+        return ResponseFormatter::success([], 'Data berhasil dihapus');
     }
 }
 

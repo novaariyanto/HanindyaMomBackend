@@ -22,6 +22,18 @@ use App\Http\Controllers\SettingRadiusController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+// =====================
+// Admin Panel
+// =====================
+use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\UsersController as AdminUsers;
+use App\Http\Controllers\Admin\BabiesController as AdminBabies;
+use App\Http\Controllers\Admin\FeedingLogsController as AdminFeeding;
+use App\Http\Controllers\Admin\DiaperLogsController as AdminDiapers;
+use App\Http\Controllers\Admin\SleepLogsController as AdminSleep;
+use App\Http\Controllers\Admin\GrowthLogsController as AdminGrowth;
+use App\Http\Controllers\Admin\VaccineSchedulesController as AdminVaccines;
+
 
 Route::get('/faces/{filename}', function ($filename) {
     $path = storage_path('app/public/faces/' . $filename);
@@ -162,6 +174,93 @@ Route::middleware('auth')->group(function () {
     Route::put('grade/{id}', [GradeController::class, 'update'])->name('grade.update');
     Route::delete('grade/{id}', [GradeController::class, 'destroy'])->name('grade.destroy');
 
+    
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminDashboard::class, 'index'])->name('dashboard');
+
+    Route::resource('users', AdminUsers::class)
+        ->except(['show'])
+        ->names([
+            'index'   => 'users.index',
+            'create'  => 'users.create',
+            'store'   => 'users.store',
+            'edit'    => 'users.edit',
+            'update'  => 'users.update',
+            'destroy' => 'users.destroy',
+        ]);
+
+    Route::resource('babies', AdminBabies::class)
+        ->names([
+            'index'   => 'babies.index',
+            'create'  => 'babies.create',
+            'store'   => 'babies.store',
+            'show'    => 'babies.show',
+            'edit'    => 'babies.edit',
+            'update'  => 'babies.update',
+            'destroy' => 'babies.destroy',
+        ]);
+
+    Route::resource('feeding', AdminFeeding::class)
+        ->parameters(['feeding' => 'log'])
+        ->names([
+            'index'   => 'feeding.index',
+            'create'  => 'feeding.create',
+            'store'   => 'feeding.store',
+            'show'    => 'feeding.show',
+            'edit'    => 'feeding.edit',
+            'update'  => 'feeding.update',
+            'destroy' => 'feeding.destroy',
+        ]);
+
+    Route::resource('diapers', AdminDiapers::class)
+        ->parameters(['diapers' => 'log'])
+        ->names([
+            'index'   => 'diapers.index',
+            'create'  => 'diapers.create',
+            'store'   => 'diapers.store',
+            'show'    => 'diapers.show',
+            'edit'    => 'diapers.edit',
+            'update'  => 'diapers.update',
+            'destroy' => 'diapers.destroy',
+        ]);
+
+    Route::resource('sleep', AdminSleep::class)
+        ->parameters(['sleep' => 'log'])
+        ->names([
+            'index'   => 'sleep.index',
+            'create'  => 'sleep.create',
+            'store'   => 'sleep.store',
+            'show'    => 'sleep.show',
+            'edit'    => 'sleep.edit',
+            'update'  => 'sleep.update',
+            'destroy' => 'sleep.destroy',
+        ]);
+
+    Route::resource('growth', AdminGrowth::class)
+        ->parameters(['growth' => 'log'])
+        ->names([
+            'index'   => 'growth.index',
+            'create'  => 'growth.create',
+            'store'   => 'growth.store',
+            'show'    => 'growth.show',
+            'edit'    => 'growth.edit',
+            'update'  => 'growth.update',
+            'destroy' => 'growth.destroy',
+        ]);
+
+    Route::resource('vaccines', AdminVaccines::class)
+        ->parameters(['vaccines' => 'log'])
+        ->names([
+            'index'   => 'vaccines.index',
+            'create'  => 'vaccines.create',
+            'store'   => 'vaccines.store',
+            'show'    => 'vaccines.show',
+            'edit'    => 'vaccines.edit',
+            'update'  => 'vaccines.update',
+            'destroy' => 'vaccines.destroy',
+        ]);
+});
+
     });
 
 // Public docs (no auth)
@@ -173,28 +272,6 @@ Route::get('/docs/openapi.yaml', function () {
     return response()->file(resource_path('docs/openapi.yaml'));
 });
 
-// =====================
-// Admin Panel
-// =====================
-use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
-use App\Http\Controllers\Admin\UsersController as AdminUsers;
-use App\Http\Controllers\Admin\BabiesController as AdminBabies;
-use App\Http\Controllers\Admin\FeedingLogsController as AdminFeeding;
-use App\Http\Controllers\Admin\DiaperLogsController as AdminDiapers;
-use App\Http\Controllers\Admin\SleepLogsController as AdminSleep;
-use App\Http\Controllers\Admin\GrowthLogsController as AdminGrowth;
-use App\Http\Controllers\Admin\VaccineSchedulesController as AdminVaccines;
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminDashboard::class, 'index'])->name('dashboard');
-
-    Route::resource('users', AdminUsers::class)->except(['show']);
-    Route::resource('babies', AdminBabies::class);
-    Route::resource('feeding', AdminFeeding::class)->parameters(['feeding' => 'log']);
-    Route::resource('diapers', AdminDiapers::class)->parameters(['diapers' => 'log']);
-    Route::resource('sleep', AdminSleep::class)->parameters(['sleep' => 'log']);
-    Route::resource('growth', AdminGrowth::class)->parameters(['growth' => 'log']);
-    Route::resource('vaccines', AdminVaccines::class)->parameters(['vaccines' => 'log']);
-});
 
 require __DIR__.'/auth.php';

@@ -28,20 +28,16 @@
 					</div>
 					<div class="col-md-6">
 						<label class="form-label">Start Time</label>
-						<input type="datetime-local" name="start_time" class="form-control" value="{{ $log->start_time->format('Y-m-d\TH:i') }}" required>
+						<input type="datetime-local" name="start_time" value="{{ $log->start_time->format('Y-m-d\\TH:i') }}" class="form-control" required>
 					</div>
 					<div class="col-md-6">
 						<label class="form-label">Durasi (menit)</label>
-						<input type="number" name="duration_minutes" class="form-control" value="{{ $log->duration_minutes }}" required min="1">
+						<input type="number" name="duration_minutes" class="form-control" min="1" value="{{ $log->duration_minutes }}" required>
 					</div>
 					<div class="col-12">
 						<label class="form-label">Catatan</label>
 						<textarea name="notes" class="form-control">{{ $log->notes }}</textarea>
 					</div>
-				</div>
-				<div class="mt-3">
-					<button type="submit" class="btn btn-primary">Simpan</button>
-					<a href="{{ route('admin.feeding.index') }}" class="btn btn-outline-secondary">Batal</a>
 				</div>
 			</form>
 		</div>
