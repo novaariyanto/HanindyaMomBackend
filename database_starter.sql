@@ -433,7 +433,7 @@ CREATE TABLE `users`  (
 -- ----------------------------
 -- Records of users
 -- ----------------------------
-INSERT INTO `users` VALUES (1, '9e9df8ba-de16-4b99-b0dc-7676ff0220c5', 'Admin', 'admin', '', '2025-02-18 01:52:46', '$2y$12$DncXVy8bmctiX5.3662FpOVX80btc2JhVtC/am7L148h3ntZbq4Ci', 'V1z8O8k95Co5hVjPY3kAnll0gUJBbHfgchmJZ5pR5SD1BSbhPelNohqvyBga', '2025-02-18 01:52:46', '2025-02-18 01:52:46', '');
+INSERT INTO `users` VALUES (1, '9e9df8ba-de16-4b99-b0dc-7676ff0220c5', 'Admin', 'admin', '', '2025-02-18 01:52:46', '$2y$12$DncXVy8bmctiX5.3662FpOVX80btc2JhVtC/am7L148h3ntZbq4Ci', 'V1z8O8k95Co5hVjPY3kAnll0gUJBbHfgchmJZ5pR5SD1BSbhPelNohqvyBga', '2025-02-18 01:52:46', '2025-02-18 01:52:46', '','');
 
 SET FOREIGN_KEY_CHECKS = 1;
 
